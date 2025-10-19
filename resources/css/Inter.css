@@ -1,0 +1,117 @@
+/* === TT Interphases Pro Font Utilities === */
+/* Base font family */
+.interphases {
+    font-family: "TT Interphases Pro Trial", sans-serif;
+    font-optical-sizing: auto;
+  }
+  
+  /* Weights — normal styles */
+  .inter-thin {
+    font-family: "TT Interphases Pro Trial Thin", sans-serif;
+    font-weight: 100;
+    font-style: normal;
+  }
+  
+  .inter-extralight {
+    font-family: "TT Interphases Pro Trial ExtraLight", sans-serif;
+    font-weight: 200;
+    font-style: normal;
+  }
+  
+  .inter-light {
+    font-family: "TT Interphases Pro Trial Light", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+  }
+  
+  .inter-regular {
+    font-family: "TT Interphases Pro Trial Regular", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+  .inter-medium {
+    font-family: "TT Interphases Pro Trial Medium", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+  }
+  
+  .inter-demibold {
+    font-family: "TT Interphases Pro Trial DemiBold", sans-serif;
+    font-weight: 600;
+    font-style: normal;
+  }
+  
+  .inter-bold {
+    font-family: "TT Interphases Pro Trial Bold", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+  }
+  
+  .inter-extrabold {
+    font-family: "TT Interphases Pro Trial ExtraBold", sans-serif;
+    font-weight: 800;
+    font-style: normal;
+  }
+  
+  .inter-black {
+    font-family: "TT Interphases Pro Trial Black", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+  }
+  
+  /* === Italic styles === */
+  .inter-thin-italic {
+    font-family: "TT Interphases Pro Trial Thin Italic", sans-serif;
+    font-weight: 100;
+    font-style: italic;
+  }
+  
+  .inter-extralight-italic {
+    font-family: "TT Interphases Pro Trial ExtraLight Italic", sans-serif;
+    font-weight: 200;
+    font-style: italic;
+  }
+  
+  .inter-light-italic {
+    font-family: "TT Interphases Pro Trial Light Italic", sans-serif;
+    font-weight: 300;
+    font-style: italic;
+  }
+  
+  .inter-italic {
+    font-family: "TT Interphases Pro Trial Italic", sans-serif;
+    font-weight: 400;
+    font-style: italic;
+  }
+  
+  .inter-medium-italic {
+    font-family: "TT Interphases Pro Trial Medium Italic", sans-serif;
+    font-weight: 500;
+    font-style: italic;
+  }
+  
+  .inter-demibold-italic {
+    font-family: "TT Interphases Pro Trial DemiBold Italic", sans-serif;
+    font-weight: 600;
+    font-style: italic;
+  }
+  
+  .inter-bold-italic {
+    font-family: "TT Interphases Pro Trial Bold Italic", sans-serif;
+    font-weight: 700;
+    font-style: italic;
+  }
+  
+  .inter-extrabold-italic {
+    font-family: "TT Interphases Pro Trial ExtraBold Italic", sans-serif;
+    font-weight: 800;
+    font-style: italic;
+  }
+  
+  .inter-black-italic {
+    font-family: "TT Interphases Pro Trial Black Italic", sans-serif;
+    font-weight: 900;
+    font-style: italic;
+  }
+  
