@@ -21,7 +21,7 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
-            // Role-based redirect happens *right here*
+            
             if ($user->role === 'admin') {
                 return redirect('/homeAdmin');
             } elseif (in_array($user->role, ['faculty', 'student'])) {

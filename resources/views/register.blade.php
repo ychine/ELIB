@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - ISU StudyGo</title>
+  <title>Register - ISU StudyGo</title>
   <link rel="icon" href="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,12 +59,12 @@
         <div class="w-full max-w-md sm:max-w-lg lg:max-w-xl">
           <div class="mb-4 sm:mb-6 text-left">
             <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight flex items-center gap-2">
-              <span>Login to</span>
+              <span>Register to</span>
               <span class="text-green-700">
-                <img src="{{ Vite::asset('resources/images/ISUStudyGo.svg') }}" alt="ISUStudyGo Logo" class="inline-block  h-8 sm:h-10 lg:h-12 w-auto" />
+                <img src="{{ Vite::asset('resources/images/ISUStudyGo.svg') }}" alt="ISUStudyGo Logo" class="inline-block pl-2  h-8 sm:h-10 lg:h-12 w-auto" />
               </span>
             </h1>
-            <p class="text-gray-600 mt-2 text-sm sm:text-base">Login using your email and password.</p>
+            <p class="text-gray-600 mt-2 text-sm sm:text-base">Register no functionality yet</p>
           </div>
 
           @if($errors->any())
@@ -98,9 +98,9 @@
                 class="w-full bg-green-800 text-white py-3 sm:py-4 rounded-md hover:bg-green-900 transition text-sm sm:text-base">Login</button>
       </form>
 
-      @if (Route::has('register'))
-        <p class="text-center text-gray-600 mt-4 sm:mt-6 text-sm sm:text-base">No account yet?
-          <a href="{{ route('register') }}" class="text-green-700 font-semibold hover:underline">Register here!</a>
+      @if (Route::has('login'))
+        <p class="text-center text-gray-600 mt-4 sm:mt-6 text-sm sm:text-base">Already have an account?
+          <a href="{{ route('login') }}" class="text-green-700 font-semibold hover:underline">Click here.</a>
         </p>
       @endif
     </div>

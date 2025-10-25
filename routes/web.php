@@ -57,3 +57,7 @@ Route::middleware('auth')->group(function () {
         return view('homeUser');
     })->name('home.user');
 });
+
+Route::get('/register', function () {
+    return view('register');
+})->name('register');
