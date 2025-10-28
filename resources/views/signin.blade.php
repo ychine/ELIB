@@ -7,11 +7,11 @@
   <link rel="icon" href="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
   @vite('resources/css/app.css')
   @vite('resources/css/kulimpark.css')  
   @vite('resources/css/Inter.css')
-
+  @vite('resources/css/kantumruypro.css')
   <style>
     .parent {
       min-height: 100vh; 
@@ -23,7 +23,7 @@
     <img 
         src="{{ Vite::asset('resources/images/ISUStudyGoBorder.svg') }}" 
         alt="ISUStudyGo Logo" 
-        class="absolute left-1/2 -translate-x-1/2 top-10  lg:w-[5%] z-10" 
+        class="absolute   left-1/2 -translate-x-1/2 top-10  lg:w-[5%] z-10" 
     >
     <span class="absolute top-1/2 left-1/2 w-[70vw] h-[30vw] -translate-x-1/2 -translate-y-1/2 bg-[#63F068] rounded-full blur-[50vw]"></span>
     
@@ -64,7 +64,7 @@
                 <img src="{{ Vite::asset('resources/images/ISUStudyGo.svg') }}" alt="ISUStudyGo Logo" class="inline-block  h-8 sm:h-10 lg:h-12 w-auto" />
               </span>
             </h1>
-            <p class="text-gray-600 mt-2 text-sm sm:text-base">Login using your email and password.</p>
+            <p class="text-gray-600 mt-2 kantumruy-pro-regular tracking-tight text-sm sm:text-base">Login using your email and password.</p>
           </div>
 
           @if($errors->any())
@@ -76,21 +76,21 @@
       <form method="POST" action="/signin" class="space-y-4 sm:space-y-6">
         @csrf
         <div>
-          <label class="block text-sm sm:text-base font-semibold mb-2">Email</label>
-          <div class="border-b-2 border-gray-300 focus-within:border-green-700 rounded-sm">
+          <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Email</label>
+          <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg">
             <input type="email" name="email" required placeholder="Enter your email"
-                   class="w-full px-3 py-3 sm:py-4 outline-none bg-gray-100 rounded-md focus:bg-white text-sm sm:text-base">
+                   class="w-full px-3 py-1 sm:py-3 outline-none bg-[#D9D9D9] rounded-lg focus:bg-white text-sm sm:text-base">
           </div>
         </div>
 
         <div>
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2 sm:gap-0">
-            <label class="block text-sm sm:text-base font-semibold">Password</label>
+            <label class="block text-sm sm:text-base kantumruy-pro-bold  font-semibold">Password</label>
             <a href="#" class="text-green-700 text-xs sm:text-sm hover:underline">Forgot password?</a>
           </div>
-          <div class="border-b-2 border-gray-300 focus-within:border-green-700 rounded-sm">
+          <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg">
             <input type="password" name="password" required placeholder="Enter your password"
-                   class="w-full px-3 py-3 sm:py-4 outline-none bg-gray-100 rounded-md focus:bg-white text-sm sm:text-base">
+                   class="w-full px-2 py-1 sm:py-3 outline-none bg-[#D9D9D9] rounded-lg focus:bg-white text-sm sm:text-base">
           </div>
         </div>
 
@@ -99,8 +99,8 @@
       </form>
 
       @if (Route::has('register'))
-        <p class="text-center text-gray-600 mt-4 sm:mt-6 text-sm sm:text-base">No account yet?
-          <a href="{{ route('register') }}" class="text-green-700 font-semibold hover:underline">Register here!</a>
+        <p class="text-center kantumruy-pro-regular tracking-tight  text-gray-600 mt-4 sm:mt-6 text-sm sm:text-base">No account yet?
+          <a href="{{ route('register') }}" class="kantumruy-pro-regular tracking-tight  text-green-700 font-semibold hover:underline">Register here!</a>
         </p>
       @endif
     </div>

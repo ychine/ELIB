@@ -9,10 +9,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
   @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/Inter.css', 'resources/css/kulimpark.css'])
 
-  <title>Admin Dashboard | ISU StudyGo</title>
+  <title>Librarian Dashboard | ISU StudyGo</title>
 
   <style>
-    /* Sidebar transition and width */
+    /* Existing Sidebar Styles */
     .sidebar {
       width: 4rem;
       transition: all 0.3s cubic-bezier(0.215, 0.610, 0.355, 1);
@@ -142,6 +142,107 @@
       color: #000; 
       transition: all 0.3s ease;
     }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      /* Hide the vertical sidebar on small screens */
+      .sidebar {
+        display: none;
+      }
+
+      /* Create bottom navigation bar */
+      .bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 4rem;
+        background: #149637;
+        z-index: 20;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Style for bottom nav items */
+      .bottom-nav .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        height: 100%;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      .bottom-nav .nav-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .bottom-nav .nav-item img {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+
+      .bottom-nav .nav-item span {
+        color: white;
+        font-size: 0.75rem;
+        font-family: 'Kulim Park', sans-serif;
+        margin-top: 0.25rem;
+      }
+
+      /* Adjust main content to avoid overlap with bottom nav */
+      .main-content {
+        padding-bottom: 4.5rem; /* Space for bottom nav */
+      }
+
+      /* Adjust top navigation for small screens */
+      .glass-nav {
+        padding: 0.5rem 1rem;
+      }
+
+      .glass-nav .searchbar {
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .glass-nav .text-md {
+        display: none; /* Hide profile text on small screens */
+      }
+
+      /* Adjust hero text for small screens */
+      .herotext h1 {
+        font-size: 2rem;
+        line-height: 1.2;
+        transform: translateY(50%);
+        margin-left: 1rem;
+      }
+
+      .homediv {
+        margin: 1rem;
+        margin-left: 1rem;
+      }
+
+      .homediv p {
+        margin: 1rem;
+        line-height: 1.5;
+      }
+    }
+
+    /* Ensure sidebar is visible and bottom nav is hidden on larger screens */
+    @media (min-width: 769px) {
+      .bottom-nav {
+        display: none;
+      }
+      .sidebar {
+        display: block;
+      }
+    }
   </style>
 </head>
 <body class="bg-yellow-50">
@@ -178,11 +279,11 @@
         />
         <div class="w-full h-12 bg-green-500 rounded-xl flex items-center gap-3 cursor-pointer">
           <img 
-            src="{{ Vite::asset('resources/images/DashboardToggled.png') }}" 
+            src="{{ Vite::asset('resources/images/Home.png') }}" 
             alt="Library" 
             class="w-7 h-7 sidebar-icons"
           />
-          <span class="label kulim-park-regular text-lg">Dashboard</span>
+          <span class="label kulim-park-regular text-lg">Home</span>
         </div>
         <div class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer">
           <img 
@@ -218,80 +319,60 @@
       </div>
     </div>
 
-    <div class="flex bg-gray-200 flex-col flex-1 transition-all duration-300 main-content">
+    <!-- Bottom Navigation for Small Screens -->
+    <div class="bottom-nav">
+      <div class="nav-item">
+        <img src="{{ Vite::asset('resources/images/Home.png') }}" alt="Home" />
+        <span>Home</span>
+      </div>
+      <div class="nav-item">
+        <img src="{{ Vite::asset('resources/images/Featured.png') }}" alt="Featured" />
+        <span>Featured</span>
+      </div>
+      <div class="nav-item">
+        <img src="{{ Vite::asset('resources/images/Member.png') }}" alt="Community Uploads" />
+        <span>Community</span>
+      </div>
+      <div class="nav-item">
+        <img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Your Shelf" />
+        <span>Shelf</span>
+      </div>
+      <form method="POST" action="{{ route('logout') }}" class="nav-item">
+        @csrf
+        <button type="submit" class="flex flex-col items-center justify-center w-full h-full bg-transparent border-none">
+          <i class="fa-solid fa-sign-out-alt text-xl text-white"></i>
+          <span>Logout</span>
+        </button>
+      </form>
+    </div>
+
+    <div class="flex flex-col flex-1 transition-all duration-300 main-content">
       <!-- Container for the hero section -->
       <div class="hero-container relative w-full greenhue z-1">
+        <!-- Hero text -->
         <img 
           src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" 
           alt="Library" 
-          class="w-full h-50 z-[-1] object-cover absolute"
+          class="w-full h-70 z-[-1] object-cover absolute"
           style="object-position: 70% middle;"
         />
-        <div class="herotext h-50 ml-30 flex relative z-2">
+        <div class="herotext h-70 ml-30 flex relative z-2">
           <div class="column">
-            <h1 style="transform: translateY(50%); line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 45px; text-shadow: 0 4px 4px #000; color: #FFF;">
+            <h1 style="transform: translateY(90%); line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 45px; text-shadow: 0 4px 4px #000; color: #FFF;">
               Bridging knowledge <br>
               from one campus <br>
               to another
             </h1>
           </div>
         </div>
-        <div class="homediv lg:mx-[10%] mt-5 rounded-md">
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight mb-4">Dashboard</h2>
-        </div>
-        <div class="homediv lg:mx-[10%] rounded-2xl bg-white  shadow-lg p-6">
-          <h2 class="text-1xl sm:text-2xl lg:text-3xl font-extrabold kulim-park-bold tracking-tight mb-6">Pending User Approvals</h2>
-
-          @if(session('status'))
-            <div class="bg-green-100 text-green-700 p-3 rounded mb-4 text-sm">
-              {{ session('status') }}
-            </div>
-          @endif
-
-          @if($users->isEmpty())
-            <p class="text-gray-600">No pending approvals.</p>
-          @else
-            <table class="w-full bg-white shadow rounded-lg">
-              <thead>
-                <tr class="bg-gray-200">
-                  <th class="p-3 text-left">Name</th>
-                  <th class="p-3 text-left">Email</th>
-                  <th class="p-3 text-left">Role</th>
-                  <th class="p-3 text-left">Campus</th>
-                  <th class="p-3 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach($users as $user)
-                  <tr>
-                    <td class="p-3">
-                      @if($user->faculty)
-                        {{ $user->faculty->First_Name }} {{ $user->faculty->Last_Name }}
-                      @elseif($user->librarian)
-                        {{ $user->librarian->First_Name }} {{ $user->librarian->Last_Name }}
-                      @else
-                        N/A
-                      @endif
-                    </td>
-                    <td class="p-3">{{ $user->email }}</td>
-                    <td class="p-3">{{ ucfirst($user->role) }}</td>
-                    <td class="p-3">{{ $user->campus ? $user->campus->Campus_Name : 'N/A' }}</td>
-                    <td class="p-3">
-                      <form action="{{ route('admin.approve', $user->id) }}" method="POST" class="inline">
-                        @csrf
-                        <button type="submit" class="bg-green-700 text-white px-3 py-1 rounded hover:bg-green-800">Approve</button>
-                      </form>
-                      <form action="{{ route('admin.reject', $user->id) }}" method="POST" class="inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="bg-red-700 text-white px-3 py-1 rounded hover:bg-red-800">Reject</button>
-                      </form>
-                    </td>
-                  </tr>
-                @endforeach
-              </tbody>
-            </table>
-          @endif
+        <div class="homediv m-5 border-2 h-50000 ml-21 rounded-md bg-white shadow-sm">
+          <p class="mx-50 leading-[100px]">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fermentum orci nunc, ut facilisis purus finibus vitae. Etiam et neque erat. Nulla facilisis diam finibus purus aliquam tempor. Vivamus ac nulla a turpis vehicula ultrices quis at odio. Pellentesque orci ante, pharetra at nulla at, bibendum cursus eros. Etiam malesuada risus id laoreet varius. Curabitur id vehicula sem. In neque ipsum, sagittis vel varius nec, maximus a ipsum. Maecenas vel molestie nunc, nec dapibus diam. Pellentesque scelerisque lacus eu mattis semper.
+            Curabitur massa arcu, tempor eu nulla ut, ullamcorper ultrices nibh. Sed placerat, odio non lacinia luctus, justo eros lacinia magna, eget accumsan arcu ligula ac elit. Aliquam erat volutpat. Morbi consectetur, sem a aliquet rhoncus, tortor lectus egestas metus, a blandit lectus diam in lorem. Etiam placerat ex mauris, non elementum massa fringilla ac. Phasellus vitae nunc a ipsum porttitor gravida. Sed molestie, eros id pellentesque pharetra, ligula urna varius lacus, id posuere arcu urna ac mauris. Sed quam nibh, ullamcorper et felis quis, accumsan blandit dolor. Morbi volutpat sapien ac commodo laoreet. Nulla cursus ex a odio pellentesque, in tincidunt justo ullamcorper. Etiam aliquet finibus velit ut viverra. Nulla facilisi. Nulla urna quam, tempor in odio non, venenatis rhoncus nibh. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec dignissim volutpat dolor, id lobortis enim accumsan vel.
+            Praesent interdum dui et risus rhoncus maximus. Pellentesque nec lorem nisl. In hac habitasse platea dictumst. Nam vehicula ornare massa non blandit. Duis eget massa semper, viverra arcu sit amet, tincidunt justo. Donec at mi rhoncus, maximus lectus ac, rutrum diam. Suspendisse aliquet libero velit, nec aliquam metus luctus quis. Phasellus vitae justo dignissim, pellentesque diam ac, eleifend erat. Ut ac mi id sapien tincidunt sollicitudin euismod et est. Mauris accumsan eleifend lobortis. Quisque et lacus eu lorem porta ornare ut sit amet risus. Nam nulla elit, porttitor id orci a, tempus mattis urna.
+            Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Proin sed eleifend massa, in vestibulum augue. Quisque elementum vitae sem vehicula bibendum. Quisque viverra enim vitae nisi aliquam, nec imperdiet augue convallis. Aenean at lorem vitae diam consectetur convallis ac eu ligula. Proin aliquet sodales nisi non fermentum. Donec urna tortor, ultricies efficitur mollis vitae, tincidunt ut nulla. Nam vel nunc eros. Etiam a ante libero. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+            Cras quis nisl sit amet enim viverra pellentesque. In accumsan blandit tellus, quis finibus nisi feugiat eu. Phasellus ornare sem sapien, et laoreet lacus sagittis ut. Nunc lacinia nunc sit amet maximus laoreet. Maecenas rutrum, enim sed ullamcorper sagittis, ipsum justo tempor ipsum, sed elementum nunc ante sit amet odio. Nulla suscipit ullamcorper metus ut commodo. Donec convallis diam ut orci commodo, in molestie nunc cursus. In hac habitasse platea dictumst. Mauris accumsan imperdiet commodo. Sed mauris dolor, suscipit ut lectus non, dapibus porttitor metus. Nulla efficitur hendrerit mattis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec malesuada odio non turpis semper, et molestie velit egestas. Quisque faucibus erat eget commodo facilisis. Curabitur facilisis pretium nisi ac ultrices. Suspendisse consectetur et arcu a mattis.
+          </p>
         </div>
       </div>
     </div>
