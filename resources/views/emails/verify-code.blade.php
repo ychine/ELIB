@@ -14,7 +14,7 @@
 <body>
 <div class="wrapper">
     <div class="header">
-        <img src="https://raw.githubusercontent.com/ychine/ELIB/main/resources/images/ISUStudyGo.svg" alt="ISU StudyGo">
+        <img src="https://raw.githubusercontent.com/ychine/ELIB/main/resources/images/ISUStudyGopng.png" alt="ISU StudyGo">
         <h2>Email Verification</h2>
     </div>
     <div class="body">

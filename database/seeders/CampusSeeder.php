@@ -12,6 +12,15 @@ class CampusSeeder extends Seeder
         $campuses = [
             ['Campus_Name' => 'Echague'],
             ['Campus_Name' => 'Santiago'],
+            ['Campus_Name' => 'Cauayan'],
+            ['Campus_Name' => 'Cabagan'],
+            ['Campus_Name' => 'Ilagan'],
+            ['Campus_Name' => 'Angadanan'],
+            ['Campus_Name' => 'Roxas'],
+            ['Campus_Name' => 'Jones'],
+            ['Campus_Name' => 'Palanan'],
+            ['Campus_Name' => 'San Mateo'],
+            ['Campus_Name' => 'San Mariano'],
         ];
 
         foreach ($campuses as $campus) {
