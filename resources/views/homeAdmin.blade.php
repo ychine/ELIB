@@ -12,18 +12,16 @@
   <title>Admin Dashboard | ISU StudyGo</title>
 
   <style>
-    /* Sidebar transition and width */
+    /* ---------- Sidebar (click-to-toggle) ---------- */
     .sidebar {
       width: 4rem;
       transition: all 0.3s cubic-bezier(0.215, 0.610, 0.355, 1);
       overflow: hidden;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
+      cursor: pointer;               /* pointer on hover */
     }
-
-    .sidebar:hover {
-      width: 18rem;
-    }
+    .sidebar.expanded { width: 18rem; }
 
     .sidebar .label {
       opacity: 0;
@@ -32,11 +30,20 @@
       white-space: nowrap;
       padding-left: 1rem;
     }
+    .sidebar.expanded .label { opacity: 1; transform: translateX(0); }
 
-    .sidebar:hover .label {
-      opacity: 1;
-      transform: translateX(0);
-    }
+    .isu-studygo-border-logo { opacity: 0; transition: opacity 0.3s ease; }
+    .isu-studygo-logo       { opacity: 1; transition: opacity 0.3s ease; }
+    .sidebar.expanded .isu-studygo-border-logo { opacity: 1; }
+    .sidebar.expanded .isu-studygo-logo       { opacity: 0; }
+
+    .sidebar-content { display: flex; flex-direction: column; align-items: center; min-height: 100%; transition: all 0.3s ease; }
+    .sidebar-icons   { transform: translate(35%, 5%); transition: transform 0.3s ease; }
+    .sidebar.expanded .sidebar-icons { transform: translateX(20px); }
+    .sidebar.expanded .sidebar-content { align-items: flex-start; padding-left: 0.5rem; padding-right: 0.5rem; }
+
+    .sidebar.expanded + .main-content { margin-left: 15rem; margin-top: 0; }
+
 
     .isu-studygo-border-logo {
       opacity: 0;
@@ -47,43 +54,8 @@
       transition: all 0.3s ease;
     }
 
-    .sidebar:hover .isu-studygo-border-logo {
-      opacity: 1;
-    }
-
-    .sidebar:hover .isu-studygo-logo {
-      opacity: 0;
-      transition: all 0.3s ease;
-    }
-
-    .sidebar-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: all 0.3s ease;
-      min-height: 100%;
-    }
-
-    .sidebar-icons {
-      transform: translate(35%, 5%);
-      transition: transform 0.3s ease;
-    }
-
-    .sidebar:hover .sidebar-icons {
-      transform: translateX(20px);
-      transition: transform 0.3s ease;
-    }
-
-    .sidebar:hover .sidebar-content {
-      align-items: flex-start;
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
-    }
-
-    .sidebar:hover + .main-content {
-      margin-left: 15rem;
-      margin-top: 0;
-    }
+   
+  
 
     .searchbar:focus {
       outline: none;
@@ -159,58 +131,51 @@
         />
       </div>
       <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
-        <span>Profile</span>
+     
       </div>
     </div>
-
+    
     <!-- Sidebar -->
     <div class="fixed top-0 left-0 h-full bg-[#149637] shadow-[5px_-10px_22.5px_2px_rgba(0,0,0,0.59)] rounded-tr-[50px] sidebar z-20 pt-8">
       <div class="sidebar-content space-y-2 text-white">
-        <img 
-          src="{{ Vite::asset('resources/images/ISUStudyGoBorder.svg') }}" 
-          alt="Library" 
-          class="w-full h-20 isu-studygo-border-logo"
-        />
-        <img 
-          src="{{ Vite::asset('resources/images/ISUclpsd.svg') }}" 
-          alt="Library" 
-          class="w-full h-10 translate-y-[20px] absolute isu-studygo-logo"
-        />
-        <div class="w-full h-12 bg-green-500 rounded-xl flex items-center gap-3 cursor-pointer">
-          <img 
-            src="{{ Vite::asset('resources/images/DashboardToggled.png') }}" 
-            alt="Library" 
-            class="w-7 h-7 sidebar-icons"
-          />
+        <!-- Logo -->
+        <img src="{{ Vite::asset('resources/images/ISUStudyGoBorder.svg') }}" alt="Logo" class="w-full h-20 isu-studygo-border-logo"/>
+        <img src="{{ Vite::asset('resources/images/ISUclpsd.svg') }}" alt="Logo" class="w-full h-10 translate-y-[20px] absolute isu-studygo-logo"/>
+
+        <!-- Dashboard (Current Page) -->
+        <a href="{{ route('admin.approvals') }}" class="w-full h-12 bg-green-500 rounded-xl flex items-center gap-3 cursor-pointer">
+          <img src="{{ Vite::asset('resources/images/DashboardToggled.png') }}" alt="Dashboard" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Dashboard</span>
-        </div>
-        <div class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer">
-          <img 
-            src="{{ Vite::asset('resources/images/Featured.png') }}" 
-            alt="Library" 
-            class="w-7 h-7 translate-y-[-1px] translate-x-[1px] sidebar-icons"
-          />
+        </a>
+
+        <!-- User Management -->
+        <a href="{{ route('admin.users') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
+          <img src="{{ Vite::asset('resources/images/umgmt.png') }}" alt="User Management" class="w-7 h-7 sidebar-icons"/>
+          <span class="label kulim-park-regular text-lg">User Management</span>
+        </a>
+
+        <!-- Featured -->
+        <a href="#" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
+          <img src="{{ Vite::asset('resources/images/Featured.png') }}" alt="Featured" class="w-7 h-7 translate-y-[-1px] translate-x-[1px] sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Featured</span>
-        </div>
-        <div class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer">
-          <img 
-            src="{{ Vite::asset('resources/images/Member.png') }}" 
-            alt="Library" 
-            class="w-7 h-7 sidebar-icons"
-          />
+        </a>
+
+        <!-- Community Uploads -->
+        <a href="#" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
+          <img src="{{ Vite::asset('resources/images/Member.png') }}" alt="Community" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Community Uploads</span>
-        </div>
-        <div class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer">
-          <img 
-            src="{{ Vite::asset('resources/images/Book Shelf.png') }}" 
-            alt="Library" 
-            class="w-7 h-7 sidebar-icons"
-          />
+        </a>
+
+        <!-- Your Shelf -->
+        <a href="#" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
+          <img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Shelf" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Your Shelf</span>
-        </div>
+        </a>
+
+        <!-- Logout -->
         <form method="POST" action="{{ route('logout') }}" class="mt-auto w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3">
           @csrf
-          <button type="submit" class="flex items-center gap-3 w-full h-full bg-transparent border-none text-white cursor-pointer">
+          <button type="submit" class="flex items-center gap-3 w-full h-full bg-transparent border-none text-white cursor-pointer hover:bg-red-700 transition-colors rounded-xl">
             <i class="fa-solid fa-sign-out-alt text-2xl sidebar-icons"></i>
             <span class="label text-lg">Logout</span>
           </button>
@@ -221,6 +186,13 @@
     <div class="flex bg-gray-200 flex-col flex-1 transition-all duration-300 main-content">
       <!-- Container for the hero section -->
       <div class="hero-container relative w-full greenhue z-1">
+        <img 
+          src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" 
+          alt="ISU Logo" 
+          class="absolute right-0 w-15 h-15 m-7"
+          style=""
+        />
+        <h5 class="absolute text-white right-0 m-7 mr-10 translate-y-30 kulim-park-semibold">One ISU</h5>
         <img 
           src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" 
           alt="Library" 
@@ -234,7 +206,9 @@
               from one campus <br>
               to another
             </h1>
+               
           </div>
+           
         </div>
         <div class="homediv lg:mx-[10%] mt-5 rounded-md">
           <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight mb-4">Dashboard</h2>
@@ -310,6 +284,26 @@
         nav.classList.add('scrolled');
       } else {
         nav.classList.remove('scrolled');
+      }
+    });
+  </script>
+
+  <!-- Sidebar Click Toggle -->
+  <script>
+    const sidebar = document.querySelector('.sidebar');
+    const items = document.querySelectorAll('.sidebar .cursor-pointer, .sidebar button, .sidebar form');
+
+    sidebar.addEventListener('click', (e) => {
+      if (e.target === sidebar || e.target.closest('.sidebar-content') === sidebar.querySelector('.sidebar-content')) {
+        sidebar.classList.toggle('expanded');
+      }
+    });
+
+    items.forEach(item => item.addEventListener('click', e => e.stopPropagation()));
+
+    document.addEventListener('click', (e) => {
+      if (sidebar.classList.contains('expanded') && !sidebar.contains(e.target)) {
+        sidebar.classList.remove('expanded');
       }
     });
   </script>

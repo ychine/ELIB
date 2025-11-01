@@ -12,16 +12,17 @@
   <title>Home | ISU StudyGo</title>
 
   <style>
-    /* Existing Sidebar Styles */
+    /* Sidebar Styles - Click to Toggle */
     .sidebar {
       width: 4rem;
       transition: all 0.3s cubic-bezier(0.215, 0.610, 0.355, 1);
       overflow: hidden;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
+      cursor: pointer; /* Pointer on hover */
     }
 
-    .sidebar:hover {
+    .sidebar.expanded {
       width: 18rem;
     }
 
@@ -33,27 +34,27 @@
       padding-left: 1rem;
     }
 
-    .sidebar:hover .label {
+    .sidebar.expanded .label {
       opacity: 1;
       transform: translateX(0);
     }
 
     .isu-studygo-border-logo {
       opacity: 0;
+      transition: opacity 0.3s ease;
     }
 
     .isu-studygo-logo {
       opacity: 1;
-      transition: all 0.3s ease;
+      transition: opacity 0.3s ease;
     }
 
-    .sidebar:hover .isu-studygo-border-logo {
+    .sidebar.expanded .isu-studygo-border-logo {
       opacity: 1;
     }
 
-    .sidebar:hover .isu-studygo-logo {
+    .sidebar.expanded .isu-studygo-logo {
       opacity: 0;
-      transition: all 0.3s ease;
     }
 
     .sidebar-content {
@@ -69,18 +70,17 @@
       transition: transform 0.3s ease;
     }
 
-    .sidebar:hover .sidebar-icons {
+    .sidebar.expanded .sidebar-icons {
       transform: translateX(20px);
-      transition: transform 0.3s ease;
     }
 
-    .sidebar:hover .sidebar-content {
+    .sidebar.expanded .sidebar-content {
       align-items: flex-start;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
     }
 
-    .sidebar:hover + .main-content {
+    .sidebar.expanded + .main-content {
       margin-left: 15rem;
       margin-top: 0;
     }
@@ -145,12 +145,10 @@
 
     /* Responsive Styles */
     @media (max-width: 768px) {
-      /* Hide the vertical sidebar on small screens */
       .sidebar {
         display: none;
       }
 
-      /* Create bottom navigation bar */
       .bottom-nav {
         display: flex;
         position: fixed;
@@ -166,7 +164,6 @@
         box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.3);
       }
 
-      /* Style for bottom nav items */
       .bottom-nav .nav-item {
         display: flex;
         flex-direction: column;
@@ -196,12 +193,10 @@
         margin-top: 0.25rem;
       }
 
-      /* Adjust main content to avoid overlap with bottom nav */
       .main-content {
-        padding-bottom: 4.5rem; /* Space for bottom nav */
+        padding-bottom: 4.5rem;
       }
 
-      /* Adjust top navigation for small screens */
       .glass-nav {
         padding: 0.5rem 1rem;
       }
@@ -212,10 +207,9 @@
       }
 
       .glass-nav .text-md {
-        display: none; /* Hide profile text on small screens */
+        display: none;
       }
 
-      /* Adjust hero text for small screens */
       .herotext h1 {
         font-size: 2rem;
         line-height: 1.2;
@@ -234,7 +228,6 @@
       }
     }
 
-    /* Ensure sidebar is visible and bottom nav is hidden on larger screens */
     @media (min-width: 769px) {
       .bottom-nav {
         display: none;
@@ -280,7 +273,7 @@
         <div class="w-full h-12 bg-green-500 rounded-xl flex items-center gap-3 cursor-pointer">
           <img 
             src="{{ Vite::asset('resources/images/Home.png') }}" 
-            alt="Library" 
+            alt="Home" 
             class="w-7 h-7 sidebar-icons"
           />
           <span class="label kulim-park-regular text-lg">Home</span>
@@ -288,7 +281,7 @@
         <div class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer">
           <img 
             src="{{ Vite::asset('resources/images/Featured.png') }}" 
-            alt="Library" 
+            alt="Featured" 
             class="w-7 h-7 translate-y-[-1px] translate-x-[1px] sidebar-icons"
           />
           <span class="label kulim-park-regular text-lg">Featured</span>
@@ -296,7 +289,7 @@
         <div class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer">
           <img 
             src="{{ Vite::asset('resources/images/Member.png') }}" 
-            alt="Library" 
+            alt="Community Uploads" 
             class="w-7 h-7 sidebar-icons"
           />
           <span class="label kulim-park-regular text-lg">Community Uploads</span>
@@ -304,7 +297,7 @@
         <div class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer">
           <img 
             src="{{ Vite::asset('resources/images/Book Shelf.png') }}" 
-            alt="Library" 
+            alt="Your Shelf" 
             class="w-7 h-7 sidebar-icons"
           />
           <span class="label kulim-park-regular text-lg">Your Shelf</span>
@@ -346,10 +339,9 @@
       </form>
     </div>
 
+    <!-- Main Content -->
     <div class="flex flex-col flex-1 transition-all duration-300 main-content">
-      <!-- Container for the hero section -->
       <div class="hero-container relative w-full greenhue z-1">
-        <!-- Hero text -->
         <img 
           src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" 
           alt="Library" 
@@ -368,7 +360,7 @@
         <div class="homediv m-5 border-2 h-50000 ml-21 rounded-md bg-white shadow-sm">
           <p class="mx-50 leading-[100px]">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fermentum orci nunc, ut facilisis purus finibus vitae. Etiam et neque erat. Nulla facilisis diam finibus purus aliquam tempor. Vivamus ac nulla a turpis vehicula ultrices quis at odio. Pellentesque orci ante, pharetra at nulla at, bibendum cursus eros. Etiam malesuada risus id laoreet varius. Curabitur id vehicula sem. In neque ipsum, sagittis vel varius nec, maximus a ipsum. Maecenas vel molestie nunc, nec dapibus diam. Pellentesque scelerisque lacus eu mattis semper.
-            Curabitur massa arcu, tempor eu nulla ut, ullamcorper ultrices nibh. Sed placerat, odio non lacinia luctus, justo eros lacinia magna, eget accumsan arcu ligula ac elit. Aliquam erat volutpat. Morbi consectetur, sem a aliquet rhoncus, tortor lectus egestas metus, a blandit lectus diam in lorem. Etiam placerat ex mauris, non elementum massa fringilla ac. Phasellus vitae nunc a ipsum porttitor gravida. Sed molestie, eros id pellentesque pharetra, ligula urna varius lacus, id posuere arcu urna ac mauris. Sed quam nibh, ullamcorper et felis quis, accumsan blandit dolor. Morbi volutpat sapien ac commodo laoreet. Nulla cursus ex a odio pellentesque, in tincidunt justo ullamcorper. Etiam aliquet finibus velit ut viverra. Nulla facilisi. Nulla urna quam, tempor in odio non, venenatis rhoncus nibh. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec dignissim volutpat dolor, id lobortis enim accumsan vel.
+            Curabitur massa arcu, tempor eu nulla ut, ullamcorper ultrices nibh. Sed placerat, odio non lacinia luctus, justo eros lacinia magna, eget accumsan arcu ligula ac elit. Aliquam erat volutpat. Morbi consectetur, sem a aliquet rhoncus, tortor lectus egestas metus, a blandit lectus diam in lorem. Etiam placerat ex mauris, non elementum massa fringilla ac. Phasellus vitae nunc a nostrud porttitor gravida. Sed molestie, eros id pellentesque pharetra, ligula urna varius lacus, id posuere arcu urna ac mauris. Sed quam nibh, ullamcorper et felis quis, accumsan blandit dolor. Morbi volutpat sapien ac commodo laoreet. Nulla cursus ex a odio pellentesque, in tincidunt justo ullamcorper. Etiam aliquet finibus velit ut viverra. Nulla facilisi. Nulla urna quam, tempor in odio non, venenatis rhoncus nibh. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec dignissim volutpat dolor, id lobortis enim accumsan vel.
             Praesent interdum dui et risus rhoncus maximus. Pellentesque nec lorem nisl. In hac habitasse platea dictumst. Nam vehicula ornare massa non blandit. Duis eget massa semper, viverra arcu sit amet, tincidunt justo. Donec at mi rhoncus, maximus lectus ac, rutrum diam. Suspendisse aliquet libero velit, nec aliquam metus luctus quis. Phasellus vitae justo dignissim, pellentesque diam ac, eleifend erat. Ut ac mi id sapien tincidunt sollicitudin euismod et est. Mauris accumsan eleifend lobortis. Quisque et lacus eu lorem porta ornare ut sit amet risus. Nam nulla elit, porttitor id orci a, tempus mattis urna.
             Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Proin sed eleifend massa, in vestibulum augue. Quisque elementum vitae sem vehicula bibendum. Quisque viverra enim vitae nisi aliquam, nec imperdiet augue convallis. Aenean at lorem vitae diam consectetur convallis ac eu ligula. Proin aliquet sodales nisi non fermentum. Donec urna tortor, ultricies efficitur mollis vitae, tincidunt ut nulla. Nam vel nunc eros. Etiam a ante libero. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
             Cras quis nisl sit amet enim viverra pellentesque. In accumsan blandit tellus, quis finibus nisi feugiat eu. Phasellus ornare sem sapien, et laoreet lacus sagittis ut. Nunc lacinia nunc sit amet maximus laoreet. Maecenas rutrum, enim sed ullamcorper sagittis, ipsum justo tempor ipsum, sed elementum nunc ante sit amet odio. Nulla suscipit ullamcorper metus ut commodo. Donec convallis diam ut orci commodo, in molestie nunc cursus. In hac habitasse platea dictumst. Mauris accumsan imperdiet commodo. Sed mauris dolor, suscipit ut lectus non, dapibus porttitor metus. Nulla efficitur hendrerit mattis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec malesuada odio non turpis semper, et molestie velit egestas. Quisque faucibus erat eget commodo facilisis. Curabitur facilisis pretium nisi ac ultrices. Suspendisse consectetur et arcu a mattis.
@@ -380,17 +372,45 @@
 
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
+  <!-- Scroll Effect for Navbar -->
   <script>
     window.addEventListener('scroll', () => {
       const nav = document.querySelector('.glass-nav');
       const libraryImg = document.querySelector('.main-content img');
-      const libraryHeight = libraryImg.offsetHeight; 
+      const libraryHeight = libraryImg ? libraryImg.offsetHeight : 0;
       const scrollPosition = window.scrollY;
 
       if (scrollPosition > libraryHeight) {
         nav.classList.add('scrolled');
       } else {
         nav.classList.remove('scrolled');
+      }
+    });
+  </script>
+
+  <!-- Sidebar Toggle & Click Outside to Collapse -->
+  <script>
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarItems = document.querySelectorAll('.sidebar .cursor-pointer, .sidebar button, .sidebar form');
+
+    // Toggle sidebar on click (on background or logo area)
+    sidebar.addEventListener('click', (e) => {
+      if (e.target === sidebar || e.target.closest('.sidebar-content') === sidebar.querySelector('.sidebar-content')) {
+        sidebar.classList.toggle('expanded');
+      }
+    });
+
+    // Prevent menu items from toggling the sidebar
+    sidebarItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+    });
+
+    // Collapse when clicking outside
+    document.addEventListener('click', (e) => {
+      if (sidebar.classList.contains('expanded') && !sidebar.contains(e.target)) {
+        sidebar.classList.remove('expanded');
       }
     });
   </script>

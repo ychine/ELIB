@@ -12,16 +12,17 @@
   <title>Librarian Dashboard | ISU StudyGo</title>
 
   <style>
-    /* Existing Sidebar Styles */
+    /* Sidebar Styles */
     .sidebar {
       width: 4rem;
       transition: all 0.3s cubic-bezier(0.215, 0.610, 0.355, 1);
       overflow: hidden;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
+      cursor: pointer; /* Show pointer on hover */
     }
 
-    .sidebar:hover {
+    .sidebar.expanded {
       width: 18rem;
     }
 
@@ -33,27 +34,27 @@
       padding-left: 1rem;
     }
 
-    .sidebar:hover .label {
+    .sidebar.expanded .label {
       opacity: 1;
       transform: translateX(0);
     }
 
     .isu-studygo-border-logo {
       opacity: 0;
+      transition: opacity 0.3s ease;
     }
 
     .isu-studygo-logo {
       opacity: 1;
-      transition: all 0.3s ease;
+      transition: opacity 0.3s ease;
     }
 
-    .sidebar:hover .isu-studygo-border-logo {
+    .sidebar.expanded .isu-studygo-border-logo {
       opacity: 1;
     }
 
-    .sidebar:hover .isu-studygo-logo {
+    .sidebar.expanded .isu-studygo-logo {
       opacity: 0;
-      transition: all 0.3s ease;
     }
 
     .sidebar-content {
@@ -69,20 +70,24 @@
       transition: transform 0.3s ease;
     }
 
-    .sidebar:hover .sidebar-icons {
+    .sidebar.expanded .sidebar-icons {
       transform: translateX(20px);
-      transition: transform 0.3s ease;
     }
 
-    .sidebar:hover .sidebar-content {
+    .sidebar.expanded .sidebar-content {
       align-items: flex-start;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
     }
 
-    .sidebar:hover + .main-content {
+    .sidebar.expanded + .main-content {
       margin-left: 15rem;
       margin-top: 0;
+    }
+
+    /* Prevent pointer cursor on interactive items inside */
+    .sidebar .cursor-pointer {
+      cursor: pointer;
     }
 
     .searchbar:focus {
@@ -145,12 +150,10 @@
 
     /* Responsive Styles */
     @media (max-width: 768px) {
-      /* Hide the vertical sidebar on small screens */
       .sidebar {
         display: none;
       }
 
-      /* Create bottom navigation bar */
       .bottom-nav {
         display: flex;
         position: fixed;
@@ -166,7 +169,6 @@
         box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.3);
       }
 
-      /* Style for bottom nav items */
       .bottom-nav .nav-item {
         display: flex;
         flex-direction: column;
@@ -196,12 +198,10 @@
         margin-top: 0.25rem;
       }
 
-      /* Adjust main content to avoid overlap with bottom nav */
       .main-content {
-        padding-bottom: 4.5rem; /* Space for bottom nav */
+        padding-bottom: 4.5rem;
       }
 
-      /* Adjust top navigation for small screens */
       .glass-nav {
         padding: 0.5rem 1rem;
       }
@@ -212,10 +212,9 @@
       }
 
       .glass-nav .text-md {
-        display: none; /* Hide profile text on small screens */
+        display: none;
       }
 
-      /* Adjust hero text for small screens */
       .herotext h1 {
         font-size: 2rem;
         line-height: 1.2;
@@ -234,7 +233,6 @@
       }
     }
 
-    /* Ensure sidebar is visible and bottom nav is hidden on larger screens */
     @media (min-width: 769px) {
       .bottom-nav {
         display: none;
@@ -280,7 +278,7 @@
         <div class="w-full h-12 bg-green-500 rounded-xl flex items-center gap-3 cursor-pointer">
           <img 
             src="{{ Vite::asset('resources/images/Home.png') }}" 
-            alt="Library" 
+            alt="Home" 
             class="w-7 h-7 sidebar-icons"
           />
           <span class="label kulim-park-regular text-lg">Home</span>
@@ -288,7 +286,7 @@
         <div class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer">
           <img 
             src="{{ Vite::asset('resources/images/Featured.png') }}" 
-            alt="Library" 
+            alt="Featured" 
             class="w-7 h-7 translate-y-[-1px] translate-x-[1px] sidebar-icons"
           />
           <span class="label kulim-park-regular text-lg">Featured</span>
@@ -296,7 +294,7 @@
         <div class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer">
           <img 
             src="{{ Vite::asset('resources/images/Member.png') }}" 
-            alt="Library" 
+            alt="Community Uploads" 
             class="w-7 h-7 sidebar-icons"
           />
           <span class="label kulim-park-regular text-lg">Community Uploads</span>
@@ -304,7 +302,7 @@
         <div class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer">
           <img 
             src="{{ Vite::asset('resources/images/Book Shelf.png') }}" 
-            alt="Library" 
+            alt="Your Shelf" 
             class="w-7 h-7 sidebar-icons"
           />
           <span class="label kulim-park-regular text-lg">Your Shelf</span>
@@ -346,10 +344,9 @@
       </form>
     </div>
 
+    <!-- Main Content -->
     <div class="flex flex-col flex-1 transition-all duration-300 main-content">
-      <!-- Container for the hero section -->
       <div class="hero-container relative w-full greenhue z-1">
-        <!-- Hero text -->
         <img 
           src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" 
           alt="Library" 
@@ -380,11 +377,12 @@
 
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
+  <!-- Scroll Effect for Navbar -->
   <script>
     window.addEventListener('scroll', () => {
       const nav = document.querySelector('.glass-nav');
       const libraryImg = document.querySelector('.main-content img');
-      const libraryHeight = libraryImg.offsetHeight; 
+      const libraryHeight = libraryImg ? libraryImg.offsetHeight : 0;
       const scrollPosition = window.scrollY;
 
       if (scrollPosition > libraryHeight) {
@@ -393,6 +391,38 @@
         nav.classList.remove('scrolled');
       }
     });
+  </script>
+
+  <!-- Sidebar Toggle & Click Outside to Collapse -->
+  <script>
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarItems = document.querySelectorAll('.sidebar .cursor-pointer, .sidebar button, .sidebar form');
+
+    // Toggle sidebar on click
+    sidebar.addEventListener('click', (e) => {
+      // Only toggle if clicking on the sidebar background (not items)
+      if (e.target === sidebar || e.target.closest('.sidebar-content') === sidebar.querySelector('.sidebar-content')) {
+        sidebar.classList.toggle('expanded');
+      }
+    });
+
+    // Prevent collapse when clicking inside sidebar items
+    sidebarItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+    });
+
+    // Collapse when clicking outside
+    document.addEventListener('click', (e) => {
+      if (sidebar.classList.contains('expanded') && !sidebar.contains(e.target)) {
+        sidebar.classList.remove('expanded');
+      }
+    });
+
+    // Optional: Allow clicking the logo area to toggle
+    const logoArea = sidebar.querySelector('.sidebar-content');
+    logoArea.style.pointerEvents = 'auto';
   </script>
 </body>
 </html>
