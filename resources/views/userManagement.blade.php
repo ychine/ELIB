@@ -7,8 +7,8 @@
   <link rel="icon" href="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
-  @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/Inter.css', 'resources/css/kulimpark.css'])
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+  @vite(['resources/css/app.css', 'resources/css/kulimpark.css', 'resources/css/Inter.css', 'resources/css/kantumruypro.css'])
 
   <title>User Management | ISU StudyGo</title>
 
@@ -124,9 +124,9 @@
         <div class="mb-6 space-y-4 md:space-y-0 md:flex md:gap-4">
           <input type="text" id="searchInput" placeholder="Search by name or email..."
                  value="{{ request('search') }}"
-                 class="flex-1 px-4 py-2 border-2 border-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500">
+                 class="kantumruy-pro-regular tracking-tight flex-1 px-4 py-2 border-2 border-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500">
 
-          <select id="roleFilter" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+          <select id="roleFilter" class="kantumruy-pro-regular tracking-tight px-10 py-2 border-2 border-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500">
             <option value="">All Roles</option>
             <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
             <option value="librarian" {{ request('role') == 'librarian' ? 'selected' : '' }}>Librarian</option>
@@ -134,7 +134,7 @@
             <option value="student" {{ request('role') == 'student' ? 'selected' : '' }}>Student</option>
           </select>
 
-          <select id="campusFilter" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+          <select id="campusFilter" class="kantumruy-pro-regular tracking-tight px-10 py-2 border-2 border-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500">
             <option value="">All Campuses</option>
             @foreach(\App\Models\Campus::all() as $campus)
               <option value="{{ $campus->Campus_ID }}" {{ request('campus') == $campus->Campus_ID ? 'selected' : '' }}>
@@ -143,7 +143,7 @@
             @endforeach
           </select>
 
-          <button id="clearBtn" class="bg-gray-600 text-white h-11 w-15 rounded-lg hover:bg-gray-700">Clear</button>
+          <button id="clearBtn" class="kantumruy-pro-regular bg-gray-600 text-white h-11 w-15 rounded-xl hover:bg-gray-700">Clear</button>
         </div>
 
         <!-- TABLE  -->
@@ -157,7 +157,7 @@
 
 <!-- EDIT MODAL -->
 <div id="editModal" class="modal">
-  <div class="modal-content">
+  <div class="modal-content kantumruy-pro-regular tracking-tight">
     <div class="modal-header">
       <h3 class="text-xl font-bold">Edit User</h3>
     </div>

@@ -20,8 +20,9 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-<div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+<body class="bg-[#000000] min-h-screen flex items-center justify-center p-4">
+     <span class="z-[-1] absolute top-1/2 left-1/2 w-[40vw] h-[30vw] -translate-x-1/2 -translate-y-1/2 bg-[#63F068] rounded-full blur-[50vw]"></span>
+<div class="bg-white rounded-4xl shadow-lg p-8 max-w-md w-full text-center">
     <img src="{{ Vite::asset('resources/images/ISUStudyGo.svg') }}" alt="Logo"
          class="h-12 mx-auto mb-4">
     <h1 class="text-2xl font-bold text-gray-800">Enter Verification Code</h1>

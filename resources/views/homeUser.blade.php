@@ -253,7 +253,7 @@
         />
       </div>
       <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
-        <span>Profile</span>
+       
       </div>
     </div>
 
@@ -272,7 +272,7 @@
         />
         <div class="w-full h-12 bg-green-500 rounded-xl flex items-center gap-3 cursor-pointer">
           <img 
-            src="{{ Vite::asset('resources/images/Home.png') }}" 
+            src="{{ Vite::asset('resources/images/HomeToggle.png') }}" 
             alt="Home" 
             class="w-7 h-7 sidebar-icons"
           />
@@ -343,6 +343,19 @@
     <div class="flex flex-col flex-1 transition-all duration-300 main-content">
       <div class="hero-container relative w-full greenhue z-1">
         <img 
+          src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" 
+          alt="ISU Logo" 
+          class="absolute right-0 w-15 h-15 m-15 translate-y-[-15px]"
+          style=""
+        />
+        <h5 class="absolute text-white right-0 m-15 mr-18 translate-y-38 kulim-park-semibold">One ISU</h5>
+        <img 
+          src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" 
+          alt="Library" 
+          class="w-full h-50 z-[-1] object-cover absolute"
+          style="object-position: 70% middle;"
+        />
+        <img 
           src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" 
           alt="Library" 
           class="w-full h-70 z-[-1] object-cover absolute"
@@ -357,7 +370,7 @@
             </h1>
           </div>
         </div>
-        <div class="homediv m-5 border-2 h-50000 ml-21 rounded-md bg-white shadow-sm">
+        <div class="homediv m-5 border-2 h-500 ml-21 rounded-md bg-white shadow-sm">
           <p class="mx-50 leading-[100px]">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fermentum orci nunc, ut facilisis purus finibus vitae. Etiam et neque erat. Nulla facilisis diam finibus purus aliquam tempor. Vivamus ac nulla a turpis vehicula ultrices quis at odio. Pellentesque orci ante, pharetra at nulla at, bibendum cursus eros. Etiam malesuada risus id laoreet varius. Curabitur id vehicula sem. In neque ipsum, sagittis vel varius nec, maximus a ipsum. Maecenas vel molestie nunc, nec dapibus diam. Pellentesque scelerisque lacus eu mattis semper.
             Curabitur massa arcu, tempor eu nulla ut, ullamcorper ultrices nibh. Sed placerat, odio non lacinia luctus, justo eros lacinia magna, eget accumsan arcu ligula ac elit. Aliquam erat volutpat. Morbi consectetur, sem a aliquet rhoncus, tortor lectus egestas metus, a blandit lectus diam in lorem. Etiam placerat ex mauris, non elementum massa fringilla ac. Phasellus vitae nunc a nostrud porttitor gravida. Sed molestie, eros id pellentesque pharetra, ligula urna varius lacus, id posuere arcu urna ac mauris. Sed quam nibh, ullamcorper et felis quis, accumsan blandit dolor. Morbi volutpat sapien ac commodo laoreet. Nulla cursus ex a odio pellentesque, in tincidunt justo ullamcorper. Etiam aliquet finibus velit ut viverra. Nulla facilisi. Nulla urna quam, tempor in odio non, venenatis rhoncus nibh. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec dignissim volutpat dolor, id lobortis enim accumsan vel.

@@ -6,8 +6,8 @@
   <link rel="icon" href="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
-  @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/Inter.css', 'resources/css/kulimpark.css'])
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+  @vite(['resources/css/app.css', 'resources/css/kulimpark.css', 'resources/css/Inter.css', 'resources/css/kantumruypro.css'])
 
   <title>Admin Dashboard | ISU StudyGo</title>
 
@@ -213,11 +213,11 @@
         <div class="homediv lg:mx-[10%] mt-5 rounded-md">
           <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight mb-4">Dashboard</h2>
         </div>
-        <div class="homediv lg:mx-[10%] rounded-2xl bg-white  shadow-lg p-6">
+        <div class="homediv lg:mx-[10%] rounded-2xl bg-white shadow-lg p-6">
           <h2 class="text-1xl sm:text-2xl lg:text-3xl font-extrabold kulim-park-bold tracking-tight mb-6">Pending User Approvals</h2>
 
           @if(session('status'))
-            <div class="bg-green-100 text-green-700 p-3 rounded mb-4 text-sm">
+            <div class="bg-green-100 text-green-700 p-3  rounded mb-4 text-sm">
               {{ session('status') }}
             </div>
           @endif
@@ -225,7 +225,7 @@
           @if($users->isEmpty())
             <p class="text-gray-600">No pending approvals.</p>
           @else
-            <table class="w-full bg-white shadow rounded-lg">
+            <table class="w-full  kantumruy-pro-regular tracking-tight bg-white shadow rounded-lg">
               <thead>
                 <tr class="bg-gray-200">
                   <th class="p-3 text-left">Name</th>

@@ -2,7 +2,7 @@
 @if($users->isEmpty())
   <p class="text-gray-600">No users found.</p>
 @else
-  <div class="overflow-x-auto">
+  <div class="overflow-x-auto kantumruy-pro-regular tracking-tight">
     <table class="w-full bg-white shadow rounded-lg">
       <thead>
         <tr class="bg-gray-200">
@@ -16,7 +16,7 @@
       </thead>
       <tbody>
         @foreach($users as $user)
-          <tr class="border-b hover:bg-gray-50 cursor-pointer" data-user-id="{{ $user->id }}">
+          <tr class=" border-b border-gray-400 hover:bg-gray-100 cursor-pointer" data-user-id="{{ $user->id }}">
             <td class="p-3">{{ $user->full_name }}</td>
             <td class="p-3">{{ $user->email }}</td>
             <td class="p-3">{{ ucfirst($user->role) }}</td>
