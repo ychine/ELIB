@@ -19,7 +19,7 @@
       overflow: hidden;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
-      cursor: pointer; /* Show pointer on hover */
+      cursor: pointer;
     }
 
     .sidebar.expanded {
@@ -85,7 +85,7 @@
       margin-top: 0;
     }
 
-    /* Prevent pointer cursor on interactive items inside */
+
     .sidebar .cursor-pointer {
       cursor: pointer;
     }

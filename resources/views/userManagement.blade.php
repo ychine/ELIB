@@ -42,6 +42,22 @@
     .modal-body { padding:1.5rem; }
     .modal-footer { padding:1rem 1.5rem; border-top:1px solid #e5e7eb; display:flex; justify-content:flex-end; gap:0.5rem; }
 
+    /* Accordion */
+    .accordion { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+    .accordion-header { background: #f3f4f6; padding: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-family: 'Kantumruy Pro', sans-serif; }
+    .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 1rem; }
+    .accordion-content.open { max-height: 500px; padding: 1rem; /* Adjust based on content */ }
+    .accordion-icon { transition: transform 0.3s ease; font-size: 1.2rem; }
+    .accordion-icon.open { transform: rotate(180deg); }
+
+    /* Softer Checkboxes */
+    input[type="checkbox"] { appearance: none; width: 1.25rem; height: 1.25rem; border: 2px solid #d1d5db; border-radius: 0.375rem; background-color: #f9fafb; transition: all 0.2s ease-in-out; }
+    input[type="checkbox"]:checked { background-color: #22c55e; border-color: #22c55e; background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6 10.586l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e"); }
+
+    /* Theme Fonts */
+    .kantumruy-pro-regular { font-family: 'Kantumruy Pro', sans-serif; }
+    .kulim-park-bold { font-family: 'Kulim Park', sans-serif; font-weight: 700; }
+
     /* Loading */
     .loading { opacity:0.6; pointer-events:none; }
   </style>
@@ -115,12 +131,77 @@
       <!-- USER MANAGEMENT -->
       <div class="homediv lg:mx-[10%] mt-5 rounded-2xl bg-white shadow-lg p-6">
         <h2 class="text-3xl font-extrabold kulim-park-bold mb-6">User Management</h2>
-
+        
         @if(session('status'))
           <div class="bg-green-100 text-green-700 p-3 rounded mb-4 text-sm">{{ session('status') }}</div>
         @endif
 
-        <!--  SEARCH + FILTERS -->
+        <!-- TABS NAVIGATION -->
+        <ul class="flex flex-wrap border-b border-gray-200 mb-6">
+          <li class="mr-1">
+            <a href="{{ route('admin.users') }}" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') !== 'librarian' && request('role') !== 'admin' && request('role') !== 'faculty' && request('role') !== 'student' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">All</a>
+          </li>
+          <li class="mr-1">
+            <a href="{{ route('admin.users', ['role' => 'librarian']) }}" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') === 'librarian' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">Librarians & Roles</a>
+          </li>
+          <li class="mr-1">
+            <a href="{{ route('admin.users', ['role' => 'admin']) }}" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') === 'admin' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">Administrators</a>
+          </li>
+          <li class="mr-1">
+            <a href="{{ route('admin.users', ['role' => 'faculty']) }}" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') === 'faculty' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">Faculty</a>
+          </li>
+          <li class="mr-1">
+            <a href="{{ route('admin.users', ['role' => 'student']) }}" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') === 'student' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">Students</a>
+          </li>
+        </ul>
+
+        <!-- ACCORDION FOR MANAGE LIBRARIAN ROLES (Only in Librarians Tab) -->
+        @if(request('role') === 'librarian')
+          <div class="accordion mb-6">
+            <div class="accordion-header kantumruy-pro-regular" onclick="toggleAccordion(this)">
+              <span>Manage Librarian Positions</span>
+              <span class="accordion-icon">▼</span>
+            </div>
+            <div class="accordion-content kantumruy-pro-regular">
+              <form id="positionForm" method="POST" class="space-y-4">
+                @csrf
+                <div>
+                  <label for="position_select" class="block font-medium">Select Position to Edit (or create new)</label>
+                  <select id="position_select" name="position_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" onchange="loadPosition(this.value)">
+                    <option value="">Create New Position</option>
+                    @foreach(\App\Models\LibrarianPosition::all() as $position)
+                      <option value="{{ $position->id }}">{{ $position->name }}</option>
+                    @endforeach
+                  </select>
+                </div>
+                <div>
+                  <label for="name" class="block font-medium">Position Name</label>
+                  <input type="text" id="name" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                </div>
+                <div>
+                  <label class="block font-medium">Permissions</label>
+                  <div class="flex gap-4 mt-2">
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" name="permissions[add]" id="perm_add">
+                      <span>Add</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" name="permissions[archive]" id="perm_archive">
+                      <span>Archive</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" name="permissions[delete]" id="perm_delete">
+                      <span>Delete</span>
+                    </label>
+                  </div>
+                </div>
+                <button type="button" onclick="savePosition()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Save Position</button>
+              </form>
+            </div>
+          </div>
+        @endif
+
+        <!-- SEARCH + FILTERS -->
         <div class="mb-6 space-y-4 md:space-y-0 md:flex md:gap-4">
           <input type="text" id="searchInput" placeholder="Search by name or email..."
                  value="{{ request('search') }}"
@@ -178,11 +259,20 @@
         </div>
         <div>
           <label class="block font-medium">Role</label>
-          <select name="role" id="role" class="w-full px-3 py-2 border rounded-lg">
+          <select name="role" id="role" class="w-full px-3 py-2 border rounded-lg" onchange="togglePositionField()">
             <option value="admin">Admin</option>
             <option value="librarian">Librarian</option>
             <option value="faculty">Faculty</option>
             <option value="student">Student</option>
+          </select>
+        </div>
+        <div id="positionField" style="display: none;">
+          <label class="block font-medium">Position</label>
+          <select name="position_id" id="position_id" class="w-full px-3 py-2 border rounded-lg">
+            <option value="">Unassigned</option>
+            @foreach(\App\Models\LibrarianPosition::all() as $position)
+              <option value="{{ $position->id }}">{{ $position->name }}</option>
+            @endforeach
           </select>
         </div>
         <div>
@@ -288,10 +378,17 @@
         document.getElementById('role').value         = data.role;
         document.getElementById('campus_id').value    = data.campus_id || '';
         document.getElementById('is_approved').checked = data.is_approved;
+        document.getElementById('position_id').value  = data.position_id || '';
         document.getElementById('editForm').action    = `/admin/users/${id}`;
+        togglePositionField();
         document.getElementById('editModal').classList.add('active');
       })
       .catch(() => alert('Failed to load user data.'));
+  }
+
+  function togglePositionField() {
+    const role = document.getElementById('role').value;
+    document.getElementById('positionField').style.display = role === 'librarian' ? 'block' : 'none';
   }
 
   function closeModal() {
@@ -341,6 +438,44 @@
     const height = img?.offsetHeight ?? 0;
     nav.classList.toggle('scrolled', window.scrollY > height);
   });
+
+  // 6. Accordion Toggle
+  function toggleAccordion(element) {
+    const content = element.nextElementSibling;
+    const icon = element.querySelector('.accordion-icon');
+    content.classList.toggle('open');
+    icon.classList.toggle('open');
+  }
+
+  // 7. Manage Roles Form - Load permissions for selected position
+  function loadPosition(positionId) {
+    const nameInput = document.getElementById('name');
+    const addCheck = document.getElementById('perm_add');
+    const archiveCheck = document.getElementById('perm_archive');
+    const deleteCheck = document.getElementById('perm_delete');
+    const form = document.getElementById('positionForm');
+
+    if (positionId) {
+      form.action = `/admin/positions/${positionId}`;
+      form._method = 'PATCH';
+      fetch(`/admin/positions/${positionId}/edit`)
+        .then(r => r.json())
+        .then(data => {
+          nameInput.value = data.name;
+          addCheck.checked = data.permissions.add;
+          archiveCheck.checked = data.permissions.archive;
+          deleteCheck.checked = data.permissions.delete;
+        })
+        .catch(() => alert('Failed to load position.'));
+    } else {
+      form.action = '{{ route("admin.positions.store") }}';
+      form._method = 'POST';
+      nameInput.value = '';
+      addCheck.checked = false;
+      archiveCheck.checked = false;
+      deleteCheck.checked = false;
+    }
+  }
 </script>
 </body>
 </html>

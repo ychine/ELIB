@@ -19,7 +19,7 @@
       overflow: hidden;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
-      cursor: pointer;               /* pointer on hover */
+      cursor: pointer;              
     }
     .sidebar.expanded { width: 18rem; }
 

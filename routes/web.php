@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\PositionController;
 
 Route::get('/signin', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/signin', [AuthController::class, 'login'])->name('login.post');
@@ -72,6 +73,11 @@ Route::middleware('auth')->group(function () {
 
             Route::post('/approve/{user}', [AuthController::class, 'approveUser'])->name('approve');
             Route::delete('/reject/{user}', [AuthController::class, 'rejectUser'])->name('reject');
+
+            // ADD THIS: Routes for positions management
+            Route::post('/positions', [PositionController::class, 'store'])->name('positions.store');
+            Route::get('/positions/{id}/edit', [PositionController::class, 'edit']);
+            Route::patch('/positions/{id}', [PositionController::class, 'update']);
         });
 
     /* USER & LIBRARIAN DASHBOARDS */

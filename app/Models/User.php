@@ -49,6 +49,11 @@ class User extends Authenticatable implements MustVerifyEmail   // ← NEW
         return $this->hasOne(Librarian::class, 'UID', 'id');
     }
 
+    public function librarianPosition() // Now direct via hasOneThrough if needed, but use librarian->position
+    {
+        return $this->hasOneThrough(LibrarianPosition::class, Librarian::class, 'UID', 'id', 'id', 'position_id');
+    }
+
     public function student()
     {
         return $this->hasOne(Student::class, 'UID', 'id');

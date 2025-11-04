@@ -283,7 +283,10 @@ CREATE TABLE `librarian` (
   `Last_Name` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `position_id` bigint(20) unsigned DEFAULT NULL,
   PRIMARY KEY (`UID`),
+  KEY `librarian_position_id_foreign` (`position_id`),
+  CONSTRAINT `librarian_position_id_foreign` FOREIGN KEY (`position_id`) REFERENCES `librarian_positions` (`id`) ON DELETE SET NULL,
   CONSTRAINT `librarian_uid_foreign` FOREIGN KEY (`UID`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -294,8 +297,38 @@ CREATE TABLE `librarian` (
 
 LOCK TABLES `librarian` WRITE;
 /*!40000 ALTER TABLE `librarian` DISABLE KEYS */;
-INSERT INTO `librarian` VALUES (6,'Richelle Dorothy','Benitez','2025-10-27 04:52:29','2025-10-27 04:52:29'),(21,'Batutay','Sapaula','2025-11-01 08:47:56','2025-11-01 08:47:56');
+INSERT INTO `librarian` VALUES (6,'Richelle Dorothy','Benitez','2025-10-27 04:52:29','2025-11-04 09:29:39',2),(21,'Batutay','Sapaula','2025-11-01 08:47:56','2025-11-04 09:20:08',1);
 /*!40000 ALTER TABLE `librarian` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `librarian_positions`
+--
+
+DROP TABLE IF EXISTS `librarian_positions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `librarian_positions` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '{"add": false, "archive": false, "delete": false}' CHECK (json_valid(`permissions`)),
+  `created_by` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `librarian_positions_created_by_foreign` (`created_by`),
+  CONSTRAINT `librarian_positions_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `librarian_positions`
+--
+
+LOCK TABLES `librarian_positions` WRITE;
+/*!40000 ALTER TABLE `librarian_positions` DISABLE KEYS */;
+INSERT INTO `librarian_positions` VALUES (1,'Librarian','{\"add\":false,\"archive\":false,\"delete\":false}',4,'2025-11-04 08:00:16','2025-11-04 08:00:16'),(2,'University Librarian','{\"add\":true,\"archive\":true,\"delete\":true}',4,'2025-11-04 08:04:06','2025-11-04 08:04:06');
+/*!40000 ALTER TABLE `librarian_positions` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -310,7 +343,7 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) NOT NULL,
   `batch` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -319,7 +352,7 @@ CREATE TABLE `migrations` (
 
 LOCK TABLES `migrations` WRITE;
 /*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
-INSERT INTO `migrations` VALUES (1,'0001_01_01_000000_create_users_table',1),(2,'0001_01_01_000001_create_cache_table',1),(3,'0001_01_01_000002_create_jobs_table',1),(4,'2025_10_16_174846_add_role_to_users_table',2),(5,'2025_10_25_082040_create_campus_table',3),(6,'2025_10_25_082342_update_users_table_add_campus_id',3),(7,'2025_10_25_082416_create_faculty_table',3),(8,'2025_10_25_082429_create_admin_table',3),(9,'2025_10_25_082448_create_resources_table',3),(10,'2025_10_25_082501_create_borrower_table',3),(11,'2025_10_27_111752_add_is_approved_to_users_table',4),(12,'2025_10_27_121707_add_unique_constraint_to_campus_name',5),(13,'2025_10_27_122913_create_librarian_table',6),(14,'2025_10_27_122958_remove_name_from_users_table',7),(15,'2025_10_27_124127_create_student_table',8),(16,'2025_11_01_134003_create_verify_codes_table',9);
+INSERT INTO `migrations` VALUES (1,'0001_01_01_000000_create_users_table',1),(2,'0001_01_01_000001_create_cache_table',1),(3,'0001_01_01_000002_create_jobs_table',1),(4,'2025_10_16_174846_add_role_to_users_table',2),(5,'2025_10_25_082040_create_campus_table',3),(6,'2025_10_25_082342_update_users_table_add_campus_id',3),(7,'2025_10_25_082416_create_faculty_table',3),(8,'2025_10_25_082429_create_admin_table',3),(9,'2025_10_25_082448_create_resources_table',3),(10,'2025_10_25_082501_create_borrower_table',3),(11,'2025_10_27_111752_add_is_approved_to_users_table',4),(12,'2025_10_27_121707_add_unique_constraint_to_campus_name',5),(13,'2025_10_27_122913_create_librarian_table',6),(14,'2025_10_27_122958_remove_name_from_users_table',7),(17,'2025_10_27_124127_create_student_table',8),(19,'2025_11_01_134003_create_verify_codes_table',9),(21,'2025_11_04_154238_create_librarian_positions_table',10),(22,'2025_11_04_154239_add_position_id_to_librarian_table',10),(23,'2025_11_04_154240_add_status_author_to_resources_and_university_librarian_to_users_table',10),(24,'2025_11_04_160336_drop_is_university_librarian_from_users_table',11);
 /*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -364,6 +397,8 @@ CREATE TABLE `resources` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `Description` varchar(400) DEFAULT NULL,
+  `status` varchar(255) NOT NULL DEFAULT 'Available',
+  `author` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`Resource_ID`),
   KEY `resources_uploaded_by_foreign` (`Uploaded_By`),
   CONSTRAINT `resources_uploaded_by_foreign` FOREIGN KEY (`Uploaded_By`) REFERENCES `users` (`id`) ON DELETE CASCADE
@@ -405,7 +440,7 @@ CREATE TABLE `sessions` (
 
 LOCK TABLES `sessions` WRITE;
 /*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
-INSERT INTO `sessions` VALUES ('DNHSaPPQXFH2Yl8J7djyj3rqNgCAPdRnCTMIkots',4,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 OPR/122.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiczhGanZPZ2RXSWtFNG5DbVdUUTJ3dHVVQTFLYTlPSTZyeDlJMHVyTSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi91c2VycyI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjQ7fQ==',1762055507);
+INSERT INTO `sessions` VALUES ('X2usOSBnYjSJBvrT8dva63rp0l7AeLiBpEQ3AByd',4,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 OPR/122.0.0.0','YTo1OntzOjY6Il90b2tlbiI7czo0MDoid3FGRXJtbjlYSEhwWHZ4eWlncVNwQlJVbHo0RWVEVmlmV0F2bVdqSyI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQ4OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYWRtaW4vdXNlcnM/cm9sZT1saWJyYXJpYW4iO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo0O30=',1762279098);
 /*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -433,7 +468,7 @@ CREATE TABLE `student` (
 
 LOCK TABLES `student` WRITE;
 /*!40000 ALTER TABLE `student` DISABLE KEYS */;
-INSERT INTO `student` VALUES (5,'Anjila','Sa baola','2025-11-01 04:02:33','2025-11-01 04:03:06'),(7,'bem','chin','2025-11-01 04:03:26','2025-11-01 04:03:26'),(26,'Jose Protacio','Rizal Mercado','2025-11-01 11:53:00','2025-11-01 11:53:00'),(27,'Angela','Sapaula','2025-11-01 17:41:48','2025-11-01 17:41:48');
+INSERT INTO `student` VALUES (7,'Bembem','B','2025-11-04 08:27:26','2025-11-04 08:27:26'),(26,'Rich','Ben','2025-11-04 08:26:57','2025-11-04 08:26:57'),(27,'Anjila','sbaola','2025-11-04 08:26:30','2025-11-04 08:26:30');
 /*!40000 ALTER TABLE `student` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -468,7 +503,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (4,2,'admin@example.com','2025-11-01 13:36:58','$2y$12$ZFWnI/Wm/yHnYKwkl3f7uOK9UTE.x04IY1ZVzH9tO3Z9gMOA2ZgQe',NULL,'2025-10-16 10:01:15','2025-11-01 05:07:00','admin',1),(5,1,'angela@gmail.com',NULL,'$2y$12$3AFDjHdcEKk.iTwGreW.kuX5WLELsyC.zX4XsXRYy3f5raCTO33M6',NULL,'2025-11-01 11:11:38','2025-11-01 08:55:49','student',1),(6,2,'richellebenitez03@gmail.com',NULL,'$2y$12$6zrnHQ3FNJmZHRDmSZlc2euyx79ZEGfw6EV6ZiVdRbP18pRvM04mS',NULL,'2025-10-27 04:52:29','2025-10-27 05:55:55','librarian',1),(7,2,'bembemychine@gmail.com',NULL,'$2y$12$SD7.5jsvgUZ6ZEAjs/bEseDX4Tskw406Ipru41dEjB4YGmZKteN.G',NULL,'2025-10-27 05:05:48','2025-10-27 05:05:48','student',1),(21,1,'hynrszm@gmail.com','2025-11-01 08:48:37','$2y$12$fZzA6VjSVsHHjdg0L3MC7ubBDWLMdi./6RUEhvFOzcFSxdILHSy.i',NULL,'2025-11-01 08:47:56','2025-11-01 08:55:29','librarian',1),(25,2,'patotoybemchin@gmail.com','2025-11-01 09:21:32','$2y$12$u6iXNepCX5njFKPUUOrqXuiu6hyRSM7EtVMfqYcfhObDdjual0IHK',NULL,'2025-11-01 09:21:32','2025-11-01 09:21:43','faculty',1),(26,2,'benitez_richelledorothy@plpasig.edu.ph','2025-11-01 11:53:00','$2y$12$n1Q2gbJVUoSzLwB/xKYuZeoxkaZbm04BXUkUs3NeMblVX0Lo6diN6',NULL,'2025-11-01 11:53:00','2025-11-01 11:53:00','student',1),(27,2,'angelasapaula@gmail.com','2025-11-01 17:41:48','$2y$12$ZZ3aLJXfbmVUg3FJjJqIUOTCkERyLU//sag6O2Fjloiyc05VeElEC',NULL,'2025-11-01 17:41:48','2025-11-01 17:41:48','student',1),(28,6,'mlepnossilentclay@gmail.com','2025-11-01 17:53:49','$2y$12$5Yk2xPp.KqMdOEvM/dn54ONKAZKP5J2mhFDsvMmBu6yhdSl/HsSFa',NULL,'2025-11-01 17:53:49','2025-11-01 17:53:49','faculty',0);
+INSERT INTO `users` VALUES (4,2,'admin@example.com','2025-11-01 13:36:58','$2y$12$ZFWnI/Wm/yHnYKwkl3f7uOK9UTE.x04IY1ZVzH9tO3Z9gMOA2ZgQe',NULL,'2025-10-16 10:01:15','2025-11-01 05:07:00','admin',1),(6,2,'richellebenitez03@gmail.com',NULL,'$2y$12$6zrnHQ3FNJmZHRDmSZlc2euyx79ZEGfw6EV6ZiVdRbP18pRvM04mS',NULL,'2025-10-27 04:52:29','2025-10-27 05:55:55','librarian',1),(7,2,'bembemychine@gmail.com',NULL,'$2y$12$SD7.5jsvgUZ6ZEAjs/bEseDX4Tskw406Ipru41dEjB4YGmZKteN.G',NULL,'2025-10-27 05:05:48','2025-10-27 05:05:48','student',1),(21,1,'hynrszm@gmail.com','2025-11-01 08:48:37','$2y$12$fZzA6VjSVsHHjdg0L3MC7ubBDWLMdi./6RUEhvFOzcFSxdILHSy.i',NULL,'2025-11-01 08:47:56','2025-11-01 08:55:29','librarian',1),(25,2,'patotoybemchin@gmail.com','2025-11-01 09:21:32','$2y$12$u6iXNepCX5njFKPUUOrqXuiu6hyRSM7EtVMfqYcfhObDdjual0IHK',NULL,'2025-11-01 09:21:32','2025-11-01 09:21:43','faculty',1),(26,2,'benitez_richelledorothy@plpasig.edu.ph','2025-11-01 11:53:00','$2y$12$n1Q2gbJVUoSzLwB/xKYuZeoxkaZbm04BXUkUs3NeMblVX0Lo6diN6',NULL,'2025-11-01 11:53:00','2025-11-01 11:53:00','student',1),(27,2,'angelasapaula@gmail.com','2025-11-01 17:41:48','$2y$12$ZZ3aLJXfbmVUg3FJjJqIUOTCkERyLU//sag6O2Fjloiyc05VeElEC',NULL,'2025-11-01 17:41:48','2025-11-01 17:41:48','student',1),(28,6,'mlepnossilentclay@gmail.com','2025-11-01 17:53:49','$2y$12$5Yk2xPp.KqMdOEvM/dn54ONKAZKP5J2mhFDsvMmBu6yhdSl/HsSFa',NULL,'2025-11-01 17:53:49','2025-11-04 08:27:32','faculty',1);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -489,7 +524,7 @@ CREATE TABLE `verify_codes` (
   PRIMARY KEY (`id`),
   KEY `verify_codes_user_id_code_index` (`user_id`,`code`),
   CONSTRAINT `verify_codes_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -510,4 +545,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-11-04 13:07:21
+-- Dump completed on 2025-11-05  1:59:23
