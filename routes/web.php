@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\ResourceController;
 
 Route::get('/signin', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/signin', [AuthController::class, 'login'])->name('login.post');
@@ -78,6 +79,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/positions', [PositionController::class, 'store'])->name('positions.store');
             Route::get('/positions/{id}/edit', [PositionController::class, 'edit']);
             Route::patch('/positions/{id}', [PositionController::class, 'update']);
+            Route::delete('/positions/{id}', [PositionController::class, 'destroy']);
         });
 
     /* USER & LIBRARIAN DASHBOARDS */
@@ -90,4 +92,26 @@ Route::middleware('auth')->group(function () {
         if (Auth::user()->role !== 'librarian') abort(403);
         return view('homeLibrarian');
     })->name('home.librarian');
+
+    /* LIBRARIAN RESOURCE MANAGEMENT */
+    Route::get('/resource-management', [ResourceController::class, 'index'])->name('resource.management');
+    Route::post('/resources', [ResourceController::class, 'store'])->name('resources.store');
+
+    /* LIBRARIAN FEATURED */
+    Route::get('/featured', function () {
+        if (Auth::user()->role !== 'librarian') abort(403);
+        return view('featured');
+    })->name('featured');
+
+    /* LIBRARIAN COMMUNITY UPLOADS */
+    Route::get('/community-uploads', function () {
+        if (Auth::user()->role !== 'librarian') abort(403);
+        return view('communityuploads');
+    })->name('community.uploads');
+
+    /* LIBRARIAN YOUR SHELF */
+    Route::get('/your-shelf', function () {
+        if (Auth::user()->role !== 'librarian') abort(403);
+        return view('yourshelf');
+    })->name('your.shelf');
 });

@@ -349,21 +349,16 @@
           style=""
         />
         <h5 class="absolute text-white right-0 m-15 mr-18 translate-y-38 kulim-park-semibold">One ISU</h5>
+        
         <img 
           src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" 
           alt="Library" 
           class="w-full h-50 z-[-1] object-cover absolute"
           style="object-position: 70% middle;"
         />
-        <img 
-          src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" 
-          alt="Library" 
-          class="w-full h-70 z-[-1] object-cover absolute"
-          style="object-position: 70% middle;"
-        />
-        <div class="herotext h-70 ml-30 flex relative z-2">
+        <div class="herotext h-50 ml-30 flex relative z-2">
           <div class="column">
-            <h1 style="transform: translateY(90%); line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 45px; text-shadow: 0 4px 4px #000; color: #FFF;">
+            <h1 style="transform: translateY(50%); line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 45px; text-shadow: 0 4px 4px #000; color: #FFF;">
               Bridging knowledge <br>
               from one campus <br>
               to another

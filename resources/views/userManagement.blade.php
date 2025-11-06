@@ -1,4 +1,3 @@
-{{-- resources/views/userManagement.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,7 +42,6 @@
     .modal-footer { padding:1rem 1.5rem; border-top:1px solid #e5e7eb; display:flex; justify-content:flex-end; gap:0.5rem; }
 
     /* Accordion */
-    .accordion { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
     .accordion-header { background: #f3f4f6; padding: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-family: 'Kantumruy Pro', sans-serif; }
     .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 1rem; }
     .accordion-content.open { max-height: 500px; padding: 1rem; /* Adjust based on content */ }
@@ -132,8 +130,20 @@
       <div class="homediv lg:mx-[10%] mt-5 rounded-2xl bg-white shadow-lg p-6">
         <h2 class="text-3xl font-extrabold kulim-park-bold mb-6">User Management</h2>
         
-        @if(session('status'))
-          <div class="bg-green-100 text-green-700 p-3 rounded mb-4 text-sm">{{ session('status') }}</div>
+        @if(session('success'))
+          <div class="bg-green-100 text-green-700 p-3 rounded mb-4 text-sm">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+          <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">{{ session('error') }}</div>
+        @endif
+        @if ($errors->any())
+          <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
+            <ul>
+              @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+              @endforeach
+            </ul>
+          </div>
         @endif
 
         <!-- TABS NAVIGATION -->
@@ -186,6 +196,10 @@
                       <span>Add</span>
                     </label>
                     <label class="flex items-center gap-2">
+                      <input type="checkbox" name="permissions[edit]" id="perm_edit">
+                      <span>Edit</span>
+                    </label>
+                    <label class="flex items-center gap-2">
                       <input type="checkbox" name="permissions[archive]" id="perm_archive">
                       <span>Archive</span>
                     </label>
@@ -195,7 +209,8 @@
                     </label>
                   </div>
                 </div>
-                <button type="button" onclick="savePosition()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Save Position</button>
+                <button type="submit" id="saveBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Save Position</button>
+                <button type="button" id="deleteBtn" onclick="deletePosition()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" style="display: none;">Delete Position</button>
               </form>
             </div>
           </div>
@@ -298,41 +313,33 @@
     </form>
   </div>
 </div>
-
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-
 <script>
   let currentUserId = null;
   let debounceTimer;
-
   // -------------------------------------------------
   // 1. FETCH TABLE (AJAX)
   // -------------------------------------------------
   function fetchTable() {
     const search = document.getElementById('searchInput').value;
-    const role   = document.getElementById('roleFilter').value;
+    const role = document.getElementById('roleFilter').value;
     const campus = document.getElementById('campusFilter').value;
-
     const url = new URL('/admin/users', window.location.origin);
     if (search) url.searchParams.set('search', search);
-    if (role)   url.searchParams.set('role',   role);
+    if (role) url.searchParams.set('role', role);
     if (campus) url.searchParams.set('campus', campus);
-
     window.history.replaceState({}, '', url);
-
     const container = document.getElementById('tableContainer');
     container.innerHTML = '<p class="text-center py-4">Loading...</p>';
-
     fetch(url, {
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
     .then(r => r.text())
     .then(html => {
       container.innerHTML = html;
-      attachRowClickHandlers();   // RE‑ATTACH AFTER AJAX
+      attachRowClickHandlers(); // RE‑ATTACH AFTER AJAX
     });
   }
-
   // -------------------------------------------------
   // 2. ATTACH ROW CLICK HANDLERS (initial + after AJAX)
   // -------------------------------------------------
@@ -341,10 +348,8 @@
       row.onclick = () => openEditModal(row.dataset.userId);
     });
   }
-
   // Run once on page load
   document.addEventListener('DOMContentLoaded', attachRowClickHandlers);
-
   // -------------------------------------------------
   // 3. INPUT / FILTER EVENTS
   // -------------------------------------------------
@@ -352,18 +357,15 @@
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(fetchTable, 300);
   });
-
   ['roleFilter', 'campusFilter'].forEach(id => {
     document.getElementById(id).addEventListener('change', fetchTable);
   });
-
   document.getElementById('clearBtn').addEventListener('click', () => {
     document.getElementById('searchInput').value = '';
-    document.getElementById('roleFilter').value   = '';
+    document.getElementById('roleFilter').value = '';
     document.getElementById('campusFilter').value = '';
     fetchTable();
   });
-
   // -------------------------------------------------
   // 4. EDIT MODAL
   // -------------------------------------------------
@@ -372,32 +374,28 @@
     fetch(`/admin/users/${id}/edit`)
       .then(r => r.json())
       .then(data => {
-        document.getElementById('first_name').value   = data.first_name || '';
-        document.getElementById('last_name').value    = data.last_name  || '';
-        document.getElementById('email').value        = data.email;
-        document.getElementById('role').value         = data.role;
-        document.getElementById('campus_id').value    = data.campus_id || '';
+        document.getElementById('first_name').value = data.first_name || '';
+        document.getElementById('last_name').value = data.last_name || '';
+        document.getElementById('email').value = data.email;
+        document.getElementById('role').value = data.role;
+        document.getElementById('campus_id').value = data.campus_id || '';
         document.getElementById('is_approved').checked = data.is_approved;
-        document.getElementById('position_id').value  = data.position_id || '';
-        document.getElementById('editForm').action    = `/admin/users/${id}`;
+        document.getElementById('position_id').value = data.position_id || '';
+        document.getElementById('editForm').action = `/admin/users/${id}`;
         togglePositionField();
         document.getElementById('editModal').classList.add('active');
       })
       .catch(() => alert('Failed to load user data.'));
   }
-
   function togglePositionField() {
     const role = document.getElementById('role').value;
     document.getElementById('positionField').style.display = role === 'librarian' ? 'block' : 'none';
   }
-
   function closeModal() {
     document.getElementById('editModal').classList.remove('active');
   }
-
   function deleteUser() {
     if (!confirm('Permanently delete this user?')) return;
-
     fetch(`/admin/users/${currentUserId}`, {
       method: 'DELETE',
       headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
@@ -408,13 +406,11 @@
     })
     .catch(() => alert('Delete failed.'));
   }
-
   // Close modal when clicking outside
   window.addEventListener('click', e => {
     const modal = document.getElementById('editModal');
     if (e.target === modal) closeModal();
   });
-
   // -------------------------------------------------
   // 5. SIDEBAR & NAVBAR SCROLL
   // -------------------------------------------------
@@ -431,14 +427,12 @@
       sidebar.classList.remove('expanded');
     }
   });
-
   window.addEventListener('scroll', () => {
-    const nav   = document.querySelector('.glass-nav');
-    const img   = document.querySelector('.main-content img');
+    const nav = document.querySelector('.glass-nav');
+    const img = document.querySelector('.main-content img');
     const height = img?.offsetHeight ?? 0;
     nav.classList.toggle('scrolled', window.scrollY > height);
   });
-
   // 6. Accordion Toggle
   function toggleAccordion(element) {
     const content = element.nextElementSibling;
@@ -446,36 +440,96 @@
     content.classList.toggle('open');
     icon.classList.toggle('open');
   }
-
   // 7. Manage Roles Form - Load permissions for selected position
   function loadPosition(positionId) {
     const nameInput = document.getElementById('name');
     const addCheck = document.getElementById('perm_add');
+    const editCheck = document.getElementById('perm_edit');
     const archiveCheck = document.getElementById('perm_archive');
     const deleteCheck = document.getElementById('perm_delete');
     const form = document.getElementById('positionForm');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const saveBtn = document.getElementById('saveBtn');
+
+    // Remove existing _method if any
+    let methodInput = form.querySelector('input[name="_method"]');
+    if (methodInput) methodInput.remove();
 
     if (positionId) {
       form.action = `/admin/positions/${positionId}`;
-      form._method = 'PATCH';
-      fetch(`/admin/positions/${positionId}/edit`)
-        .then(r => r.json())
+      methodInput = document.createElement('input');
+      methodInput.type = 'hidden';
+      methodInput.name = '_method';
+      methodInput.value = 'PATCH';
+      form.appendChild(methodInput);
+      fetch(`/admin/positions/${positionId}/edit`, {
+        headers: { 'Accept': 'application/json' }
+      })
+        .then(r => {
+          if (!r.ok) {
+            throw new Error('Failed to load');
+          }
+          return r.json();
+        })
         .then(data => {
           nameInput.value = data.name;
-          addCheck.checked = data.permissions.add;
-          archiveCheck.checked = data.permissions.archive;
-          deleteCheck.checked = data.permissions.delete;
+          addCheck.checked = data.permissions.add || false;
+          editCheck.checked = data.permissions.edit || false;
+          archiveCheck.checked = data.permissions.archive || false;
+          deleteCheck.checked = data.permissions.delete || false;
+
+          const isProtected = data.protected;
+          nameInput.disabled = isProtected;
+          addCheck.disabled = isProtected;
+          editCheck.disabled = isProtected;
+          archiveCheck.disabled = isProtected;
+          deleteCheck.disabled = isProtected;
+          saveBtn.style.display = isProtected ? 'none' : 'block';
+          deleteBtn.style.display = isProtected ? 'none' : 'block';
         })
         .catch(() => alert('Failed to load position.'));
     } else {
       form.action = '{{ route("admin.positions.store") }}';
-      form._method = 'POST';
       nameInput.value = '';
       addCheck.checked = false;
+      editCheck.checked = false;
       archiveCheck.checked = false;
       deleteCheck.checked = false;
+      nameInput.disabled = false;
+      addCheck.disabled = false;
+      editCheck.disabled = false;
+      archiveCheck.disabled = false;
+      deleteCheck.disabled = false;
+      saveBtn.style.display = 'block';
+      deleteBtn.style.display = 'none';
     }
   }
+  // New: Delete position via AJAX
+  function deletePosition() {
+    const positionId = document.getElementById('position_select').value;
+    if (!positionId) return; // No position selected
+    if (!confirm('Delete this position? Users assigned to it will be reset to default (unassigned).')) return;
+    fetch(`/admin/positions/${positionId}`, {
+      method: 'DELETE',
+      headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+    })
+    .then(r => {
+      if (!r.ok) {
+        return r.json().then(errData => { throw errData.error || 'Failed to delete position.'; });
+      }
+      return r.json();
+    })
+    .then(() => {
+      alert('Position deleted successfully.');
+      location.reload(); // Reload to update the position select dropdown
+    })
+    .catch(err => alert(err));
+  }
+
+  // Initialize form action on page load (for new position)
+  document.addEventListener('DOMContentLoaded', () => {
+    loadPosition(document.getElementById('position_select').value);
+  });
 </script>
 </body>
 </html>

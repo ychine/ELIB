@@ -39,7 +39,7 @@ CREATE TABLE `admin` (
 
 LOCK TABLES `admin` WRITE;
 /*!40000 ALTER TABLE `admin` DISABLE KEYS */;
-INSERT INTO `admin` VALUES (4,'Admin','User','2025-10-27 12:39:35','2025-10-27 12:39:35');
+INSERT INTO `admin` VALUES (4,'Me pinaka admin','shesh','2025-10-27 12:39:35','2025-11-04 12:01:32'),(26,'Rich','Benitz','2025-11-04 12:01:53','2025-11-04 12:01:53');
 /*!40000 ALTER TABLE `admin` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -297,7 +297,7 @@ CREATE TABLE `librarian` (
 
 LOCK TABLES `librarian` WRITE;
 /*!40000 ALTER TABLE `librarian` DISABLE KEYS */;
-INSERT INTO `librarian` VALUES (6,'Richelle Dorothy','Benitez','2025-10-27 04:52:29','2025-11-04 09:29:39',2),(21,'Batutay','Sapaula','2025-11-01 08:47:56','2025-11-04 09:20:08',1);
+INSERT INTO `librarian` VALUES (6,'Richelle Dorothy','Benitez','2025-10-27 04:52:29','2025-11-04 09:29:39',2),(21,'Batutay','Sapaula','2025-11-01 08:47:56','2025-11-04 11:56:48',3);
 /*!40000 ALTER TABLE `librarian` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -318,7 +318,7 @@ CREATE TABLE `librarian_positions` (
   PRIMARY KEY (`id`),
   KEY `librarian_positions_created_by_foreign` (`created_by`),
   CONSTRAINT `librarian_positions_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -327,7 +327,7 @@ CREATE TABLE `librarian_positions` (
 
 LOCK TABLES `librarian_positions` WRITE;
 /*!40000 ALTER TABLE `librarian_positions` DISABLE KEYS */;
-INSERT INTO `librarian_positions` VALUES (1,'Librarian','{\"add\":false,\"archive\":false,\"delete\":false}',4,'2025-11-04 08:00:16','2025-11-04 08:00:16'),(2,'University Librarian','{\"add\":true,\"archive\":true,\"delete\":true}',4,'2025-11-04 08:04:06','2025-11-04 08:04:06');
+INSERT INTO `librarian_positions` VALUES (1,'Librarian','{\"add\": false, \"archive\": false, \"delete\": false, \"edit\": false}',4,'2025-11-04 08:00:16','2025-11-04 08:00:16'),(2,'University Librarian','{\"add\": true, \"archive\": true, \"delete\": true, \"edit\": true}',4,'2025-11-04 08:04:06','2025-11-04 08:04:06'),(3,'Thesis Section Librarian','{\"add\":true,\"edit\":true,\"archive\":true,\"delete\":false}',4,'2025-11-04 11:53:01','2025-11-04 11:53:01');
 /*!40000 ALTER TABLE `librarian_positions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -440,7 +440,7 @@ CREATE TABLE `sessions` (
 
 LOCK TABLES `sessions` WRITE;
 /*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
-INSERT INTO `sessions` VALUES ('X2usOSBnYjSJBvrT8dva63rp0l7AeLiBpEQ3AByd',4,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 OPR/122.0.0.0','YTo1OntzOjY6Il90b2tlbiI7czo0MDoid3FGRXJtbjlYSEhwWHZ4eWlncVNwQlJVbHo0RWVEVmlmV0F2bVdqSyI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQ4OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYWRtaW4vdXNlcnM/cm9sZT1saWJyYXJpYW4iO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo0O30=',1762279098);
+INSERT INTO `sessions` VALUES ('Oia5Ftknmrj25pvwqYtriO4MmkHS8pcOT2UaXKKd',6,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 OPR/123.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiaHgzVXVld3o4cXFJb0xVN1FQa1FXdXpoalhrMDhPVUpsOHVkUXc1dCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9yZXNvdXJjZS1tYW5hZ2VtZW50Ijt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Njt9',1762437581);
 /*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -468,7 +468,7 @@ CREATE TABLE `student` (
 
 LOCK TABLES `student` WRITE;
 /*!40000 ALTER TABLE `student` DISABLE KEYS */;
-INSERT INTO `student` VALUES (7,'Bembem','B','2025-11-04 08:27:26','2025-11-04 08:27:26'),(26,'Rich','Ben','2025-11-04 08:26:57','2025-11-04 08:26:57'),(27,'Anjila','sbaola','2025-11-04 08:26:30','2025-11-04 08:26:30');
+INSERT INTO `student` VALUES (7,'Bembem','B','2025-11-04 08:27:26','2025-11-04 08:27:26'),(26,'Rich','Benitz','2025-11-04 08:26:57','2025-11-04 10:56:18'),(27,'Anjila','sbaola','2025-11-04 08:26:30','2025-11-04 08:26:30');
 /*!40000 ALTER TABLE `student` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -503,7 +503,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (4,2,'admin@example.com','2025-11-01 13:36:58','$2y$12$ZFWnI/Wm/yHnYKwkl3f7uOK9UTE.x04IY1ZVzH9tO3Z9gMOA2ZgQe',NULL,'2025-10-16 10:01:15','2025-11-01 05:07:00','admin',1),(6,2,'richellebenitez03@gmail.com',NULL,'$2y$12$6zrnHQ3FNJmZHRDmSZlc2euyx79ZEGfw6EV6ZiVdRbP18pRvM04mS',NULL,'2025-10-27 04:52:29','2025-10-27 05:55:55','librarian',1),(7,2,'bembemychine@gmail.com',NULL,'$2y$12$SD7.5jsvgUZ6ZEAjs/bEseDX4Tskw406Ipru41dEjB4YGmZKteN.G',NULL,'2025-10-27 05:05:48','2025-10-27 05:05:48','student',1),(21,1,'hynrszm@gmail.com','2025-11-01 08:48:37','$2y$12$fZzA6VjSVsHHjdg0L3MC7ubBDWLMdi./6RUEhvFOzcFSxdILHSy.i',NULL,'2025-11-01 08:47:56','2025-11-01 08:55:29','librarian',1),(25,2,'patotoybemchin@gmail.com','2025-11-01 09:21:32','$2y$12$u6iXNepCX5njFKPUUOrqXuiu6hyRSM7EtVMfqYcfhObDdjual0IHK',NULL,'2025-11-01 09:21:32','2025-11-01 09:21:43','faculty',1),(26,2,'benitez_richelledorothy@plpasig.edu.ph','2025-11-01 11:53:00','$2y$12$n1Q2gbJVUoSzLwB/xKYuZeoxkaZbm04BXUkUs3NeMblVX0Lo6diN6',NULL,'2025-11-01 11:53:00','2025-11-01 11:53:00','student',1),(27,2,'angelasapaula@gmail.com','2025-11-01 17:41:48','$2y$12$ZZ3aLJXfbmVUg3FJjJqIUOTCkERyLU//sag6O2Fjloiyc05VeElEC',NULL,'2025-11-01 17:41:48','2025-11-01 17:41:48','student',1),(28,6,'mlepnossilentclay@gmail.com','2025-11-01 17:53:49','$2y$12$5Yk2xPp.KqMdOEvM/dn54ONKAZKP5J2mhFDsvMmBu6yhdSl/HsSFa',NULL,'2025-11-01 17:53:49','2025-11-04 08:27:32','faculty',1);
+INSERT INTO `users` VALUES (4,2,'admin@example.com','2025-11-01 13:36:58','$2y$12$ZFWnI/Wm/yHnYKwkl3f7uOK9UTE.x04IY1ZVzH9tO3Z9gMOA2ZgQe',NULL,'2025-10-16 10:01:15','2025-11-01 05:07:00','admin',1),(6,2,'richellebenitez03@gmail.com','2025-11-04 22:06:53','$2y$12$6zrnHQ3FNJmZHRDmSZlc2euyx79ZEGfw6EV6ZiVdRbP18pRvM04mS',NULL,'2025-10-27 04:52:29','2025-10-27 05:55:55','librarian',1),(7,2,'bembemychine@gmail.com','2025-11-04 22:08:02','$2y$12$SD7.5jsvgUZ6ZEAjs/bEseDX4Tskw406Ipru41dEjB4YGmZKteN.G',NULL,'2025-10-27 05:05:48','2025-10-27 05:05:48','student',1),(21,1,'hynrszm@gmail.com','2025-11-01 08:48:37','$2y$12$fZzA6VjSVsHHjdg0L3MC7ubBDWLMdi./6RUEhvFOzcFSxdILHSy.i',NULL,'2025-11-01 08:47:56','2025-11-01 08:55:29','librarian',1),(25,2,'patotoybemchin@gmail.com','2025-11-01 09:21:32','$2y$12$u6iXNepCX5njFKPUUOrqXuiu6hyRSM7EtVMfqYcfhObDdjual0IHK',NULL,'2025-11-01 09:21:32','2025-11-01 09:21:43','faculty',1),(26,2,'benitez_richelledorothy@plpasig.edu.ph','2025-11-01 11:53:00','$2y$12$n1Q2gbJVUoSzLwB/xKYuZeoxkaZbm04BXUkUs3NeMblVX0Lo6diN6',NULL,'2025-11-01 11:53:00','2025-11-04 12:01:53','admin',1),(27,2,'angelasapaula@gmail.com','2025-11-01 17:41:48','$2y$12$ZZ3aLJXfbmVUg3FJjJqIUOTCkERyLU//sag6O2Fjloiyc05VeElEC',NULL,'2025-11-01 17:41:48','2025-11-01 17:41:48','student',1),(28,1,'mlepnossilentclay@gmail.com','2025-11-01 17:53:49','$2y$12$5Yk2xPp.KqMdOEvM/dn54ONKAZKP5J2mhFDsvMmBu6yhdSl/HsSFa',NULL,'2025-11-01 17:53:49','2025-11-06 05:01:32','faculty',1);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -545,4 +545,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-11-05  1:59:23
+-- Dump completed on 2025-11-06 22:04:23
