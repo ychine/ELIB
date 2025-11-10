@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Resource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
@@ -17,9 +18,10 @@ class HomeController extends Controller
 
         $filter = $request->get('filter', 'latest');
 
-        // Base query with eager loading
+        // Base query with eager loading (include 'user' for uploader, ensure 'views' column is selected)
         $featuredQuery = Resource::featured()
-            ->with(['authors', 'tags', 'ratings']);
+            ->with(['authors', 'tags', 'ratings', 'user']) // Add 'user' for role/full_name
+            ->select(['*', 'views']); // Explicitly select views column
 
         // Apply filter
         switch ($filter) {
@@ -35,7 +37,7 @@ class HomeController extends Controller
                 break;
         }
 
-        // Append accessors so they appear in toJson() for the modal
+        // Append accessors (remove 'views'—it's a raw column)
         $featuredResources = $featuredResources->append([
             'average_rating',
             'formatted_publish_date',
@@ -43,13 +45,14 @@ class HomeController extends Controller
             'tags'
         ]);
 
-        // Community Uploads
+        // Community Uploads (also select views, remove from append)
         $communityUploads = Resource::communityUploads()
             ->with(['authors', 'tags', 'user'])
+            ->select(['*', 'views'])
             ->latestUploads()
             ->take(10)
             ->get()
-            ->append(['authors', 'tags']); // Optional: for future modal use
+            ->append(['authors', 'tags']); // Remove 'views' from here too
 
         return view('homeUser', compact('featuredResources', 'communityUploads', 'filter'));
     }
@@ -60,12 +63,19 @@ class HomeController extends Controller
             abort(403);
         }
 
-        $resource = Resource::findOrFail($id);
+        $resource = Resource::with(['user'])->findOrFail($id); // Load user if needed
         
-        // Track view
-        $resource->incrementViews(auth()->id());
-
+        // Track view (now uses model method—see below)
+        $incremented = $resource->incrementViews();
+        
+        Log::info("View attempt for Resource ID {$id}: " . ($incremented ? 'Success' : 'Skipped (duplicate)'));
+        
         // Redirect to file
-        return redirect('/storage/' . $resource->File_Path);
+        if ($resource->File_Path && Storage::disk('public')->exists($resource->File_Path)) {
+            return redirect('/storage/' . $resource->File_Path);
+        } else {
+            Log::warning("File not found for Resource ID {$id}");
+            return redirect()->back()->with('error', 'File not available.');
+        }
     }
 }

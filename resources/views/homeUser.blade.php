@@ -321,9 +321,9 @@
                       <p class="book-author text-sm text-gray-600">{{ $resource->authors ?? 'Unknown Author' }}</p>
                       <p class="text-xs text-gray-500">Published: {{ $resource->formatted_publish_date }}</p>
                       <div class="mt-2 flex flex-wrap gap-1">
-                        @if($resource->tags && $resource->tags->isNotEmpty())
-                          @foreach($resource->tags->take(2) as $tag)
-                            <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">{{ $tag['name'] ?? $tag->name }}</span>
+                        @if(collect($resource->tags)->count() > 0)
+                          @foreach(collect($resource->tags)->take(2) as $tag)
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">{{ $tag->name ?? $tag['name'] ?? $tag }}</span>
                           @endforeach
                         @else
                           <span class="text-xs text-gray-400">No tags</span>
@@ -414,6 +414,26 @@
       } else {
         tagsContainer.innerHTML = '<span class="text-gray-500 text-sm">No tags</span>';
       }
+
+      // Increment views via AJAX
+      const incrementUrl = '{{ route("resources.increment.view", "placeholder") }}'.replace('placeholder', resource.Resource_ID);
+      fetch(incrementUrl, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': '{{ csrf_token() }}',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({})
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          let viewsElem = document.getElementById('modalViews');
+          viewsElem.textContent = data.views + ' views';
+        }
+      })
+      .catch(error => console.error('Error incrementing views:', error));
 
       document.getElementById('borrowModal').classList.remove('hidden');
     }

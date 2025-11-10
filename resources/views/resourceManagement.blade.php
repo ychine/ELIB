@@ -241,10 +241,14 @@
     .alert-success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
     .alert-danger { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
     .error-message { color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem; }
+    /* Tag Styles */
+    .tags-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .tag { display: flex; align-items: center; background: #d1fae5; color: #065f46; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.875rem; }
+    .tag-remove { margin-left: 0.5rem; cursor: pointer; font-weight: bold; }
   </style>
 </head>
 <body class="bg-yellow-50">
-  <div class="w-full h-[100vh] flex">
+  <div class="w-full min-h-screen flex">
     <!-- Navigation -->
     <div class="fixed w-full top-0 left-0 flex justify-between items-center px-4 py-2 z-10 glass-nav">
       <span class="text-5xl jersey-20-regular pl-3 text-white"></span>
@@ -278,7 +282,7 @@
           <img src="{{ Vite::asset('resources/images/Dashboard.png') }}" alt="Dashboard" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Dashboard</span>
         </a>
-        <a href="#" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
+        <a href="{{ route('borrowers') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
           <img src="{{ Vite::asset('resources/images/borrowers.png') }}" alt="Shelf" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Borrowers</span>
         </a>
@@ -339,8 +343,8 @@
       </form>
     </div>
     <!-- Main Content -->
-    <div class="flex flex-col flex-1 transition-all duration-300 main-content bg-gray-200">
-      <div class="hero-container relative w-full greenhue z-1">
+    <div class="flex flex-col flex-1 min-h-screen transition-all duration-300 main-content bg-gray-200">
+      <div class="hero-container relative w-full  greenhue z-1">
         <img
           src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}"
           alt="Library"
@@ -405,7 +409,7 @@
 
                 <tr 
                   class="hover:bg-gray-50 transition-colors cursor-pointer" 
-                  data-resource="{{ json_encode($resource->only(['Resource_ID', 'Resource_Name', 'Description', 'publish_year', 'publish_month', 'publish_day', 'File_Path', 'status'])) }}"
+                  data-resource="{{ json_encode($resource->only(['Resource_ID', 'Resource_Name', 'Description', 'publish_year', 'publish_month', 'publish_day', 'File_Path', 'status']) + ['tags' => collect($resource->tags)->pluck('name')]) }}"
                   data-authors="{{ $authorsString }}"
                   onclick="openEditModalFromRow(this)"
                 >
@@ -620,6 +624,12 @@
             @error('file')
               <div class="error-message">{{ $message }}</div>
             @enderror
+          </div>
+          <div>
+            <label class="block font-medium">Tags (press space or enter to add)</label>
+            <div id="editTagsContainer" class="tags-container"></div>
+            <input type="text" id="editTagsInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Type tag and press space/enter">
+            <input type="hidden" name="tags" id="editTagsHidden">
           </div>
           <div>
             <label for="edit_status" class="block font-medium">Status</label>
@@ -871,6 +881,14 @@
           showEditDay();
         }
 
+        // Populate tags
+        const tagsContainer = document.getElementById('editTagsContainer');
+        tagsContainer.innerHTML = '';
+        const tags = data.tags || [];
+        tags.forEach(tag => addTag('edit', tag));
+
+        updateHiddenTags('edit');
+
         modal.classList.add('active');
       } catch (error) {
         console.error('Error opening edit modal:', error);
@@ -915,6 +933,7 @@
   <script>
     function validateEditForm() {
       // REMOVED: Year is now optional, so no validation alert for it
+      updateHiddenTags('edit');
       return true;
     }
   </script>
@@ -928,6 +947,46 @@
       document.getElementById('previewModal').classList.remove('active');
       document.getElementById('previewIframe').src = '';
     }
+  </script>
+  <!-- Tag Management Script -->
+  <script>
+    // Generic function to add tag
+    function addTag(prefix, tagText) {
+      tagText = tagText.trim().toLowerCase();
+      if (!tagText) return;
+
+      const container = document.getElementById(`${prefix}TagsContainer`);
+      const existingTags = Array.from(container.querySelectorAll('.tag')).map(tag => tag.textContent.slice(0, -1).trim().toLowerCase());
+
+      if (existingTags.includes(tagText)) return; // Prevent duplicates
+
+      const tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.innerHTML = `${tagText} <span class="tag-remove">×</span>`;
+      tag.querySelector('.tag-remove').addEventListener('click', () => {
+        tag.remove();
+        updateHiddenTags(prefix);
+      });
+      container.appendChild(tag);
+      updateHiddenTags(prefix);
+    }
+
+    // Update hidden input with comma-separated tags
+    function updateHiddenTags(prefix) {
+      const container = document.getElementById(`${prefix}TagsContainer`);
+      const tags = Array.from(container.querySelectorAll('.tag')).map(tag => tag.textContent.slice(0, -1).trim());
+      document.getElementById(`${prefix}TagsHidden`).value = tags.join(',');
+    }
+
+    // Handle keypress for tags input
+    document.getElementById('editTagsInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const input = e.target;
+        addTag('edit', input.value);
+        input.value = '';
+      }
+    });
   </script>
 </body>
 </html>

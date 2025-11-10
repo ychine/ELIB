@@ -90,8 +90,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/homeUser', [HomeController::class, 'index'])->name('home.user');
     Route::get('/resources/{id}/view', [HomeController::class, 'show'])->name('resources.view');
     // ADD THIS BLOCK HERE
-    Route::post('/borrow/request', [App\Http\Controllers\BorrowController::class, 'store'])
-        ->name('borrow.request');
+    Route::post('/borrow/request', [BorrowController::class, 'store'])->name('borrow.request');
     // NEW: Route for incrementing views
     Route::post('/resources/{resource}/view', [ResourceController::class, 'incrementView'])->name('resources.increment.view');
 
@@ -99,6 +98,14 @@ Route::middleware('auth')->group(function () {
         if (Auth::user()->role !== 'librarian') abort(403);
         return view('homeLibrarian');
     })->name('home.librarian');
+
+    // Borrowers page for librarian
+    Route::middleware(['role:librarian'])->group(function () {
+        Route::get('/borrowers', [BorrowController::class, 'index'])->name('borrowers');
+        Route::post('/borrow/approve/{id}', [BorrowController::class, 'approve'])->name('borrow.approve');
+        Route::post('/borrow/reject/{id}', [BorrowController::class, 'reject'])->name('borrow.reject');
+        Route::get('/borrower/{id}/details', [BorrowController::class, 'details'])->name('borrower.details');
+    });
 
  
     /* LIBRARIAN RESOURCE MANAGEMENT */

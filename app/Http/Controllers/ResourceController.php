@@ -5,15 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Resource;
 use App\Models\Author;
+use App\Models\Tag;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Session;
 
 class ResourceController extends Controller
 {
     public function index()
     {
-        $resources = Resource::with(['authors', 'user'])
+        $resources = Resource::with(['authors', 'user', 'tags'])
             ->latest()
             ->paginate(25);
 
@@ -35,6 +37,7 @@ class ResourceController extends Controller
             'publish_month' => 'nullable|integer|min:1|max:12',
             'publish_day' => 'nullable|integer|min:1|max:31',
             'file' => 'required|file|mimes:pdf,doc,docx,zip|max:102400',
+            'tags' => 'nullable|string|max:500',
         ]);
 
         try {
@@ -51,6 +54,7 @@ class ResourceController extends Controller
                 'Uploaded_By'   => Auth::id(),
                 'Description'   => $validated['Description'],
                 'status'        => 'Available',
+                'views'         => 0, // Explicitly set initial views to 0
             ]);
 
             // Attempt thumbnail generation separately so it doesn't fail the whole upload
@@ -63,6 +67,7 @@ class ResourceController extends Controller
 
             // Sync authors
             $this->syncAuthors($resource, $validated['authors']);
+            $this->syncTags($resource, $validated['tags'] ?? '');
 
             return redirect()->back()->with('success', 'Resource uploaded successfully!');
 
@@ -83,6 +88,7 @@ class ResourceController extends Controller
             'publish_day' => 'nullable|integer|min:1|max:31',
             'file' => 'nullable|file|mimes:pdf,doc,docx,zip|max:102400',
             'status' => 'required|in:Available,Unavailable',
+            'tags' => 'nullable|string|max:500',
         ]);
 
         $updateData = [
@@ -114,6 +120,7 @@ class ResourceController extends Controller
 
         $resource->update($updateData);
         $this->syncAuthors($resource, $validated['authors']);
+        $this->syncTags($resource, $validated['tags'] ?? '');
 
         return redirect()->back()->with('success', 'Resource updated successfully!');
     }
@@ -131,26 +138,29 @@ class ResourceController extends Controller
         }
 
         $resource->authors()->detach();
+        $resource->tags()->detach();
         $resource->delete();
 
         return redirect()->back()->with('success', 'Resource deleted successfully.');
     }
 
-    // NEW: Method to increment views
+    // Method to increment views via AJAX (for modal opens)
     public function incrementView(Resource $resource)
     {
-        // Optional: Prevent multiple views from same user in short time
-        $sessionKey = "viewed_{$resource->id}";
-        if (!session()->has($sessionKey)) {
+        // Prevent multiple views from same user in short time (1 hour)
+        $sessionKey = "viewed_{$resource->Resource_ID}_" . Auth::id();
+        if (!Session::has($sessionKey)) {
             $resource->increment('views');
-            session()->put($sessionKey, true);
-            // Expire session key after 1 hour
-            session()->save();
+            Session::put($sessionKey, true);
+            Session::save(); // Persist immediately
+            Log::info("AJAX View incremented for Resource ID {$resource->Resource_ID} by User ID " . Auth::id() . ". New total: " . $resource->fresh()->views);
+        } else {
+            Log::info("AJAX View skipped (duplicate) for Resource ID {$resource->Resource_ID} by User ID " . Auth::id());
         }
 
         return response()->json([
             'success' => true,
-            'views' => $resource->fresh()->views // Refresh to get updated count
+            'views' => $resource->fresh()->views // Fresh to get updated value
         ]);
     }
 
@@ -213,6 +223,19 @@ class ResourceController extends Controller
             if ($name) {
                 $author = Author::firstOrCreate(['name' => $name]);
                 $resource->authors()->attach($author->id);
+            }
+        }
+    }
+
+    private function syncTags(Resource $resource, $tagString)
+    {
+        $resource->tags()->detach();
+        $tagNames = array_filter(array_map('trim', explode(',', $tagString)));
+
+        foreach ($tagNames as $name) {
+            if ($name) {
+                $tag = Tag::firstOrCreate(['name' => $name]);
+                $resource->tags()->attach($tag->id);
             }
         }
     }
