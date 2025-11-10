@@ -6,8 +6,9 @@
   <link rel="icon" href="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
-  @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/Inter.css', 'resources/css/kulimpark.css'])
+   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+
+  @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/Inter.css', 'resources/css/kulimpark.css', 'resources/css/kantumruypro.css'])
 
   <title>Librarian Dashboard | ISU StudyGo</title>
 
@@ -257,7 +258,9 @@
           class="absolute right-5 w-6 h-6"
         />
       </div>
+      
       <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
+        <span class="bg-green-800 rounded-3xl px-3 py-1 border-2 border-amber-400 text-[13px] kantumruy-pro-regular">LIBRARIAN</span>
         <span>Profile</span>
       </div>
     </div>
@@ -279,10 +282,15 @@
           <img src="{{ Vite::asset('resources/images/DashboardToggled.png') }}" alt="Dashboard" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Dashboard</span>
         </a>
+        <a href="#" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
+          <img src="{{ Vite::asset('resources/images/borrowers.png') }}" alt="Shelf" class="w-7 h-7 sidebar-icons"/>
+          <span class="label kulim-park-regular text-lg">Borrowers</span>
+        </a>
          <a href="{{ route('resource.management') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer  hover:bg-green-700 transition-colors">
           <img src="{{ Vite::asset('resources/images/resmgmt.png') }}" alt="Dashboard" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Resource Management</span>
         </a>
+        
         <a href="{{ route('featured') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer  hover:bg-green-700 transition-colors">
           <img 
             src="{{ Vite::asset('resources/images/Featured.png') }}" 
@@ -299,7 +307,7 @@
           />
           <span class="label kulim-park-regular text-lg">Community Uploads</span>
         </a>
-  
+        
         <form method="POST" action="{{ route('logout') }}" class="mt-auto w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3">
           @csrf
           <button type="submit" class="flex items-center gap-3 w-full h-full bg-transparent border-none text-white cursor-pointer">

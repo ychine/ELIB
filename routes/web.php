@@ -6,6 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\HomeController; 
+use App\Http\Controllers\BorrowController;
 
 Route::get('/signin', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/signin', [AuthController::class, 'login'])->name('login.post');
@@ -75,27 +77,37 @@ Route::middleware('auth')->group(function () {
             Route::post('/approve/{user}', [AuthController::class, 'approveUser'])->name('approve');
             Route::delete('/reject/{user}', [AuthController::class, 'rejectUser'])->name('reject');
 
-            // ADD THIS: Routes for positions management
+            // Routes for positions management
             Route::post('/positions', [PositionController::class, 'store'])->name('positions.store');
             Route::get('/positions/{id}/edit', [PositionController::class, 'edit']);
             Route::patch('/positions/{id}', [PositionController::class, 'update']);
             Route::delete('/positions/{id}', [PositionController::class, 'destroy']);
+
+            
         });
 
     /* USER & LIBRARIAN DASHBOARDS */
-    Route::get('/homeUser', function () {
-        if (!in_array(Auth::user()->role, ['student', 'faculty'])) abort(403);
-        return view('homeUser');
-    })->name('home.user');
+    Route::get('/homeUser', [HomeController::class, 'index'])->name('home.user');
+    Route::get('/resources/{id}/view', [HomeController::class, 'show'])->name('resources.view');
+    // ADD THIS BLOCK HERE
+    Route::post('/borrow/request', [App\Http\Controllers\BorrowController::class, 'store'])
+        ->name('borrow.request');
+    // NEW: Route for incrementing views
+    Route::post('/resources/{resource}/view', [ResourceController::class, 'incrementView'])->name('resources.increment.view');
 
     Route::get('/homeLibrarian', function () {
         if (Auth::user()->role !== 'librarian') abort(403);
         return view('homeLibrarian');
     })->name('home.librarian');
 
+ 
     /* LIBRARIAN RESOURCE MANAGEMENT */
-    Route::get('/resource-management', [ResourceController::class, 'index'])->name('resource.management');
-    Route::post('/resources', [ResourceController::class, 'store'])->name('resources.store');
+    Route::middleware(['role:librarian'])->group(function () {
+        Route::get('/resource-management', [ResourceController::class, 'index'])->name('resource.management');
+        Route::post('/resources', [ResourceController::class, 'store'])->name('resources.store');
+        Route::get('/resources/{resource}', [ResourceController::class, 'show'])->name('resources.show');
+        Route::patch('/resources/{resource}', [ResourceController::class, 'update'])->name('resources.update');
+    });
 
     /* LIBRARIAN FEATURED */
     Route::get('/featured', function () {

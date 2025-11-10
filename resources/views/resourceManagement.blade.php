@@ -8,9 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
   @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/Inter.css', 'resources/css/kulimpark.css', 'resources/css/kantumruypro.css'])
-
   <title>Resource Management | ISU StudyGo</title>
-
   <style>
     /* Sidebar Styles */
     .sidebar {
@@ -21,11 +19,9 @@
       padding-right: 0.5rem;
       cursor: pointer;
     }
-
     .sidebar.expanded {
       width: 18rem;
     }
-
     .sidebar .label {
       opacity: 0;
       transform: translateX(-10px);
@@ -33,30 +29,24 @@
       white-space: nowrap;
       padding-left: 1rem;
     }
-
     .sidebar.expanded .label {
       opacity: 1;
       transform: translateX(0);
     }
-
     .isu-studygo-border-logo {
       opacity: 0;
       transition: opacity 0.3s ease;
     }
-
     .isu-studygo-logo {
       opacity: 1;
       transition: opacity 0.3s ease;
     }
-
     .sidebar.expanded .isu-studygo-border-logo {
       opacity: 1;
     }
-
     .sidebar.expanded .isu-studygo-logo {
       opacity: 0;
     }
-
     .sidebar-content {
       display: flex;
       flex-direction: column;
@@ -64,53 +54,43 @@
       transition: all 0.3s ease;
       min-height: 100%;
     }
-
     .sidebar-icons {
       transform: translate(35%, 5%);
       transition: transform 0.3s ease;
     }
-
     .sidebar.expanded .sidebar-icons {
       transform: translateX(20px);
     }
-
     .sidebar.expanded .sidebar-content {
       align-items: flex-start;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
     }
-
     .sidebar.expanded + .main-content {
       margin-left: 15rem;
       margin-top: 0;
     }
-
-
     .sidebar .cursor-pointer {
       cursor: pointer;
     }
-
     .searchbar:focus {
       outline: none;
-      box-shadow: 
-        0 0 0 3px rgba(34, 197, 94, 0.5), 
+      box-shadow:
+        0 0 0 3px rgba(34, 197, 94, 0.5),
         0 0 10px 3px rgba(0, 0, 0, 0.5);
       transition: all 0.3s ease-in-out;
     }
-
     .glass-nav {
       background: transparent;
       transition: all 0.3s ease;
     }
-
     .glass-nav.scrolled {
       background: linear-gradient(rgba(4, 30, 10, 0.9), rgba(4, 30, 10, 0.7), rgba(4, 30, 10, 0.5), rgba(255, 255, 255, 0.0));
       background-position: 50% center;
       background-size: cover;
-      backdrop-filter: blur(20px); 
+      backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
     }
-
     @supports not (backdrop-filter: blur(16px)) {
       .glass-nav.scrolled {
         background: linear-gradient(rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.2)), url('{{ Vite::asset('resources/images/library.jpg') }}');
@@ -118,7 +98,6 @@
         background-size: cover;
       }
     }
-
     .glass-nav.scrolled::before {
       content: '';
       position: absolute;
@@ -132,28 +111,23 @@
       -webkit-filter: blur(8px) !important;
       z-index: -1;
     }
-
     .glass-nav .nav-item {
       visibility: hidden;
       transition: visibility 0.3s ease;
     }
-
     .glass-nav.scrolled .nav-item {
       visibility: visible;
     }
-
     .searchbar {
-      background: rgba(217, 217, 217, 1); 
-      color: #000; 
+      background: rgba(217, 217, 217, 1);
+      color: #000;
       transition: all 0.3s ease;
     }
-
     /* Responsive Styles */
     @media (max-width: 768px) {
       .sidebar {
         display: none;
       }
-
       .bottom-nav {
         display: flex;
         position: fixed;
@@ -168,7 +142,6 @@
         align-items: center;
         box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.3);
       }
-
       .bottom-nav .nav-item {
         display: flex;
         flex-direction: column;
@@ -181,58 +154,47 @@
         cursor: pointer;
         transition: background 0.3s ease;
       }
-
       .bottom-nav .nav-item:hover {
         background: rgba(255, 255, 255, 0.1);
       }
-
       .bottom-nav .nav-item img {
         width: 1.5rem;
         height: 1.5rem;
       }
-
       .bottom-nav .nav-item span {
         color: white;
         font-size: 0.75rem;
         font-family: 'Kulim Park', sans-serif;
         margin-top: 0.25rem;
       }
-
       .main-content {
         padding-bottom: 4.5rem;
       }
-
       .glass-nav {
         padding: 0.5rem 1rem;
       }
-
       .glass-nav .searchbar {
         width: 100%;
         max-width: 300px;
       }
-
       .glass-nav .text-md {
         display: none;
       }
-
       .herotext h1 {
         font-size: 2rem;
         line-height: 1.2;
         transform: translateY(50%);
         margin-left: 1rem;
       }
-
       .homediv {
         margin: 1rem;
         margin-left: 1rem;
       }
-
       .homediv p {
         margin: 1rem;
         line-height: 1.5;
       }
     }
-
     @media (min-width: 769px) {
       .bottom-nav {
         display: none;
@@ -241,7 +203,6 @@
         display: block;
       }
     }
-
     /* Modal Styles */
     .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center; opacity: 0; transition: opacity 0.3s ease; }
     .modal.active { display:flex; opacity: 1; }
@@ -250,17 +211,14 @@
     .modal-header { padding:1.5rem; border-bottom:1px solid #e5e7eb; }
     .modal-body { padding:1.5rem; }
     .modal-footer { padding:1rem 1.5rem; border-top:1px solid #e5e7eb; display:flex; justify-content:flex-end; gap:0.5rem; }
-
     /* Theme Fonts */
     .kantumruy-pro-regular { font-family: 'Kantumruy Pro', sans-serif; }
     .kulim-park-bold { font-family: 'Kulim Park', sans-serif; font-weight: 700; }
-
     /* Table Styles */
     table.min-w-full { width: 100%; border-collapse: separate; border-spacing: 0; }
     table.min-w-full thead tr th { background: #f3f4f6; text-align: left; font-weight: 600; font-family: 'Kantumruy Pro', sans-serif; }
     table.min-w-full tbody tr:hover { background: #f9fafb; cursor: pointer; }
-    table.min-w-full td, table.min-w.full th { padding: 1rem; border-bottom: 1px solid #e5e7eb; }
-
+    table.min-w-full td, table.min-w-full th { padding: 1rem; border-bottom: 1px solid #e5e7eb; }
     /* Drop Zone Styles */
     .drop-zone {
       border: 2px dashed #bbb;
@@ -278,66 +236,73 @@
       margin: 0;
       color: #666;
     }
+    /* Alert Styles for Flash Messages */
+    .alert { padding: 1rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: 0.375rem; }
+    .alert-success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
+    .alert-danger { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
+    .error-message { color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem; }
   </style>
 </head>
 <body class="bg-yellow-50">
   <div class="w-full h-[100vh] flex">
-
     <!-- Navigation -->
     <div class="fixed w-full top-0 left-0 flex justify-between items-center px-4 py-2 z-10 glass-nav">
       <span class="text-5xl jersey-20-regular pl-3 text-white"></span>
       <div class="relative flex items-center">
         <input class="searchbar z-0 pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" type="text" placeholder="Search for books, papers..">
-        <img 
-          src="{{ Vite::asset('resources/images/Search.png') }}" 
-          alt="Search icon" 
+        <img
+          src="{{ Vite::asset('resources/images/Search.png') }}"
+          alt="Search icon"
           class="absolute right-5 w-6 h-6"
         />
       </div>
       <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
+        <span class="bg-green-800 rounded-3xl px-3 py-1 border-2 border-amber-400 text-[13px] kantumruy-pro-regular">LIBRARIAN</span>
         <span>Profile</span>
       </div>
     </div>
-
     <!-- Sidebar -->
     <div class="fixed top-0 left-0 h-full bg-[#149637] shadow-[5px_-10px_22.5px_2px_rgba(0,0,0,0.59)] rounded-tr-[50px] sidebar z-20 pt-8">
       <div class="sidebar-content space-y-2 text-white">
-        <img 
-          src="{{ Vite::asset('resources/images/ISUStudyGoBorder.svg') }}" 
-          alt="Library" 
+        <img
+          src="{{ Vite::asset('resources/images/ISUStudyGoBorder.svg') }}"
+          alt="Library"
           class="w-full h-20 isu-studygo-border-logo"
         />
-        <img 
-          src="{{ Vite::asset('resources/images/ISUclpsd.svg') }}" 
-          alt="Library" 
+        <img
+          src="{{ Vite::asset('resources/images/ISUclpsd.svg') }}"
+          alt="Library"
           class="w-full h-10 translate-y-[20px] absolute isu-studygo-logo"
         />
-        <a href="{{ route('home.librarian') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer  hover:bg-green-700 transition-colors">
+        <a href="{{ route('home.librarian') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
           <img src="{{ Vite::asset('resources/images/Dashboard.png') }}" alt="Dashboard" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Dashboard</span>
         </a>
+        <a href="#" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
+          <img src="{{ Vite::asset('resources/images/borrowers.png') }}" alt="Shelf" class="w-7 h-7 sidebar-icons"/>
+          <span class="label kulim-park-regular text-lg">Borrowers</span>
+        </a>
         <a href="{{ route('resource.management') }}" class="w-full h-12 bg-green-500 rounded-xl flex items-center gap-3 cursor-pointer">
-    
           <img src="{{ Vite::asset('resources/images/resmgmttoggle.png') }}" alt="Dashboard" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Resource Management</span>
         </a>
-        <a href="{{ route('featured') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer  hover:bg-green-700 transition-colors">
-          <img 
-            src="{{ Vite::asset('resources/images/Featured.png') }}" 
-            alt="Featured" 
+        <a href="{{ route('featured') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
+          <img
+            src="{{ Vite::asset('resources/images/Featured.png') }}"
+            alt="Featured"
             class="w-7 h-7 translate-y-[-1px] translate-x-[1px] sidebar-icons"
           />
           <span class="label kulim-park-regular text-lg">Featured</span>
         </a>
-        <a href="{{ route('community.uploads') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer  hover:bg-green-700 transition-colors">
-          <img 
-            src="{{ Vite::asset('resources/images/Member.png') }}" 
-            alt="Community Uploads" 
+        <a href="{{ route('community.uploads') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
+          <img
+            src="{{ Vite::asset('resources/images/Member.png') }}"
+            alt="Community Uploads"
             class="w-7 h-7 sidebar-icons"
           />
           <span class="label kulim-park-regular text-lg">Community Uploads</span>
         </a>
-  
+ 
         <form method="POST" action="{{ route('logout') }}" class="mt-auto w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3">
           @csrf
           <button type="submit" class="flex items-center gap-3 w-full h-full bg-transparent border-none text-white cursor-pointer">
@@ -347,7 +312,6 @@
         </form>
       </div>
     </div>
-
     <!-- Bottom Navigation for Small Screens -->
     <div class="bottom-nav">
       <a href="{{ route('home.librarian') }}" class="nav-item">
@@ -374,13 +338,12 @@
         </button>
       </form>
     </div>
-
     <!-- Main Content -->
     <div class="flex flex-col flex-1 transition-all duration-300 main-content bg-gray-200">
       <div class="hero-container relative w-full greenhue z-1">
-        <img 
-          src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" 
-          alt="Library" 
+        <img
+          src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}"
+          alt="Library"
           class="w-full h-50 z-[-1] object-cover absolute"
           style="object-position: 70% middle;"
         />
@@ -392,84 +355,170 @@
               to another
             </h1>
           </div>
-
-
-
         </div>
-
         <div class="homediv lg:mx-[10%] mt-5 rounded-md">
           <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight mb-4">Resource Management</h2>
         </div>
         <div class="homediv lg:mx-[10%] rounded-2xl bg-white shadow-lg p-6">
-
+          <!-- Flash Messages -->
+          @if (session('success'))
+            <div class="alert alert-success mb-4">
+              {{ session('success') }}
+            </div>
+          @endif
+          @if (session('error'))
+            <div class="alert alert-danger mb-4">
+              {{ session('error') }}
+            </div>
+          @endif
+          @if ($errors->any())
+            <div class="alert alert-danger mb-4">
+              <ul class="list-unstyled mb-0">
+                @foreach ($errors->all() as $error)
+                  <li>{{ $error }}</li>
+                @endforeach
+              </ul>
+            </div>
+          @endif
           <!-- Add Resource Button -->
-          <button onclick="document.getElementById('addResourceModal').classList.add('active')" class="bg-green-600 text-white px-4 py-2 rounded mb-4 hover:bg-green-700 kantumruy-pro-regular">Add Resource</button>
-
+          <button onclick="openAddModal()" class="bg-green-600 text-white px-4 py-2 rounded mb-4 hover:bg-green-700 kantumruy-pro-regular">Add Resource</button>
           <!-- Resources Table -->
           <table class="min-w-full bg-white rounded-lg overflow-hidden">
             <thead>
               <tr>
-                <th class="py-3 px-6 text-left kantumruy-pro-regular">Title</th>
-                <th class="py-3 px-6 text-left kantumruy-pro-regular">Author</th>
-                <th class="py-3 px-6 text-left kantumruy-pro-regular">Year Published</th>
-                <th class="py-3 px-6 text-left kantumruy-pro-regular">Upload Date</th>
-                <th class="py-3 px-6 text-left kantumruy-pro-regular">Uploaded By</th>
-                <th class="py-3 px-6 text-left kantumruy-pro-regular">Status</th>
+                <th class="py-3 px-6 border-b border-gray-500 text-left kantumruy-pro-regular">Title</th>
+                <th class="py-3 px-6 border-b border-gray-500 text-left kantumruy-pro-regular">Author(s)</th>
+                <th class="py-3 px-6 border-b border-gray-500 text-left kantumruy-pro-regular">Published Date</th>
+                <th class="py-3 px-6 border-b border-gray-500 text-left kantumruy-pro-regular">Upload Date</th>
+                <th class="py-3 px-6 border-b border-gray-500 text-left kantumruy-pro-regular">Uploaded By</th>
+                <th class="py-3 px-6 border-b border-gray-500 text-left kantumruy-pro-regular">Status</th>
               </tr>
             </thead>
             <tbody>
-              @foreach ($resources as $resource)
-                <tr class="hover:bg-gray-50 transition-colors cursor-pointer" onclick="openEditModal({{ $resource->id }}, '{{ addslashes($resource->Resource_Name) }}', '{{ addslashes($resource->author) }}', '{{ addslashes($resource->Description) }}', '{{ \Carbon\Carbon::parse($resource->Publish_Date)->year }}', '{{ $resource->File_Path }}', '{{ $resource->status }}')">
-                  <td class="py-3 px-6 border-t kantumruy-pro-regular">{{ $resource->Resource_Name }}</td>
-                  <td class="py-3 px-6 border-t kantumruy-pro-regular">{{ $resource->author }}</td>
-                  <td class="py-3 px-6 border-t kantumruy-pro-regular">{{ \Carbon\Carbon::parse($resource->Publish_Date)->year }}</td>
-                  <td class="py-3 px-6 border-t kantumruy-pro-regular">{{ $resource->created_at->format('Y-m-d') }}</td>
-                  <td class="py-3 px-6 border-t kantumruy-pro-regular">{{ $resource->user->name ?? 'Unknown' }}</td>
-                  <td class="py-3 px-6 border-t kantumruy-pro-regular">{{ $resource->status }}</td>
+             @foreach ($resources as $resource)
+                @php
+                  $authorsCollection = $resource->getRelationValue('authors');
+                  $authorsString = $authorsCollection && $authorsCollection->isNotEmpty()
+                      ? $authorsCollection->pluck('name')->implode(', ')
+                      : 'Unknown Author';
+                @endphp
+
+                <tr 
+                  class="hover:bg-gray-50 transition-colors cursor-pointer" 
+                  data-resource="{{ json_encode($resource->only(['Resource_ID', 'Resource_Name', 'Description', 'publish_year', 'publish_month', 'publish_day', 'File_Path', 'status'])) }}"
+                  data-authors="{{ $authorsString }}"
+                  onclick="openEditModalFromRow(this)"
+                >
+                  <td class="py-2 px-6 border-b border-gray-400 kantumruy-pro-regular">
+                    {{ $resource->Resource_Name }}
+                    <br>
+                    <button class="text-blue-500 hover:underline text-sm" onclick="event.stopPropagation(); openPreviewModal('/storage/{{ $resource->File_Path }}')">
+                      View File
+                    </button>
+                  </td>
+                  <td class="py-2 px-6 border-b border-gray-400 kantumruy-pro-regular tracking-tight">
+                    {{ $authorsString }}
+                  </td>
+                  <td class="py-2 px-6 border-b border-gray-400 kantumruy-pro-regular tracking-tight">
+                    {{ $resource->formatted_publish_date ?? 'N/A' }}
+                  </td>
+                  <td class="py-2 px-6 border-b border-gray-400 kantumruy-pro-regular tracking-tight">
+                    {{ $resource->created_at->format('Y-m-d') }}
+                  </td>
+                  <td class="py-2 px-6 border-b border-gray-400 kantumruy-pro-regular tracking-tight">
+                    {{ $resource->user->full_name ?? 'Unknown' }}
+                  </td>
+                  <td class="py-2 px-6 border-b border-gray-400 kantumruy-pro-regular tracking-tight">
+                    {{ $resource->status }}
+                  </td>
                 </tr>
               @endforeach
             </tbody>
           </table>
-
-          
+         
         </div>
-       
+      
       </div>
     </div>
   </div>
-
   <!-- Add Resource Modal (moved outside main flex for full overlay) -->
   <div id="addResourceModal" class="modal">
     <div class="modal-content kantumruy-pro-regular tracking-tight">
       <div class="modal-header">
         <h3 class="text-xl font-bold">Add New Resource</h3>
       </div>
-      <form action="{{ route('resources.store') }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ route('resources.store') }}" method="POST" enctype="multipart/form-data" onsubmit="return validateAddForm()">
         @csrf
         <input type="hidden" name="MAX_FILE_SIZE" value="104857600">
         <div class="modal-body space-y-4">
           <div>
             <label for="name" class="block font-medium">Title</label>
-            <input type="text" name="Resource_Name" id="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+            <input type="text" name="Resource_Name" id="name" value="{{ old('Resource_Name') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('Resource_Name') border-red-500 @enderror" required autocomplete="off">
+            @error('Resource_Name')
+              <div class="error-message">{{ $message }}</div>
+            @enderror
           </div>
           <div>
-            <label for="author" class="block font-medium">Author</label>
-            <input type="text" name="author" id="author" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+            <label for="author" class="block font-medium">Author(s) (comma-separated)</label>
+            <input type="text" name="authors" id="author" value="{{ old('authors') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('authors') border-red-500 @enderror" required autocomplete="off">
+            @error('authors')
+              <div class="error-message">{{ $message }}</div>
+            @enderror
           </div>
           <div>
             <label for="description" class="block font-medium">Description</label>
-            <textarea name="Description" id="description" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required></textarea>
+            <textarea name="Description" id="description" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('Description') border-red-500 @enderror" required autocomplete="off">{{ old('Description') }}</textarea>
+            @error('Description')
+              <div class="error-message">{{ $message }}</div>
+            @enderror
           </div>
           <div>
-            <label for="publish_year" class="block font-medium">Publish Year</label>
-            <select name="publish_date" id="publish_year" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
-              @php
-                $currentYear = date('Y');
-                for ($year = 1900; $year <= $currentYear + 5; $year++) {
-                  echo "<option value=\"$year-01-01\">$year</option>";
-                }
-              @endphp
-            </select>
+            <label class="block font-medium">Publish Date</label>
+            <div id="addDatePicker" class="flex space-x-2">
+              <select id="add_year" name="publish_year" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('publish_year') border-red-500 @enderror" onchange="showAddMonth();">
+                <option value="">Select Year (optional)</option>
+                @php
+                  $currentYear = date('Y');
+                  $oldYear = old('publish_year');
+                  for ($year = $currentYear + 5; $year >= 1900; $year--) {
+                    $selected = ($oldYear == $year) ? 'selected' : '';
+                    echo "<option value=\"$year\" $selected>$year</option>";
+                  }
+                @endphp
+              </select>
+              @error('publish_year')
+                <div class="error-message">{{ $message }}</div>
+              @enderror
+              <select id="add_month" name="publish_month" style="display: none;" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('publish_month') border-red-500 @enderror" onchange="showAddDay();">
+                <option value="">Select Month</option>
+                @php $oldMonth = old('publish_month'); @endphp
+                <option value="1" {{ $oldMonth == 1 ? 'selected' : '' }}>January</option>
+                <option value="2" {{ $oldMonth == 2 ? 'selected' : '' }}>February</option>
+                <option value="3" {{ $oldMonth == 3 ? 'selected' : '' }}>March</option>
+                <option value="4" {{ $oldMonth == 4 ? 'selected' : '' }}>April</option>
+                <option value="5" {{ $oldMonth == 5 ? 'selected' : '' }}>May</option>
+                <option value="6" {{ $oldMonth == 6 ? 'selected' : '' }}>June</option>
+                <option value="7" {{ $oldMonth == 7 ? 'selected' : '' }}>July</option>
+                <option value="8" {{ $oldMonth == 8 ? 'selected' : '' }}>August</option>
+                <option value="9" {{ $oldMonth == 9 ? 'selected' : '' }}>September</option>
+                <option value="10" {{ $oldMonth == 10 ? 'selected' : '' }}>October</option>
+                <option value="11" {{ $oldMonth == 11 ? 'selected' : '' }}>November</option>
+                <option value="12" {{ $oldMonth == 12 ? 'selected' : '' }}>December</option>
+              </select>
+              @error('publish_month')
+                <div class="error-message">{{ $message }}</div>
+              @enderror
+              <select id="add_day" name="publish_day" style="display: none;" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('publish_day') border-red-500 @enderror">
+                <option value="">Select Day</option>
+                @php $oldDay = old('publish_day'); @endphp
+                @for ($d = 1; $d <= 31; $d++)
+                  <option value="{{ $d }}" {{ $oldDay == $d ? 'selected' : '' }}>{{ $d }}</option>
+                @endfor
+              </select>
+              @error('publish_day')
+                <div class="error-message">{{ $message }}</div>
+              @enderror
+            </div>
           </div>
           <div>
             <label for="file" class="block font-medium">File</label>
@@ -477,6 +526,9 @@
               <p>Drag & drop file here or click to upload</p>
               <input type="file" name="file" id="file" class="hidden" required>
             </div>
+            @error('file')
+              <div class="error-message">{{ $message }}</div>
+            @enderror
           </div>
           <input type="hidden" name="Type" value="Featured">
         </div>
@@ -487,39 +539,77 @@
       </form>
     </div>
   </div>
-
   <!-- Edit Resource Modal -->
   <div id="editResourceModal" class="modal">
     <div class="modal-content kantumruy-pro-regular tracking-tight">
       <div class="modal-header">
         <h3 class="text-xl font-bold">Edit Resource</h3>
       </div>
-      <form id="editForm" action="" method="POST" enctype="multipart/form-data">
+      <form id="editForm" action="" method="POST" enctype="multipart/form-data" onsubmit="return validateEditForm()">
         @csrf
         @method('PATCH')
         <div class="modal-body space-y-4">
           <div>
             <label for="edit_name" class="block font-medium">Title</label>
-            <input type="text" name="Resource_Name" id="edit_name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+            <input type="text" name="Resource_Name" id="edit_name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('Resource_Name') border-red-500 @enderror" required>
+            @error('Resource_Name')
+              <div class="error-message">{{ $message }}</div>
+            @enderror
           </div>
           <div>
-            <label for="edit_author" class="block font-medium">Author</label>
-            <input type="text" name="author" id="edit_author" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+            <label for="edit_author" class="block font-medium">Author(s) (comma-separated)</label>
+            <input type="text" name="authors" id="edit_author" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('authors') border-red-500 @enderror" required>
+            @error('authors')
+              <div class="error-message">{{ $message }}</div>
+            @enderror
           </div>
           <div>
             <label for="edit_description" class="block font-medium">Description</label>
-            <textarea name="Description" id="edit_description" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required></textarea>
+            <textarea name="Description" id="edit_description" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('Description') border-red-500 @enderror" required></textarea>
+            @error('Description')
+              <div class="error-message">{{ $message }}</div>
+            @enderror
           </div>
           <div>
-            <label for="edit_publish_year" class="block font-medium">Publish Year</label>
-            <select name="publish_date" id="edit_publish_year" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
-              @php
-                $currentYear = date('Y');
-                for ($year = 1900; $year <= $currentYear + 5; $year++) {
-                  echo "<option value=\"$year-01-01\">$year</option>";
-                }
-              @endphp
-            </select>
+            <label class="block font-medium">Publish Date</label>
+            <div id="editDatePicker" class="flex space-x-2">
+              <select id="edit_year" name="publish_year" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('publish_year') border-red-500 @enderror" onchange="showEditMonth();">
+                <option value="">Select Year (optional)</option>
+                @php
+                  $currentYear = date('Y');
+                  for ($year = $currentYear + 5; $year >= 1900; $year--) {
+                    echo "<option value=\"$year\">$year</option>";
+                  }
+                @endphp
+              </select>
+              @error('publish_year')
+                <div class="error-message">{{ $message }}</div>
+              @enderror
+              <select id="edit_month" name="publish_month" style="display: none;" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('publish_month') border-red-500 @enderror" onchange="showEditDay();">
+                <option value="">Select Month</option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+              @error('publish_month')
+                <div class="error-message">{{ $message }}</div>
+              @enderror
+              <select id="edit_day" name="publish_day" style="display: none;" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('publish_day') border-red-500 @enderror">
+                <option value="">Select Day</option>
+              </select>
+              @error('publish_day')
+                <div class="error-message">{{ $message }}</div>
+              @enderror
+            </div>
           </div>
           <div>
             <label for="edit_file" class="block font-medium">File (optional update)</label>
@@ -527,14 +617,19 @@
               <p id="editFileText">Drag & drop new file here or click to upload</p>
               <input type="file" name="file" id="edit_file" class="hidden">
             </div>
+            @error('file')
+              <div class="error-message">{{ $message }}</div>
+            @enderror
           </div>
           <div>
             <label for="edit_status" class="block font-medium">Status</label>
-            <select name="status" id="edit_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+            <select name="status" id="edit_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('status') border-red-500 @enderror" required>
               <option value="Available">Available</option>
-              <option value="Unavailable">Unavailable</option>
-              <!-- Add more statuses if needed -->
+              <option value="Unavailable">Archived</option>
             </select>
+            @error('status')
+              <div class="error-message">{{ $message }}</div>
+            @enderror
           </div>
           <input type="hidden" name="Type" value="Featured">
         </div>
@@ -545,9 +640,21 @@
       </form>
     </div>
   </div>
-
+  <!-- Preview Modal -->
+  <div id="previewModal" class="modal">
+    <div class="modal-content" style="width:90%; max-width:800px; height:90vh;">
+      <div class="modal-header">
+        <h3 class="text-xl font-bold">File Preview</h3>
+      </div>
+      <div class="modal-body" style="height: calc(100% - 100px); padding:0;">
+        <iframe id="previewIframe" src="" style="width:100%; height:100%; border:none;"></iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="closePreviewModal()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Close</button>
+      </div>
+    </div>
+  </div>
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-
   <!-- Scroll Effect for Navbar -->
   <script>
     window.addEventListener('scroll', () => {
@@ -555,7 +662,6 @@
       const libraryImg = document.querySelector('.main-content img');
       const libraryHeight = libraryImg ? libraryImg.offsetHeight : 0;
       const scrollPosition = window.scrollY;
-
       if (scrollPosition > libraryHeight) {
         nav.classList.add('scrolled');
       } else {
@@ -563,12 +669,10 @@
       }
     });
   </script>
-
   <!-- Sidebar Toggle & Click Outside to Collapse -->
   <script>
     const sidebar = document.querySelector('.sidebar');
     const sidebarItems = document.querySelectorAll('.sidebar .cursor-pointer, .sidebar button, .sidebar form');
-
     // Toggle sidebar on click
     sidebar.addEventListener('click', (e) => {
       // Only toggle if clicking on the sidebar background (not items)
@@ -576,100 +680,103 @@
         sidebar.classList.toggle('expanded');
       }
     });
-
     // Prevent collapse when clicking inside sidebar items
     sidebarItems.forEach(item => {
       item.addEventListener('click', (e) => {
         e.stopPropagation();
       });
     });
-
     // Collapse when clicking outside
     document.addEventListener('click', (e) => {
       if (sidebar.classList.contains('expanded') && !sidebar.contains(e.target)) {
         sidebar.classList.remove('expanded');
       }
     });
-
     // Optional: Allow clicking the logo area to toggle
     const logoArea = sidebar.querySelector('.sidebar-content');
     logoArea.style.pointerEvents = 'auto';
   </script>
-
   <!-- Modal Close on Outside Click -->
   <script>
     window.addEventListener('click', e => {
       const addModal = document.getElementById('addResourceModal');
       const editModal = document.getElementById('editResourceModal');
+      const previewModal = document.getElementById('previewModal');
       if (e.target === addModal) {
         addModal.classList.remove('active');
       }
       if (e.target === editModal) {
         editModal.classList.remove('active');
       }
+      if (e.target === previewModal) {
+        previewModal.classList.remove('active');
+      }
     });
   </script>
-
+  <!-- Auto-open Add Modal if Validation Errors -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      @if ($errors->any())
+        document.getElementById('addResourceModal').classList.add('active');
+      @endif
+    });
+  </script>
   <!-- Drag-and-Drop File Upload for Add Modal -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const dropZone = document.getElementById('dropZone');
       const fileInput = document.getElementById('file');
-
       // Click to upload
       dropZone.addEventListener('click', () => {
         fileInput.click();
       });
-
       // Drag events
       dropZone.addEventListener('dragover', (e) => {
         e.preventDefault();
         dropZone.classList.add('dragover');
       });
-
       dropZone.addEventListener('dragleave', () => {
         dropZone.classList.remove('dragover');
       });
-
       dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
         dropZone.classList.remove('dragover');
         if (e.dataTransfer.files.length) {
           fileInput.files = e.dataTransfer.files;
-          dropZone.querySelector('p').textContent = `File selected: ${e.dataTransfer.files[0].name}`;
+          const filename = e.dataTransfer.files[0].name;
+          const title = filename.replace(/\.[^/.]+$/, "");
+          document.getElementById('name').value = title;
+          dropZone.querySelector('p').textContent = `File selected: ${filename}`;
         }
       });
-
       // Update text on file select via click
       fileInput.addEventListener('change', () => {
         if (fileInput.files.length) {
-          dropZone.querySelector('p').textContent = `File selected: ${fileInput.files[0].name}`;
+          const filename = fileInput.files[0].name;
+          const title = filename.replace(/\.[^/.]+$/, "");
+          document.getElementById('name').value = title;
+          dropZone.querySelector('p').textContent = `File selected: ${filename}`;
         }
       });
     });
   </script>
-
   <!-- Drag-and-Drop for Edit Modal -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const editDropZone = document.getElementById('editDropZone');
       const editFileInput = document.getElementById('edit_file');
-
       // Click to upload
       editDropZone.addEventListener('click', () => {
         editFileInput.click();
       });
-
       // Drag events
       editDropZone.addEventListener('dragover', (e) => {
         e.preventDefault();
         editDropZone.classList.add('dragover');
       });
-
       editDropZone.addEventListener('dragleave', () => {
         editDropZone.classList.remove('dragover');
       });
-
       editDropZone.addEventListener('drop', (e) => {
         e.preventDefault();
         editDropZone.classList.remove('dragover');
@@ -678,7 +785,6 @@
           editDropZone.querySelector('#editFileText').textContent = `New file selected: ${e.dataTransfer.files[0].name}`;
         }
       });
-
       // Update text on file select via click
       editFileInput.addEventListener('change', () => {
         if (editFileInput.files.length) {
@@ -687,20 +793,140 @@
       });
     });
   </script>
-
-  <!-- Edit Modal Population -->
+  <!-- Date Picker for Add Modal -->
   <script>
-    function openEditModal(id, name, author, description, year, filePath, status) {
-      const modal = document.getElementById('editResourceModal');
-      const form = document.getElementById('editForm');
-      form.action = '{{ url("/resources") }}/' + id;
-      document.getElementById('edit_name').value = name;
-      document.getElementById('edit_author').value = author;
-      document.getElementById('edit_description').value = description;
-      document.getElementById('edit_publish_year').value = year + '-01-01';
-      document.getElementById('edit_status').value = status;
-      document.getElementById('editFileText').textContent = 'Current file: ' + filePath.split('/').pop() + ' (drag & drop to replace)';
-      modal.classList.add('active');
+    function showAddMonth() {
+      const year = document.getElementById('add_year').value;
+      if (year) {
+        document.getElementById('add_month').style.display = 'block';
+        document.getElementById('add_day').style.display = 'none';
+        document.getElementById('add_day').innerHTML = '<option value="">Select Day</option>';
+      }
+    }
+
+    function showAddDay() {
+      const month = document.getElementById('add_month').value;
+      const year = document.getElementById('add_year').value;
+      if (month && year) {
+        const daySelect = document.getElementById('add_day');
+        daySelect.style.display = 'block';
+        daySelect.innerHTML = '<option value="">Select Day</option>';
+        const daysInMonth = new Date(year, month, 0).getDate();
+        for (let d = 1; d <= daysInMonth; d++) {
+          const option = document.createElement('option');
+          option.value = d;
+          option.text = d;
+          daySelect.appendChild(option);
+        }
+      }
+    }
+  </script>
+  <!-- Add Form Validation -->
+  <script>
+    function validateAddForm() {
+      // REMOVED: Year is now optional, so no validation alert for it
+      return true;
+    }
+  </script>
+  <!-- Open Add Modal Function (with old values if errors) -->
+  <script>
+    function openAddModal() {
+      // Clear any previous errors visually if needed
+      document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+      document.getElementById('addResourceModal').classList.add('active');
+    }
+  </script>
+  <!-- Edit Modal Population - Updated to use Resource_ID -->
+  <script>
+    function openEditModalFromRow(row) {
+      try {
+        const data = JSON.parse(row.dataset.resource);
+        const authors = row.dataset.authors;
+        const resourceId = data.Resource_ID;
+        if (!resourceId || resourceId === null || resourceId === undefined || resourceId === 'null') {
+          console.error('Invalid resource ID:', resourceId);
+          alert('Error: Invalid resource ID. Please refresh the page and try again.');
+          return;
+        }
+        const modal = document.getElementById('editResourceModal');
+        const form = document.getElementById('editForm');
+        form.action = '{{ url("/resources") }}/' + resourceId;
+        document.getElementById('edit_name').value = data.Resource_Name || '';
+        document.getElementById('edit_author').value = authors || '';
+        document.getElementById('edit_description').value = data.Description || '';
+        document.getElementById('edit_status').value = data.status || 'Available';
+        document.getElementById('editFileText').textContent = 'Current file: ' + (data.File_Path ? data.File_Path.split('/').pop() : 'Unknown') + ' (drag & drop to replace)';
+
+        // Set date selects
+        const year = data.publish_year || null;
+        const month = data.publish_month || null;
+        const day = data.publish_day || null;
+        document.getElementById('edit_year').value = year || '';
+        document.getElementById('edit_month').style.display = year ? 'block' : 'none';
+        document.getElementById('edit_month').value = month || '';
+        document.getElementById('edit_day').style.display = (year && month) ? 'block' : 'none';
+        document.getElementById('edit_day').value = day || '';
+
+        if (year && month) {
+          showEditDay();
+        }
+
+        modal.classList.add('active');
+      } catch (error) {
+        console.error('Error opening edit modal:', error);
+        alert('Error loading resource data. Please try again.');
+      }
+    }
+  </script>
+  <!-- Date Picker for Edit Modal -->
+  <script>
+    function showEditMonth() {
+      const year = document.getElementById('edit_year').value;
+      if (year) {
+        document.getElementById('edit_month').style.display = 'block';
+        document.getElementById('edit_day').style.display = 'none';
+        document.getElementById('edit_day').innerHTML = '<option value="">Select Day</option>';
+      } else {
+        document.getElementById('edit_month').style.display = 'none';
+        document.getElementById('edit_day').style.display = 'none';
+      }
+    }
+
+    function showEditDay() {
+      const month = document.getElementById('edit_month').value;
+      const year = document.getElementById('edit_year').value;
+      if (month && year) {
+        const daySelect = document.getElementById('edit_day');
+        daySelect.style.display = 'block';
+        daySelect.innerHTML = '<option value="">Select Day</option>';
+        const daysInMonth = new Date(year, month, 0).getDate();
+        for (let d = 1; d <= daysInMonth; d++) {
+          const option = document.createElement('option');
+          option.value = d;
+          option.text = d;
+          daySelect.appendChild(option);
+        }
+      } else {
+        document.getElementById('edit_day').style.display = 'none';
+      }
+    }
+  </script>
+  <!-- Edit Form Validation -->
+  <script>
+    function validateEditForm() {
+      // REMOVED: Year is now optional, so no validation alert for it
+      return true;
+    }
+  </script>
+  <!-- Preview Modal Functions -->
+  <script>
+    function openPreviewModal(fileUrl) {
+      document.getElementById('previewIframe').src = fileUrl + '#toolbar=0';
+      document.getElementById('previewModal').classList.add('active');
+    }
+    function closePreviewModal() {
+      document.getElementById('previewModal').classList.remove('active');
+      document.getElementById('previewIframe').src = '';
     }
   </script>
 </body>

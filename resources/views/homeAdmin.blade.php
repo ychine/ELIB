@@ -131,7 +131,10 @@
         />
       </div>
       <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
-     
+       
+        <span class="bg-green-800 rounded-3xl px-3 py-1 border-2 border-amber-400 text-[13px] kantumruy-pro-regular">ADMIN</span>
+        <span>Profile</span>
+      
       </div>
     </div>
     

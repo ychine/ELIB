@@ -44,6 +44,33 @@ INSERT INTO `admin` VALUES (4,'Me pinaka admin','shesh','2025-10-27 12:39:35','2
 UNLOCK TABLES;
 
 --
+-- Table structure for table `authors`
+--
+
+DROP TABLE IF EXISTS `authors`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `authors` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `authors_name_unique` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `authors`
+--
+
+LOCK TABLES `authors` WRITE;
+/*!40000 ALTER TABLE `authors` DISABLE KEYS */;
+INSERT INTO `authors` VALUES (1,'tutorialspoint','2025-11-09 15:55:22','2025-11-09 15:55:22'),(2,'Rex Hogan','2025-11-09 15:55:22','2025-11-09 15:55:22'),(3,'Mike O’Leary','2025-11-09 15:55:22','2025-11-09 15:55:22'),(4,'Anthony De Barros','2025-11-09 15:55:22','2025-11-09 15:55:22'),(8,'Adeel Javed','2025-11-09 08:24:08','2025-11-09 08:24:08'),(9,'Sammie Bae','2025-11-10 01:35:23','2025-11-10 01:35:23'),(10,'John W. Creswell','2025-11-10 03:55:06','2025-11-10 03:55:06');
+/*!40000 ALTER TABLE `authors` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `borrower`
 --
 
@@ -53,6 +80,7 @@ DROP TABLE IF EXISTS `borrower`;
 CREATE TABLE `borrower` (
   `Borrower_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `UID` bigint(20) unsigned NOT NULL,
+  `resource_id` bigint(20) unsigned NOT NULL,
   `Approved_By` bigint(20) unsigned DEFAULT NULL,
   `Approved_Date` date DEFAULT NULL,
   `Return_Date` date DEFAULT NULL,
@@ -62,9 +90,11 @@ CREATE TABLE `borrower` (
   PRIMARY KEY (`Borrower_ID`),
   KEY `borrower_uid_foreign` (`UID`),
   KEY `borrower_approved_by_foreign` (`Approved_By`),
+  KEY `borrower_resource_id_foreign` (`resource_id`),
   CONSTRAINT `borrower_approved_by_foreign` FOREIGN KEY (`Approved_By`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `borrower_resource_id_foreign` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`Resource_ID`) ON DELETE CASCADE,
   CONSTRAINT `borrower_uid_foreign` FOREIGN KEY (`UID`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -73,6 +103,7 @@ CREATE TABLE `borrower` (
 
 LOCK TABLES `borrower` WRITE;
 /*!40000 ALTER TABLE `borrower` DISABLE KEYS */;
+INSERT INTO `borrower` VALUES (1,27,1,NULL,NULL,NULL,0,'2025-11-09 11:27:41','2025-11-09 11:27:41');
 /*!40000 ALTER TABLE `borrower` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -343,7 +374,7 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) NOT NULL,
   `batch` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -352,7 +383,7 @@ CREATE TABLE `migrations` (
 
 LOCK TABLES `migrations` WRITE;
 /*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
-INSERT INTO `migrations` VALUES (1,'0001_01_01_000000_create_users_table',1),(2,'0001_01_01_000001_create_cache_table',1),(3,'0001_01_01_000002_create_jobs_table',1),(4,'2025_10_16_174846_add_role_to_users_table',2),(5,'2025_10_25_082040_create_campus_table',3),(6,'2025_10_25_082342_update_users_table_add_campus_id',3),(7,'2025_10_25_082416_create_faculty_table',3),(8,'2025_10_25_082429_create_admin_table',3),(9,'2025_10_25_082448_create_resources_table',3),(10,'2025_10_25_082501_create_borrower_table',3),(11,'2025_10_27_111752_add_is_approved_to_users_table',4),(12,'2025_10_27_121707_add_unique_constraint_to_campus_name',5),(13,'2025_10_27_122913_create_librarian_table',6),(14,'2025_10_27_122958_remove_name_from_users_table',7),(17,'2025_10_27_124127_create_student_table',8),(19,'2025_11_01_134003_create_verify_codes_table',9),(21,'2025_11_04_154238_create_librarian_positions_table',10),(22,'2025_11_04_154239_add_position_id_to_librarian_table',10),(23,'2025_11_04_154240_add_status_author_to_resources_and_university_librarian_to_users_table',10),(24,'2025_11_04_160336_drop_is_university_librarian_from_users_table',11),(25,'2025_11_06_161015_alter_resources_table_description_column',12);
+INSERT INTO `migrations` VALUES (1,'0001_01_01_000000_create_users_table',1),(2,'0001_01_01_000001_create_cache_table',1),(3,'0001_01_01_000002_create_jobs_table',1),(4,'2025_10_16_174846_add_role_to_users_table',2),(5,'2025_10_25_082040_create_campus_table',3),(6,'2025_10_25_082342_update_users_table_add_campus_id',3),(7,'2025_10_25_082416_create_faculty_table',3),(8,'2025_10_25_082429_create_admin_table',3),(9,'2025_10_25_082448_create_resources_table',3),(10,'2025_10_25_082501_create_borrower_table',3),(11,'2025_10_27_111752_add_is_approved_to_users_table',4),(12,'2025_10_27_121707_add_unique_constraint_to_campus_name',5),(13,'2025_10_27_122913_create_librarian_table',6),(14,'2025_10_27_122958_remove_name_from_users_table',7),(17,'2025_10_27_124127_create_student_table',8),(19,'2025_11_01_134003_create_verify_codes_table',9),(21,'2025_11_04_154238_create_librarian_positions_table',10),(22,'2025_11_04_154239_add_position_id_to_librarian_table',10),(23,'2025_11_04_154240_add_status_author_to_resources_and_university_librarian_to_users_table',10),(24,'2025_11_04_160336_drop_is_university_librarian_from_users_table',11),(25,'2025_11_06_161015_alter_resources_table_description_column',12),(26,'2025_11_09_102908_add_publish_date_components_to_resources_table',13),(27,'2025_11_09_104822_drop_publish_date_from_resources_table',14),(28,'2025_11_09_141319_add_tracking_columns_to_resources_table',15),(29,'2025_11_09_141359_create_resource_views_table',15);
 /*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -381,6 +412,126 @@ LOCK TABLES `password_reset_tokens` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `ratings`
+--
+
+DROP TABLE IF EXISTS `ratings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ratings` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `resource_id` bigint(20) unsigned NOT NULL,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `rating` int(11) NOT NULL CHECK (`rating` between 1 and 5),
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ratings_resource_id_user_id_unique` (`resource_id`,`user_id`),
+  KEY `ratings_user_id_foreign` (`user_id`),
+  CONSTRAINT `ratings_resource_id_foreign` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`Resource_ID`) ON DELETE CASCADE,
+  CONSTRAINT `ratings_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ratings`
+--
+
+LOCK TABLES `ratings` WRITE;
+/*!40000 ALTER TABLE `ratings` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ratings` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `resource_authors`
+--
+
+DROP TABLE IF EXISTS `resource_authors`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `resource_authors` (
+  `resource_id` bigint(20) unsigned NOT NULL,
+  `author_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`resource_id`,`author_id`),
+  KEY `resource_authors_author_id_foreign` (`author_id`),
+  CONSTRAINT `resource_authors_author_id_foreign` FOREIGN KEY (`author_id`) REFERENCES `authors` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `resource_authors_resource_id_foreign` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`Resource_ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `resource_authors`
+--
+
+LOCK TABLES `resource_authors` WRITE;
+/*!40000 ALTER TABLE `resource_authors` DISABLE KEYS */;
+INSERT INTO `resource_authors` VALUES (1,1,NULL,NULL),(2,2,NULL,NULL),(3,3,NULL,NULL),(4,4,NULL,NULL),(5,8,NULL,NULL),(7,9,NULL,NULL),(8,10,NULL,NULL);
+/*!40000 ALTER TABLE `resource_authors` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `resource_tags`
+--
+
+DROP TABLE IF EXISTS `resource_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `resource_tags` (
+  `resource_id` bigint(20) unsigned NOT NULL,
+  `tag_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`resource_id`,`tag_id`),
+  KEY `resource_tags_tag_id_foreign` (`tag_id`),
+  CONSTRAINT `resource_tags_resource_id_foreign` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`Resource_ID`) ON DELETE CASCADE,
+  CONSTRAINT `resource_tags_tag_id_foreign` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `resource_tags`
+--
+
+LOCK TABLES `resource_tags` WRITE;
+/*!40000 ALTER TABLE `resource_tags` DISABLE KEYS */;
+/*!40000 ALTER TABLE `resource_tags` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `resource_views`
+--
+
+DROP TABLE IF EXISTS `resource_views`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `resource_views` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `resource_id` bigint(20) unsigned NOT NULL,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `viewed_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `resource_views_resource_id_user_id_unique` (`resource_id`,`user_id`),
+  KEY `resource_views_user_id_foreign` (`user_id`),
+  CONSTRAINT `resource_views_resource_id_foreign` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`Resource_ID`) ON DELETE CASCADE,
+  CONSTRAINT `resource_views_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `resource_views`
+--
+
+LOCK TABLES `resource_views` WRITE;
+/*!40000 ALTER TABLE `resource_views` DISABLE KEYS */;
+INSERT INTO `resource_views` VALUES (1,4,27,'2025-11-09 07:14:32','2025-11-09 07:14:27','2025-11-09 07:14:32'),(2,5,27,'2025-11-09 08:29:33','2025-11-09 08:29:33','2025-11-09 08:29:33');
+/*!40000 ALTER TABLE `resource_views` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `resources`
 --
 
@@ -391,18 +542,21 @@ CREATE TABLE `resources` (
   `Resource_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `Resource_Name` varchar(255) NOT NULL,
   `File_Path` varchar(255) NOT NULL,
+  `thumbnail_path` varchar(255) DEFAULT NULL,
   `Type` enum('Featured','Community Uploads') NOT NULL,
-  `Publish_Date` date NOT NULL,
+  `publish_year` int(11) DEFAULT NULL,
+  `publish_month` int(11) DEFAULT NULL,
+  `publish_day` int(11) DEFAULT NULL,
   `Uploaded_By` bigint(20) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `Description` text NOT NULL,
   `status` varchar(255) NOT NULL DEFAULT 'Available',
-  `author` varchar(255) DEFAULT NULL,
+  `views` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`Resource_ID`),
   KEY `resources_uploaded_by_foreign` (`Uploaded_By`),
   CONSTRAINT `resources_uploaded_by_foreign` FOREIGN KEY (`Uploaded_By`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -411,7 +565,7 @@ CREATE TABLE `resources` (
 
 LOCK TABLES `resources` WRITE;
 /*!40000 ALTER TABLE `resources` DISABLE KEYS */;
-INSERT INTO `resources` VALUES (1,'Excel PivotTables','resources/1tbJHWeT8zNs3xme4IlFFklFylS4DbsPNBCZj9bv.pdf','Featured','2016-01-01',6,'2025-11-06 07:09:17','2025-11-06 07:09:17','PivotTable is an extremely powerful tool that you can use to slice and dice data. In this tutorial, you will learn these PivotTable features in detail along with examples. By the time\r\nyou complete this tutorial, you will have sufficient knowledge on PivotTable features that can get you started with exploring, analyzing, and reporting data based on the requirements.','Available','tutorialspoint'),(2,'A Practical Guide to Database Design','resources/g6HrKyEKWh6qzzVBLea59tKFehM0PCR19iPa3m4l.pdf','Featured','2018-01-01',6,'2025-11-06 08:13:33','2025-11-06 08:13:33','This is a book intended for those who are involved in the design or development of a database system or application. It begins by focusing on how to create a logical data model where data are stored where it belongs. Next, data usage is reviewed to transform the logical model into a physical data model that will satisfy user performance requirements. Finally, it describes how to use various software tools to create user interfaces to review and update data in a database.','Available','Rex Hogan'),(3,'Cyber Operations: Building, Defending, and Attacking Modern Computer Networks','resources/4N8fCFP8ENhwcTRu6A88YJrZh2THp3rQ53seKPfg.pdf','Featured','2019-01-01',6,'2025-11-06 08:25:40','2025-11-06 08:25:40','Know how to set up, defend, and attack computer networks with this revised and expanded second edition.\r\n\r\nYou will learn to configure your network from the ground up, beginning with developing your own private virtual test environment, then setting up your own DNS server and AD infrastructure. You will continue with more advanced network services, web servers, and database servers and you will end by building your own web applications servers, including WordPress and Joomla!. Systems from 2011 through 2017 are covered, including Windows 7, Windows 8, Windows 10, Windows Server 2012, and Windows Server 2016 as well as a range of Linux distributions, including Ubuntu, CentOS, Mint, and OpenSUSE.','Available','Mike O’Leary');
+INSERT INTO `resources` VALUES (1,'Excel PivotTables','resources/1tbJHWeT8zNs3xme4IlFFklFylS4DbsPNBCZj9bv.pdf','thumbnails/1.jpg','Featured',2016,NULL,NULL,6,'2025-11-06 07:09:17','2025-11-10 06:32:33','PivotTable is an extremely powerful tool that you can use to slice and dice data. In this tutorial, you will learn these PivotTable features in detail along with examples. By the time\r\nyou complete this tutorial, you will have sufficient knowledge on PivotTable features that can get you started with exploring, analyzing, and reporting data based on the requirements.','Unavailable',0),(2,'A Practical Guide to Database Design','resources/g6HrKyEKWh6qzzVBLea59tKFehM0PCR19iPa3m4l.pdf','thumbnails/2.jpg','Featured',2018,NULL,NULL,6,'2025-11-06 08:13:33','2025-11-10 00:53:46','This is a book intended for those who are involved in the design or development of a database system or application. It begins by focusing on how to create a logical data model where data are stored where it belongs. Next, data usage is reviewed to transform the logical model into a physical data model that will satisfy user performance requirements. Finally, it describes how to use various software tools to create user interfaces to review and update data in a database.','Available',0),(3,'Cyber Operations: Building, Defending, and Attacking Modern Computer Networks','resources/4N8fCFP8ENhwcTRu6A88YJrZh2THp3rQ53seKPfg.pdf','thumbnails/3.jpg','Featured',2019,NULL,NULL,6,'2025-11-06 08:25:40','2025-11-10 00:53:47','Know how to set up, defend, and attack computer networks with this revised and expanded second edition.\r\n\r\nYou will learn to configure your network from the ground up, beginning with developing your own private virtual test environment, then setting up your own DNS server and AD infrastructure. You will continue with more advanced network services, web servers, and database servers and you will end by building your own web applications servers, including WordPress and Joomla!. Systems from 2011 through 2017 are covered, including Windows 7, Windows 8, Windows 10, Windows Server 2012, and Windows Server 2016 as well as a range of Linux distributions, including Ubuntu, CentOS, Mint, and OpenSUSE.','Available',0),(4,'Practical SQL_ A Beginner’s Guide to Storytelling with Data','resources/Gr7KfjB0zy6AFk2sl2uxB23RvdfV3ivpcgWNU7FM.pdf','thumbnails/4.jpg','Featured',2018,5,2,6,'2025-11-09 03:02:48','2025-11-10 00:53:48','Practical SQL is an approachable and fast-paced guide to SQL (Structured Query Language), the standard programming language for defining, organizing, and exploring data in relational databases. The book focuses on using SQL to find the story your data tells, with the popular open-source database PostgreSQL and the pgAdmin interface as its primary tools.\r\n\r\nYou’ll first cover the fundamentals of databases and the SQL language, then build skills by analyzing data from the U.S. Census and other federal and state government agencies. With exercises and real-world examples in each chapter, this book will teach even those who have never programmed before all the tools necessary to build powerful databases and access information quickly and efficiently.\r\n\r\nYou’ll learn how to:\r\n- Create databases and related tables using your own data\r\n- Define the right data types for your information\r\n- Aggregate, sort, and filter data to find patterns\r\n- Use basic math and advanced statistical functions\r\n- Identify errors in data and clean them up\r\n- Import and export data using delimited text files\r\n- Write queries for geographic information systems (GIS)\r\n- Create advanced queries and automate tasks\r\n\r\nLearning SQL doesn’t have to be dry and complicated. Practical SQL delivers clear examples with an easy-to-follow approach to teach you the tools you need to build and manage your own databases.\r\n\r\nThis book uses PostgreSQL, but the SQL syntax is applicable to many database applications, including Microsoft SQL Server and MySQL.','Available',2),(5,'Building Arduino Projects for the Internet of Things','resources/Xd3cPc3aI5PlGtf5lN44IQk2ToxhKFgRLVXEBiz7.pdf','thumbnails/5.jpg','Featured',2016,6,9,6,'2025-11-09 08:24:08','2025-11-10 00:53:48','Gain a strong foundation of Arduino-based device development, from which you can go in any direction according to your specific development needs and desires. You\'ll build Arduino-powered devices for everyday use, and then connect those devices to the Internet.\r\n\r\nYou\'ll be introduced to the building blocks of IoT, and then deploy those principles to by building a variety of useful projects. Projects in the books gradually introduce the reader to key topics such as internet connectivity with Arduino, common IoT protocols, custom web visualization, and Android apps that receive sensor data on-demand and in realtime. IoT device enthusiasts of all ages will want this book by their side when developing Android-based devices.\r\n\r\nIf you\'re one of the many who have decided to build your own Arduino-powered devices for IoT applications, then Building Arduino Projects for the Internet of Things is exactly what you need. This book is your singleresource--a guidebook for the eager-to-learn Arduino enthusiast--that teaches logically, methodically, and practically how the Arduino works and what you can build with it.','Available',1),(7,'JavaScript Data Structures and Algorithms_ An Introduction to Understanding and Implementing Core Data Structure and Algorithm Fundamentals','resources/n2AE03FQgGwIoPRxhPhleQKLr1toj21euUak4MCM.pdf','thumbnails/7.jpg','Featured',2019,1,NULL,6,'2025-11-10 01:13:37','2025-11-10 03:55:35','Explore data structures and algorithm concepts and their relation to everyday JavaScript development. A basic understanding of these ideas is essential to any JavaScript developer wishing to analyze and build great software solutions.\r\n\r\nYou\'ll discover how to implement data structures such as hash tables, linked lists, stacks, queues, trees, and graphs. You\'ll also learn how a URL shortener, such as bit.ly, is developed and what is happening to the data as a PDF is uploaded to a webpage. This book covers the practical applications of data structures and algorithms to encryption, searching, sorting, and pattern matching.\r\n\r\nIt is crucial for JavaScript developers to understand how data structures work and how to design algorithms. This book and the accompanying code provide that essential foundation for doing so. With JavaScript Data Structures and Algorithms you canstart developing your knowledge and applying it to your JavaScript projects today.','Available',0),(8,'Research Design  Qualitative, Quantitative, and Mixed Methods Approaches','resources/E2YwZGXt3GoP3XIXHryh5pEX41cTnqnrTQ4opTEW.pdf','thumbnails/8.jpg','Featured',2014,NULL,NULL,6,'2025-11-10 03:55:04','2025-11-10 05:36:05','The book Research Design: Qualitative, Quantitative and Mixed Methods Approaches by Creswell (2014) covers three approaches-qualitative, quantitative and mixed methods. This educational book is informative and illustrative and is equally beneficial for students, teachers and researchers. Readers should have basic knowledge of research for better understanding of this book. There are two parts of the book. Part 1 (chapter 1-4) consists of steps for developing research proposal and part II (chapter 5-10) explains how to develop a research proposal or write a research report. A summary is given at the end of every chapter that helps the reader to recapitulate the ideas. Moreover, writing exercises and suggested readings at the end of every chapter are useful for the readers. Chapter 1 opens with-definition of research approaches and the author gives his opinion that selection of a research approach is based on the nature of the research problem, researchers\' experience and the audience of the study. The author defines qualitative, quantitative and mixed methods research. A distinction is made between quantitative and qualitative research approaches. The author believes that interest in qualitative research increased in the latter half of the 20th century. The worldviews, Fraenkel, Wallen and Hyun (2012) and Onwuegbuzie and Leech (2005) call them paradigms, have been explained. Sometimes, the use of language becomes too philosophical and technical. This is probably because the author had to explain some technical terms.','Available',0);
 /*!40000 ALTER TABLE `resources` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -441,7 +595,7 @@ CREATE TABLE `sessions` (
 
 LOCK TABLES `sessions` WRITE;
 /*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
-INSERT INTO `sessions` VALUES ('AjDqd7BUkXCupyk8JzvA96QgpM1niEpKhsFcwmF8',6,'::1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 OPR/123.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoibkZjcVFWZTc3N1Z1djhOaG45MmQ4ZlJLakt6RERsZkVwZjR5TDBQUSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDE6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9yZXNvdXJjZS1tYW5hZ2VtZW50Ijt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Njt9',1762445513),('Oia5Ftknmrj25pvwqYtriO4MmkHS8pcOT2UaXKKd',6,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 OPR/123.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiaHgzVXVld3o4cXFJb0xVN1FQa1FXdXpoalhrMDhPVUpsOHVkUXc1dCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9yZXNvdXJjZS1tYW5hZ2VtZW50Ijt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Njt9',1762447706);
+INSERT INTO `sessions` VALUES ('Ak3KGtWJ6kdtJGmG9Wvoq50xv3NPq96w45476hlB',27,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0','YTo1OntzOjY6Il90b2tlbiI7czo0MDoiejBVenFocTlLZ3MxQ3pWYWdLcDhMYXFkYjRNTklKek1UTWNVREpwbyI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQ0OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvaG9tZVVzZXI/ZmlsdGVyPWxhdGVzdCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI3O30=',1762786590),('YDXV1RXppTfjRVRoQcC1gv4vZ3q5cRTbB6VWgmY8',6,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 OPR/123.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiNEJTcmhpT1puUWRXMXBCSG1WOHg4dUJJdnNManlhYmxLbThuMGFsQSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9yZXNvdXJjZS1tYW5hZ2VtZW50Ijt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Njt9',1762786590);
 /*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -471,6 +625,32 @@ LOCK TABLES `student` WRITE;
 /*!40000 ALTER TABLE `student` DISABLE KEYS */;
 INSERT INTO `student` VALUES (7,'Bembem','B','2025-11-04 08:27:26','2025-11-04 08:27:26'),(26,'Rich','Benitz','2025-11-04 08:26:57','2025-11-04 10:56:18'),(27,'Anjila','sbaola','2025-11-04 08:26:30','2025-11-04 08:26:30');
 /*!40000 ALTER TABLE `student` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tags`
+--
+
+DROP TABLE IF EXISTS `tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tags` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `tags_name_unique` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tags`
+--
+
+LOCK TABLES `tags` WRITE;
+/*!40000 ALTER TABLE `tags` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tags` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -546,4 +726,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-11-07  1:02:02
+-- Dump completed on 2025-11-10 22:57:48

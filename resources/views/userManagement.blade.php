@@ -70,7 +70,10 @@
       <input class="searchbar pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" type="text" placeholder="Search for books, papers..">
       <img src="{{ Vite::asset('resources/images/Search.png') }}" alt="Search" class="absolute right-5 w-6 h-6">
     </div>
-    <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white"></div>
+    <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
+      <span class="bg-green-800 rounded-3xl px-3 py-1 border-2 border-amber-400 text-[13px] kantumruy-pro-regular">ADMIN</span>
+        <span>Profile</span>
+    </div>
   </div>
 
   <!-- SIDEBAR -->

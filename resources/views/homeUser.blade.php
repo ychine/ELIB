@@ -12,88 +12,32 @@
   <title>Home | ISU StudyGo</title>
 
   <style>
-    /* Sidebar Styles - Click to Toggle */
+    /* === GLOBAL FIXES === */
+    html, body, .main-content { overflow-x: hidden; }
+
+    /* Sidebar Styles */
     .sidebar {
       width: 4rem;
       transition: all 0.3s cubic-bezier(0.215, 0.610, 0.355, 1);
       overflow: hidden;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
-      cursor: pointer; /* Pointer on hover */
+      cursor: pointer;
     }
+    .sidebar.expanded { width: 18rem; }
+    .sidebar .label { opacity: 0; transform: translateX(-10px); transition: all 0.3s ease; white-space: nowrap; padding-left: 1rem; }
+    .sidebar.expanded .label { opacity: 1; transform: translateX(0); }
+    .isu-studygo-border-logo { opacity: 0; transition: opacity 0.3s ease; }
+    .isu-studygo-logo { opacity: 1; transition: opacity 0.3s ease; }
+    .sidebar.expanded .isu-studygo-border-logo { opacity: 1; }
+    .sidebar.expanded .isu-studygo-logo { opacity: 0; }
+    .sidebar-content { display: flex; flex-direction: column; align-items: center; transition: all 0.3s ease; min-height: 100%; }
+    .sidebar-icons { transform: translate(35%, 5%); transition: transform 0.3s ease; }
+    .sidebar.expanded .sidebar-icons { transform: translateX(20px); }
+    .sidebar.expanded .sidebar-content { align-items: flex-start; padding-left: 0.5rem; padding-right: 0.5rem; }
+    .sidebar.expanded + .main-content { margin-left: 15rem; margin-top: 0; }
 
-    .sidebar.expanded {
-      width: 18rem;
-    }
-
-    .sidebar .label {
-      opacity: 0;
-      transform: translateX(-10px);
-      transition: all 0.3s ease;
-      white-space: nowrap;
-      padding-left: 1rem;
-    }
-
-    .sidebar.expanded .label {
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    .isu-studygo-border-logo {
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .isu-studygo-logo {
-      opacity: 1;
-      transition: opacity 0.3s ease;
-    }
-
-    .sidebar.expanded .isu-studygo-border-logo {
-      opacity: 1;
-    }
-
-    .sidebar.expanded .isu-studygo-logo {
-      opacity: 0;
-    }
-
-    .sidebar-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: all 0.3s ease;
-      min-height: 100%;
-    }
-
-    .sidebar-icons {
-      transform: translate(35%, 5%);
-      transition: transform 0.3s ease;
-    }
-
-    .sidebar.expanded .sidebar-icons {
-      transform: translateX(20px);
-    }
-
-    .sidebar.expanded .sidebar-content {
-      align-items: flex-start;
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
-    }
-
-    .sidebar.expanded + .main-content {
-      margin-left: 15rem;
-      margin-top: 0;
-    }
-
-    .searchbar:focus {
-      outline: none;
-      box-shadow: 
-        0 0 0 3px rgba(34, 197, 94, 0.5), 
-        0 0 10px 3px rgba(0, 0, 0, 0.5);
-      transition: all 0.3s ease-in-out;
-    }
-
-    .glass-nav {
+     .glass-nav {
       background: transparent;
       transition: all 0.3s ease;
     }
@@ -143,109 +87,140 @@
       transition: all 0.3s ease;
     }
 
-    /* Responsive Styles */
+    /* === BOOK GRID & CARDS === */
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      width: 100%;
+    }
+    @media (min-width: 640px) { .books-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1024px) { .books-grid { grid-template-columns: repeat(5, 1fr); } }
+
+    .book-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .book-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+    .book-cover {
+      width: 100%;
+      height: 180px;
+      background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+    .book-info {
+      padding: 1rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .book-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      line-height: 1.3;
+      color: #1f2937;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .book-author { font-size: 0.8rem; color: #6b7280; }
+
+    /* Filter Tabs */
+    .filter-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .filter-tab {
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      color: #6b7280;
+    }
+    .filter-tab:hover { color: #22C55E; }
+    .filter-tab.active { color: #22C55E; border-bottom-color: #22C55E; }
+
+    /* Community Section */
+    .community-section { flex: 0 0 30%; max-width: 30%; }
+    .community-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      transition: background 0.3s ease;
+      cursor: pointer;
+    }
+    .community-item:hover { background: #f9fafb; }
+    .community-icon {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .featured-section, .community-section { flex: 0 0 100% !important; max-width: 100%; }
+      .content-wrapper { flex-direction: column; }
+    }
     @media (max-width: 768px) {
-      .sidebar {
-        display: none;
-      }
-
-      .bottom-nav {
-        display: flex;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 4rem;
-        background: #149637;
-        z-index: 20;
-        flex-direction: row;
-        justify-content: space-around;
-        align-items: center;
-        box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.3);
-      }
-
-      .bottom-nav .nav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        flex: 1;
-        height: 100%;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        transition: background 0.3s ease;
-      }
-
-      .bottom-nav .nav-item:hover {
-        background: rgba(255, 255, 255, 0.1);
-      }
-
-      .bottom-nav .nav-item img {
-        width: 1.5rem;
-        height: 1.5rem;
-      }
-
-      .bottom-nav .nav-item span {
-        color: white;
-        font-size: 0.75rem;
-        font-family: 'Kulim Park', sans-serif;
-        margin-top: 0.25rem;
-      }
-
-      .main-content {
-        padding-bottom: 4.5rem;
-      }
-
-      .glass-nav {
-        padding: 0.5rem 1rem;
-      }
-
-      .glass-nav .searchbar {
-        width: 100%;
-        max-width: 300px;
-      }
-
-      .glass-nav .text-md {
-        display: none;
-      }
-
-      .herotext h1 {
-        font-size: 2rem;
-        line-height: 1.2;
-        transform: translateY(50%);
-        margin-left: 1rem;
-      }
-
-      .homediv {
-        margin: 1rem;
-        margin-left: 1rem;
-      }
-
-      .homediv p {
-        margin: 1rem;
-        line-height: 1.5;
-      }
+      .sidebar { display: none; }
+      .bottom-nav { display: flex; }
+      .main-content { padding-bottom: 4.5rem; }
     }
+    @media (min-width: 769px) { .bottom-nav { display: none; } }
 
-    @media (min-width: 769px) {
-      .bottom-nav {
-        display: none;
-      }
-      .sidebar {
-        display: block;
-      }
+    /* Borrow Modal */
+    #borrowModal .modal-content {
+      max-width: 900px;
+      width: 95%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
     }
+    @media (max-width: 768px) {
+      #borrowModal .modal-content { width: 96%; border-radius: 16px; }
+    }
+    #borrowModal::-webkit-scrollbar { width: 8px; }
+    #borrowModal::-webkit-scrollbar-thumb { background: #22c55e; border-radius: 4px; }
   </style>
 </head>
-<body class="bg-yellow-50">
+<body class="bg-gray-50">
   <div class="w-full h-[100vh] flex">
 
     <!-- Navigation -->
     <div class="fixed w-full top-0 left-0 flex justify-between items-center px-4 py-2 z-10 glass-nav">
       <span class="text-5xl jersey-20-regular pl-3 text-white"></span>
       <div class="relative flex items-center">
-        <input class="searchbar pl-7 justify-center pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" type="text" placeholder="Search for books, papers..">
+        <input class="searchbar pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" type="text" placeholder="Search for books, papers..">
         <img 
           src="{{ Vite::asset('resources/images/Search.png') }}" 
           alt="Search icon" 
@@ -253,55 +228,32 @@
         />
       </div>
       <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
-       
+        
+        <span>Profile</span>
       </div>
     </div>
 
     <!-- Sidebar -->
     <div class="fixed top-0 left-0 h-full bg-[#149637] shadow-[5px_-10px_22.5px_2px_rgba(0,0,0,0.59)] rounded-tr-[50px] sidebar z-20 pt-8">
       <div class="sidebar-content space-y-2 text-white">
-        <img 
-          src="{{ Vite::asset('resources/images/ISUStudyGoBorder.svg') }}" 
-          alt="Library" 
-          class="w-full h-20 isu-studygo-border-logo"
-        />
-        <img 
-          src="{{ Vite::asset('resources/images/ISUclpsd.svg') }}" 
-          alt="Library" 
-          class="w-full h-10 translate-y-[20px] absolute isu-studygo-logo"
-        />
-        <div class="w-full h-12 bg-green-500 rounded-xl flex items-center gap-3 cursor-pointer">
-          <img 
-            src="{{ Vite::asset('resources/images/HomeToggle.png') }}" 
-            alt="Home" 
-            class="w-7 h-7 sidebar-icons"
-          />
+        <img src="{{ Vite::asset('resources/images/ISUStudyGoBorder.svg') }}" alt="Logo" class="w-full h-20 isu-studygo-border-logo"/>
+        <img src="{{ Vite::asset('resources/images/ISUclpsd.svg') }}" alt="Logo" class="w-full h-10 translate-y-[20px] absolute isu-studygo-logo"/>
+        <a href="{{ route('home.user') }}" class="w-full h-12 bg-green-500 rounded-xl flex items-center gap-3 cursor-pointer">
+          <img src="{{ Vite::asset('resources/images/HomeToggle.png') }}" alt="Home" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Home</span>
-        </div>
-        <div class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer">
-          <img 
-            src="{{ Vite::asset('resources/images/Featured.png') }}" 
-            alt="Featured" 
-            class="w-7 h-7 translate-y-[-1px] translate-x-[1px] sidebar-icons"
-          />
+        </a>
+        <a href="{{ route('featured') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
+          <img src="{{ Vite::asset('resources/images/Featured.png') }}" alt="Featured" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Featured</span>
-        </div>
-        <div class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer">
-          <img 
-            src="{{ Vite::asset('resources/images/Member.png') }}" 
-            alt="Community Uploads" 
-            class="w-7 h-7 sidebar-icons"
-          />
+        </a>
+        <a href="{{ route('community.uploads') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
+          <img src="{{ Vite::asset('resources/images/Member.png') }}" alt="Community" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Community Uploads</span>
-        </div>
-        <div class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer">
-          <img 
-            src="{{ Vite::asset('resources/images/Book Shelf.png') }}" 
-            alt="Your Shelf" 
-            class="w-7 h-7 sidebar-icons"
-          />
+        </a>
+        <a href="#" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
+          <img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Shelf" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Your Shelf</span>
-        </div>
+        </a>
         <form method="POST" action="{{ route('logout') }}" class="mt-auto w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3">
           @csrf
           <button type="submit" class="flex items-center gap-3 w-full h-full bg-transparent border-none text-white cursor-pointer">
@@ -312,80 +264,111 @@
       </div>
     </div>
 
-    <!-- Bottom Navigation for Small Screens -->
-    <div class="bottom-nav">
-      <div class="nav-item">
-        <img src="{{ Vite::asset('resources/images/Home.png') }}" alt="Home" />
-        <span>Home</span>
-      </div>
-      <div class="nav-item">
-        <img src="{{ Vite::asset('resources/images/Featured.png') }}" alt="Featured" />
-        <span>Featured</span>
-      </div>
-      <div class="nav-item">
-        <img src="{{ Vite::asset('resources/images/Member.png') }}" alt="Community Uploads" />
-        <span>Community</span>
-      </div>
-      <div class="nav-item">
-        <img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Your Shelf" />
-        <span>Shelf</span>
-      </div>
-      <form method="POST" action="{{ route('logout') }}" class="nav-item">
-        @csrf
-        <button type="submit" class="flex flex-col items-center justify-center w-full h-full bg-transparent border-none">
-          <i class="fa-solid fa-sign-out-alt text-xl text-white"></i>
-          <span>Logout</span>
-        </button>
+    <!-- Bottom Nav (Mobile) -->
+    <div class="bottom-nav fixed bottom-0 left-0 w-full h-16 bg-[#149637] z-20 flex justify-around items-center shadow-lg">
+      <a href="{{ route('home.user') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/HomeToggle.png') }}" alt="Home"/><span>Home</span></a>
+      <a href="{{ route('featured') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/Featured.png') }}" alt="Featured"/><span>Featured</span></a>
+      <a href="{{ route('community.uploads') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/Member.png') }}" alt="Community"/><span>Community</span></a>
+      <a href="#" class="nav-item"><img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Shelf"/><span>Shelf</span></a>
+      <form method="POST" action="{{ route('logout') }}" class="nav-item">@csrf
+        <button type="submit" class="flex flex-col items-center justify-center w-full h-full"><i class="fa-solid fa-sign-out-alt text-xl text-white"></i><span>Logout</span></button>
       </form>
     </div>
 
     <!-- Main Content -->
-    <div class="flex flex-col flex-1 transition-all duration-300 main-content">
-      <div class="hero-container relative w-full greenhue z-1">
-        <img 
-          src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" 
-          alt="ISU Logo" 
-          class="absolute right-0 w-15 h-15 m-15 translate-y-[-15px]"
-          style=""
-        />
-        <h5 class="absolute text-white right-0 m-15 mr-18 translate-y-38 kulim-park-semibold">One ISU</h5>
-        
-        <img 
-          src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" 
-          alt="Library" 
-          class="w-full h-50 z-[-1] object-cover absolute"
-          style="object-position: 70% middle;"
-        />
+    <div class="flex flex-col flex-1 transition-all duration-300 main-content bg-gray-50">
+      <div class="hero-container relative  w-full greenhue z-1">
+        <img src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" alt="Library" class="w-full h-50 z-[-1] object-cover absolute" style="object-position: 70% middle;"/>
         <div class="herotext h-50 ml-30 flex relative z-2">
           <div class="column">
             <h1 style="transform: translateY(50%); line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 45px; text-shadow: 0 4px 4px #000; color: #FFF;">
-              Bridging knowledge <br>
-              from one campus <br>
-              to another
+              Bridging knowledge <br> from one campus <br> to another
             </h1>
           </div>
         </div>
-        <div class="homediv m-5 border-2 h-500 ml-21 rounded-md bg-white shadow-sm">
-          <p class="mx-50 leading-[100px]">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fermentum orci nunc, ut facilisis purus finibus vitae. Etiam et neque erat. Nulla facilisis diam finibus purus aliquam tempor. Vivamus ac nulla a turpis vehicula ultrices quis at odio. Pellentesque orci ante, pharetra at nulla at, bibendum cursus eros. Etiam malesuada risus id laoreet varius. Curabitur id vehicula sem. In neque ipsum, sagittis vel varius nec, maximus a ipsum. Maecenas vel molestie nunc, nec dapibus diam. Pellentesque scelerisque lacus eu mattis semper.
-            Curabitur massa arcu, tempor eu nulla ut, ullamcorper ultrices nibh. Sed placerat, odio non lacinia luctus, justo eros lacinia magna, eget accumsan arcu ligula ac elit. Aliquam erat volutpat. Morbi consectetur, sem a aliquet rhoncus, tortor lectus egestas metus, a blandit lectus diam in lorem. Etiam placerat ex mauris, non elementum massa fringilla ac. Phasellus vitae nunc a nostrud porttitor gravida. Sed molestie, eros id pellentesque pharetra, ligula urna varius lacus, id posuere arcu urna ac mauris. Sed quam nibh, ullamcorper et felis quis, accumsan blandit dolor. Morbi volutpat sapien ac commodo laoreet. Nulla cursus ex a odio pellentesque, in tincidunt justo ullamcorper. Etiam aliquet finibus velit ut viverra. Nulla facilisi. Nulla urna quam, tempor in odio non, venenatis rhoncus nibh. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec dignissim volutpat dolor, id lobortis enim accumsan vel.
-            Praesent interdum dui et risus rhoncus maximus. Pellentesque nec lorem nisl. In hac habitasse platea dictumst. Nam vehicula ornare massa non blandit. Duis eget massa semper, viverra arcu sit amet, tincidunt justo. Donec at mi rhoncus, maximus lectus ac, rutrum diam. Suspendisse aliquet libero velit, nec aliquam metus luctus quis. Phasellus vitae justo dignissim, pellentesque diam ac, eleifend erat. Ut ac mi id sapien tincidunt sollicitudin euismod et est. Mauris accumsan eleifend lobortis. Quisque et lacus eu lorem porta ornare ut sit amet risus. Nam nulla elit, porttitor id orci a, tempus mattis urna.
-            Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Proin sed eleifend massa, in vestibulum augue. Quisque elementum vitae sem vehicula bibendum. Quisque viverra enim vitae nisi aliquam, nec imperdiet augue convallis. Aenean at lorem vitae diam consectetur convallis ac eu ligula. Proin aliquet sodales nisi non fermentum. Donec urna tortor, ultricies efficitur mollis vitae, tincidunt ut nulla. Nam vel nunc eros. Etiam a ante libero. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
-            Cras quis nisl sit amet enim viverra pellentesque. In accumsan blandit tellus, quis finibus nisi feugiat eu. Phasellus ornare sem sapien, et laoreet lacus sagittis ut. Nunc lacinia nunc sit amet maximus laoreet. Maecenas rutrum, enim sed ullamcorper sagittis, ipsum justo tempor ipsum, sed elementum nunc ante sit amet odio. Nulla suscipit ullamcorper metus ut commodo. Donec convallis diam ut orci commodo, in molestie nunc cursus. In hac habitasse platea dictumst. Mauris accumsan imperdiet commodo. Sed mauris dolor, suscipit ut lectus non, dapibus porttitor metus. Nulla efficitur hendrerit mattis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec malesuada odio non turpis semper, et molestie velit egestas. Quisque faucibus erat eget commodo facilisis. Curabitur facilisis pretium nisi ac ultrices. Suspendisse consectetur et arcu a mattis.
-          </p>
+
+        <div class="px-4 lg:px-[5%] mt-5">
+          <div class="flex flex-col lg:pl-28 lg:pr-20 lg:flex-row gap-6 content-wrapper">
+            <!-- Featured Section -->
+            <div class="featured-section" style="flex: 0 0 70%;">
+              <h2 class="text-2xl sm:text-3xl font-extrabold kulim-park-bold tracking-tight mb-4">Featured Resources</h2>
+              
+              <div class="filter-tabs">
+                <a href="{{ route('home.user', ['filter' => 'latest']) }}" class="filter-tab {{ $filter === 'latest' ? 'active' : '' }}">Latest Uploads</a>
+                <a href="{{ route('home.user', ['filter' => 'popular_month']) }}" class="filter-tab {{ $filter === 'popular_month' ? 'active' : '' }}">Popular This Month</a>
+                <a href="{{ route('home.user', ['filter' => 'popular_year']) }}" class="filter-tab {{ $filter === 'popular_year' ? 'active' : '' }}">Popular This Year</a>
+              </div>
+
+              <div class="books-grid">
+                @forelse($featuredResources as $resource)
+                  <div class="book-card cursor-pointer" 
+                        data-resource="{{ $resource->append(['average_rating', 'formatted_publish_date', 'authors', 'tags'])->toJson() }}">
+                      <div class="book-cover bg-gray-400">
+                        @if($resource->thumbnail_path && Storage::disk('public')->exists($resource->thumbnail_path))
+                          <img src="{{ asset('storage/' . $resource->thumbnail_path) }}" 
+                              alt="{{ $resource->Resource_Name }}" 
+                              class="w-full h-full object-cover">
+                        @else
+                          <span class="text-white text-4xl font-bold">{{ strtoupper(substr($resource->Resource_Name, 0, 2)) }}</span>
+                        @endif
+                      </div>
+                      <div class="book-info">
+                      <h3 class="book-title">{{ $resource->Resource_Name }}</h3>
+                      <div class="flex items-center gap-1 text-yellow-500 text-sm">
+                        <span>★</span>
+                        <span class="text-gray-700 font-medium">{{ $resource->average_rating ?? '0.0' }}</span>
+                      </div>
+                      <p class="book-author text-sm text-gray-600">{{ $resource->authors ?? 'Unknown Author' }}</p>
+                      <p class="text-xs text-gray-500">Published: {{ $resource->formatted_publish_date }}</p>
+                      <div class="mt-2 flex flex-wrap gap-1">
+                        @if($resource->tags && $resource->tags->isNotEmpty())
+                          @foreach($resource->tags->take(2) as $tag)
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">{{ $tag['name'] ?? $tag->name }}</span>
+                          @endforeach
+                        @else
+                          <span class="text-xs text-gray-400">No tags</span>
+                        @endif
+                      </div>
+                    </div>
+                  </div>
+                @empty
+                  <div class="col-span-full text-center py-12 text-gray-500">No featured resources available.</div>
+                @endforelse
+              </div>
+            </div>
+
+            <!-- Community Uploads -->
+            <div class="community-section">
+              <h2 class="text-xl font-extrabold kulim-park-bold tracking-tight mb-4">Community Uploads</h2>
+              <div class="bg-white rounded-lg p-4 shadow-lg">
+                @forelse($communityUploads as $resource)
+                  <a href="{{ route('resources.view', $resource->Resource_ID) }}" class="community-item">
+                    <div class="community-icon">{{ strtoupper(substr($resource->Resource_Name, 0, 2)) }}</div>
+                    <div class="community-info">
+                      <div class="community-title">{{ $resource->Resource_Name }}</div>
+                      <div class="community-author">by {{ $resource->user->full_name ?? 'Unknown' }}</div>
+                    </div>
+                  </a>
+                @empty
+                  <div class="text-center py-8 text-gray-500">No community uploads yet.</div>
+                @endforelse
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
+  @include('partials.borrowModal')
+
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
-  <!-- Scroll Effect for Navbar -->
   <script>
     window.addEventListener('scroll', () => {
       const nav = document.querySelector('.glass-nav');
       const libraryImg = document.querySelector('.main-content img');
-      const libraryHeight = libraryImg ? libraryImg.offsetHeight : 0;
+      const libraryHeight = libraryImg.offsetHeight; 
       const scrollPosition = window.scrollY;
 
       if (scrollPosition > libraryHeight) {
@@ -395,27 +378,73 @@
       }
     });
   </script>
-
-  <!-- Sidebar Toggle & Click Outside to Collapse -->
   <script>
-    const sidebar = document.querySelector('.sidebar');
-    const sidebarItems = document.querySelectorAll('.sidebar .cursor-pointer, .sidebar button, .sidebar form');
-
-    // Toggle sidebar on click (on background or logo area)
-    sidebar.addEventListener('click', (e) => {
-      if (e.target === sidebar || e.target.closest('.sidebar-content') === sidebar.querySelector('.sidebar-content')) {
-        sidebar.classList.toggle('expanded');
+    // Modal Functions
+    function openBorrowModal(resource) {
+      document.getElementById('modalTitle').textContent = resource.Resource_Name;
+      document.getElementById('modalRating').innerHTML = '★ ' + (resource.average_rating || '0.0');
+      document.getElementById('modalAuthor').textContent = Array.isArray(resource.authors) ? resource.authors.map(a => a.name).join(', ') : (resource.authors || 'Unknown Author');
+      document.getElementById('modalPublished').textContent = resource.formatted_publish_date || 'N/A';
+      document.getElementById('modalResourceId').value = resource.Resource_ID;
+      document.getElementById('modalDescription').textContent = resource.Description || 'No description available.';
+      document.getElementById('modalViews').textContent = (resource.views || 0) + ' views';
+      // Handle thumbnail
+      const thumbnailImg = document.getElementById('modalThumbnail');
+      const thumbnailPlaceholder = document.getElementById('modalThumbnailPlaceholder');
+      
+      if (resource.thumbnail_path) {
+        thumbnailImg.src = '/storage/' + resource.thumbnail_path;
+        thumbnailImg.classList.remove('hidden');
+        thumbnailPlaceholder.classList.add('hidden');
+      } else {
+        thumbnailImg.classList.add('hidden');
+        thumbnailPlaceholder.classList.remove('hidden');
+        thumbnailPlaceholder.textContent = resource.Resource_Name.substring(0, 2).toUpperCase();
       }
-    });
 
-    // Prevent menu items from toggling the sidebar
-    sidebarItems.forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.stopPropagation();
+      const tagsContainer = document.getElementById('modalTags');
+      tagsContainer.innerHTML = '';
+      if (resource.tags && resource.tags.length) {
+        resource.tags.forEach(tag => {
+          const span = document.createElement('span');
+          span.className = 'text-xs bg-green-100 text-green-800 px-3 py-1 rounded-full';
+          span.textContent = tag.name;
+          tagsContainer.appendChild(span);
+        });
+      } else {
+        tagsContainer.innerHTML = '<span class="text-gray-500 text-sm">No tags</span>';
+      }
+
+      document.getElementById('borrowModal').classList.remove('hidden');
+    }
+
+    function closeBorrowModal() {
+      document.getElementById('borrowModal').classList.add('hidden');
+    }
+
+    document.querySelectorAll('.book-card').forEach(card => {
+      card.addEventListener('click', function () {
+        const resource = JSON.parse(this.dataset.resource);
+        openBorrowModal(resource);
       });
     });
 
-    // Collapse when clicking outside
+    document.getElementById('borrowModal').addEventListener('click', function (e) {
+      if (e.target === this) closeBorrowModal();
+    });
+
+    // Navbar Scroll
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('.glass-nav');
+      const libraryImg = document.querySelector('.main-content img');
+      const libraryHeight = libraryImg ? libraryImg.offsetHeight : 0;
+      if (window.scrollY > libraryHeight) nav.classList.add('scrolled');
+      else nav.classList.remove('scrolled');
+    });
+
+    // Sidebar Toggle
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.addEventListener('click', () => sidebar.classList.toggle('expanded'));
     document.addEventListener('click', (e) => {
       if (sidebar.classList.contains('expanded') && !sidebar.contains(e.target)) {
         sidebar.classList.remove('expanded');

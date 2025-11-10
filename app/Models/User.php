@@ -72,4 +72,21 @@ class User extends Authenticatable implements MustVerifyEmail   // ← NEW
 
         return $model ? $this->hasOne($model, 'UID', 'id') : null;
     }
+
+    public function getFullNameAttribute()
+    {
+        if ($this->role == 'student') {
+            $relation = $this->student;
+        } elseif ($this->role == 'faculty') {
+            $relation = $this->faculty;
+        } elseif ($this->role == 'librarian') {
+            $relation = $this->librarian;
+        } elseif ($this->role == 'admin') {
+            $relation = $this->admin;
+        } else {
+            return 'Unknown';
+        }
+
+        return $relation ? $relation->First_Name . ' ' . $relation->Last_Name : 'Unknown';
+    }
 }
