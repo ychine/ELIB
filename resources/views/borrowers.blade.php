@@ -414,8 +414,9 @@
                             {{ $request->resource->Resource_Name ?? 'Unknown Resource' }}
                         </td>
                         <td class="py-2 px-6 border-b border-gray-400 kantumruy-pro-regular">
-                            {{ $request->created_at->format('Y-m-d H:i') }}
-                        </td>
+    {{ $request->created_at->timezone('Asia/Manila')->format('Y-m-d H:i') }}
+</td>
+
 
                         {{--  ←  STOP PROPAGATION HERE  --}}
                         <td class="py-2 px-6 border-b border-gray-400" onclick="event.stopPropagation();">

@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\Resource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 
 class BorrowController extends Controller
 {
@@ -51,7 +51,11 @@ class BorrowController extends Controller
     public function approve($id)
     {
         $borrow = Borrower::findOrFail($id);
-        $borrow->update(['isReturned' => 1]); // or use a status field like 'approved' => 1
+        $borrow->update([
+            'Approved_Date' => now()->toDateString(),
+            'Approved_By' => Auth::id(),
+            'isReturned' => 0 // Set to 0 when approved, 1 when returned
+        ]);
         return back()->with('success', 'Borrow request approved.');
     }
 

@@ -8,6 +8,7 @@ use App\Models\Admin;
 use App\Models\Librarian;
 use App\Models\Student;
 use App\Models\VerifyCode;
+use App\Models\Campus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -24,7 +25,8 @@ class AuthController extends Controller
 
     public function showRegisterForm()
     {
-        return view('register');
+        $campuses = Campus::all();
+        return view('register', compact('campuses'));
     }
 
     // ────────────────────── LOGIN ──────────────────────

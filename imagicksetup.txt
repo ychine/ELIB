@@ -98,4 +98,4 @@ If you run into errors (e.g., during install or verification), share the exact m
 
 for the dlls
 
-for %f in (C:\Users\PLPASIG\Downloads\imagick-extracted\*.dll) do @if /i not "%~nxf" == "php_imagick.dll" copy "%f" "C:\xampp\apache\bin\" /Y
+for %f in (C:\Users\Angela Sapaula\Downloads\imagick-extracted\*.dll) do @if /i not "%~nxf" == "php_imagick.dll" copy "%f" "C:\xampp\apache\bin\" /Y

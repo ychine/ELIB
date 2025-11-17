@@ -8,6 +8,17 @@ use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\HomeController; 
 use App\Http\Controllers\BorrowController;
+use App\Http\Controllers\ShelfController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/borrow/show/{id}', [App\Http\Controllers\BorrowController::class, 'showBorrow'])
+    ->name('borrow.show');
+    Route::get('/yourshelf', [ShelfController::class, 'index'])->name('yourshelf');
+    Route::get('/view-book/{id}', [ShelfController::class, 'viewBook']);
+    Route::get('/viewer/{id}', function($id){
+        return view('pdf-viewer', ['id'=>$id, 'user'=>auth()->user()]);
+    })->name('viewer');
+});
 
 Route::get('/signin', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/signin', [AuthController::class, 'login'])->name('login.post');

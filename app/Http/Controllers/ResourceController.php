@@ -187,6 +187,52 @@ class ResourceController extends Controller
             // Create directory if not exists
             Storage::disk('public')->makeDirectory($thumbnailDir);
 
+            // Try using Ghostscript directly first (more reliable on Windows)
+            $ghostscriptPath = 'C:\Program Files\gs';
+            $gsDirs = glob("$ghostscriptPath/gs*");
+            
+            if (!empty($gsDirs) && file_exists($gsDirs[0] . '\bin\gswin64c.exe')) {
+                $gsExe = $gsDirs[0] . '\bin\gswin64c.exe';
+                // Use Ghostscript to convert first page of PDF to JPG
+                $command = sprintf(
+                    '"%s" -dNOPAUSE -dBATCH -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -r150 -dJPEGQ=85 -sOutputFile="%s" "%s"',
+                    $gsExe,
+                    $fullThumbnailPath,
+                    $pdfPath
+                );
+                
+                exec($command, $output, $returnCode);
+                
+                if ($returnCode === 0 && file_exists($fullThumbnailPath)) {
+                    // Resize using Imagick if available, otherwise use GD
+                    if (extension_loaded('imagick')) {
+                        try {
+                            $imagick = new \Imagick($fullThumbnailPath);
+                            $imagick->thumbnailImage(800, 0);
+                            $imagick->writeImage($fullThumbnailPath);
+                            $imagick->clear();
+                            $imagick->destroy();
+                        } catch (\Exception $e) {
+                            // If Imagick resize fails, keep the original
+                            Log::warning("Could not resize thumbnail: " . $e->getMessage());
+                        }
+                    }
+                    
+                    $resource->thumbnail_path = $thumbnailPath;
+                    $resource->save();
+                    return true;
+                }
+            }
+            
+            // Fallback to Imagick if Ghostscript fails
+            $imagemagickPath = 'C:\Program Files\ImageMagick-7.1.0-Q16-HDRI';
+            if (file_exists($imagemagickPath)) {
+                putenv("MAGICK_HOME=$imagemagickPath");
+                putenv("MAGICK_CODER_MODULE_PATH=$imagemagickPath");
+                putenv("MAGICK_CONFIGURE_PATH=$imagemagickPath");
+                putenv("PATH=" . getenv("PATH") . ";$imagemagickPath");
+            }
+
             // Generate first page as JPG using Imagick directly
             $imagick = new \Imagick();
             $imagick->setResolution(150, 150);

@@ -170,7 +170,7 @@
         </a>
 
         <!-- Your Shelf -->
-        <a href="#" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
+        <a href="{{ route('yourshelf') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
           <img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Shelf" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Your Shelf</span>
         </a>

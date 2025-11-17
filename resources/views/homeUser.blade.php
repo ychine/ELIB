@@ -250,7 +250,7 @@
           <img src="{{ Vite::asset('resources/images/Member.png') }}" alt="Community" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Community Uploads</span>
         </a>
-        <a href="#" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
+        <a href="{{ route('yourshelf') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
           <img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Shelf" class="w-7 h-7 sidebar-icons"/>
           <span class="label kulim-park-regular text-lg">Your Shelf</span>
         </a>
@@ -269,7 +269,7 @@
       <a href="{{ route('home.user') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/HomeToggle.png') }}" alt="Home"/><span>Home</span></a>
       <a href="{{ route('featured') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/Featured.png') }}" alt="Featured"/><span>Featured</span></a>
       <a href="{{ route('community.uploads') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/Member.png') }}" alt="Community"/><span>Community</span></a>
-      <a href="#" class="nav-item"><img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Shelf"/><span>Shelf</span></a>
+      <a href="{{ route('yourshelf') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Shelf"/><span>Shelf</span></a>
       <form method="POST" action="{{ route('logout') }}" class="nav-item">@csrf
         <button type="submit" class="flex flex-col items-center justify-center w-full h-full"><i class="fa-solid fa-sign-out-alt text-xl text-white"></i><span>Logout</span></button>
       </form>

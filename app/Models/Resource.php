@@ -55,6 +55,7 @@ class Resource extends Model
         return $this->hasMany(ResourceView::class, 'resource_id', 'Resource_ID');
     }
 
+   
     // === ACCESSORS (100% SAFE – NO ERRORS EVER) ===
     protected function averageRating(): Attribute
     {
