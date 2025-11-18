@@ -382,50 +382,74 @@
 
   <!-- Scroll Effect for Navbar -->
   <script>
-    window.addEventListener('scroll', () => {
+    function initGlassNavScroll() {
       const nav = document.querySelector('.glass-nav');
-      const libraryImg = document.querySelector('.main-content img');
-      const libraryHeight = libraryImg ? libraryImg.offsetHeight : 0;
-      const scrollPosition = window.scrollY;
+      if (!nav) return;
 
-      if (scrollPosition > libraryHeight) {
-        nav.classList.add('scrolled');
-      } else {
-        nav.classList.remove('scrolled');
+      const heroSelectors = [
+        '.hero-image',
+        '.hero-container img',
+        '.main-content .hero-container img',
+        '.hero-container'
+      ];
+
+      const heroElement = heroSelectors.map(selector => document.querySelector(selector)).find(Boolean) || null;
+      const heroContainer = heroElement instanceof HTMLElement && heroElement.classList.contains('hero-container')
+        ? heroElement
+        : heroElement?.closest('.hero-container') || document.querySelector('.hero-container');
+
+      const updateNavBlur = () => {
+        const reference = heroContainer || heroElement;
+
+        if (!reference) {
+          nav.classList.add('scrolled');
+          return;
+        }
+
+        const rect = reference.getBoundingClientRect();
+        const tolerance = nav.offsetHeight + 16;
+
+        if (rect.bottom <= tolerance) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
+      };
+
+      window.addEventListener('load', updateNavBlur, { once: true });
+      window.addEventListener('scroll', updateNavBlur, { passive: true });
+      window.addEventListener('resize', updateNavBlur);
+
+      if (heroElement instanceof HTMLImageElement && !heroElement.complete) {
+        heroElement.addEventListener('load', updateNavBlur, { once: true });
       }
-    });
+
+      updateNavBlur();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initGlassNavScroll);
+    } else {
+      initGlassNavScroll();
+    }
   </script>
 
-  <!-- Sidebar Toggle & Click Outside to Collapse -->
   <script>
     const sidebar = document.querySelector('.sidebar');
-    const sidebarItems = document.querySelectorAll('.sidebar .cursor-pointer, .sidebar button, .sidebar form');
 
-    // Toggle sidebar on click
-    sidebar.addEventListener('click', (e) => {
-      // Only toggle if clicking on the sidebar background (not items)
-      if (e.target === sidebar || e.target.closest('.sidebar-content') === sidebar.querySelector('.sidebar-content')) {
+    if (sidebar) {
+      sidebar.addEventListener('click', (event) => {
+        if (event.target.closest('.sidebar a, .sidebar button, .sidebar form')) return;
         sidebar.classList.toggle('expanded');
-      }
-    });
-
-    // Prevent collapse when clicking inside sidebar items
-    sidebarItems.forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.stopPropagation();
       });
-    });
 
-    // Collapse when clicking outside
-    document.addEventListener('click', (e) => {
-      if (sidebar.classList.contains('expanded') && !sidebar.contains(e.target)) {
-        sidebar.classList.remove('expanded');
-      }
-    });
-
-    // Optional: Allow clicking the logo area to toggle
-    const logoArea = sidebar.querySelector('.sidebar-content');
-    logoArea.style.pointerEvents = 'auto';
+      document.addEventListener('click', (event) => {
+        if (sidebar.classList.contains('expanded') && !sidebar.contains(event.target)) {
+          sidebar.classList.remove('expanded');
+        }
+      });
+    }
   </script>
+  @include('partials.globalLoader')
 </body>
 </html>

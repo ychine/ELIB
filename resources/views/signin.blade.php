@@ -12,9 +12,64 @@
   @vite(['resources/css/app.css', 'resources/css/kulimpark.css', 'resources/css/Inter.css', 'resources/css/kantumruypro.css'])
   
   <style>
-    .parent { min-height: 100vh; }
-
-    
+    .parent { min-height: 100vh; position: relative; overflow: hidden; }
+    .auth-card {
+      border-radius: 32px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 35px 120px rgba(15, 23, 42, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(14px);
+    }
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      border: 1px solid rgba(34, 197, 94, 0.18);
+    }
+    .auth-field {
+      background: rgba(243, 244, 246, 0.9);
+      border: 1px solid transparent;
+      transition: border-color 200ms ease, background 200ms ease, transform 200ms ease;
+    }
+    .auth-field:focus-within {
+      border-color: rgba(34, 197, 94, 0.6);
+      background: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(34, 197, 94, 0.15);
+    }
+    .auth-field input {
+      background: transparent;
+    }
+    .auth-submit {
+      border-radius: 16px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      box-shadow: 0 20px 60px rgba(34, 197, 94, 0.35);
+    }
+    .auth-submit:focus-visible {
+      outline: 2px solid rgba(34, 197, 94, 0.4);
+      outline-offset: 4px;
+    }
+    @media (max-width: 1024px) {
+      .parent {
+        grid-template-columns: 1fr;
+        padding-top: 20vw;
+      }
+      .auth-card {
+        border-radius: 24px;
+      }
+    }
+    @media (max-width: 640px) {
+      .auth-card {
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3);
+      }
+      .auth-card img {
+        width: 56px;
+        height: 56px;
+      }
+    }
     #toast {
       position: fixed;
       bottom: 1rem;
@@ -170,7 +225,7 @@
             @csrf
             <div>
               <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Email</label>
-              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg">
+              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
                 <input type="email" name="email" required placeholder="example@mail.com"
                        class="w-full px-3 py-1 sm:py-3 outline-none bg-[#D9D9D9] rounded-lg focus:bg-white text-sm sm:text-base">
               </div>
@@ -181,14 +236,14 @@
                 <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold">Password</label>
                 <a href="#" class="text-green-700 text-xs sm:text-sm hover:underline">Forgot password?</a>
               </div>
-              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg">
+              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
                 <input type="password" name="password" required placeholder="*********"
                        class="w-full px-2 py-1 sm:py-3 outline-none bg-[#D9D9D9] rounded-lg focus:bg-white text-sm sm:text-base">
               </div>
             </div>
 
             <button type="submit"
-                    class="w-full bg-green-800 text-white py-3 sm:py-4 rounded-md hover:bg-green-900 transition text-sm sm:text-base">
+                    class="w-full bg-green-800 text-white py-3 sm:py-4 rounded-md hover:bg-green-900 transition text-sm sm:text-base auth-submit">
               Login
             </button>
           </form>
@@ -249,5 +304,6 @@
     setTimeout(() => toast.classList.add('hidden'), 400);
   }
 </script>
+  @include('partials.globalLoader')
 </body>
 </html>

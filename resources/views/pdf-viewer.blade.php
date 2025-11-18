@@ -111,13 +111,70 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(-45deg);
-            opacity: 0.1;
+            opacity: 0.3;
             font-size: 60px;
             pointer-events: none;
             user-select: none;
             color: #000;
             z-index: 1;
             white-space: nowrap;
+            transition: opacity 0.3s ease;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        #watermark.enhanced {
+            opacity: 0.7;
+            font-size: 80px;
+            color: #dc2626;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+        }
+
+        .watermark-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            background-image: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 100px,
+                rgba(0,0,0,0.05) 100px,
+                rgba(0,0,0,0.05) 200px
+            );
+        }
+
+        .watermark-text-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            opacity: 0.15;
+            transition: opacity 0.3s ease;
+        }
+
+        .watermark-text-overlay.enhanced {
+            opacity: 0.4;
+        }
+
+        .watermark-text-overlay div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(-45deg);
+            font-size: 24px;
+            color: #000;
+            font-weight: bold;
+            user-select: none;
         }
 
         #loading {
@@ -236,6 +293,18 @@
 </head>
 <body>
     <div id="watermark">{{ $user->email }} | {{ now()->format('Y-m-d H:i') }}</div>
+    <div class="watermark-overlay"></div>
+    <div class="watermark-text-overlay" id="watermark-text-overlay">
+        <div>{{ $user->email }}</div>
+        <div>{{ $user->email }}</div>
+        <div>{{ $user->email }}</div>
+        <div>{{ $user->email }}</div>
+        <div>{{ $user->email }}</div>
+        <div>{{ $user->email }}</div>
+        <div>{{ $user->email }}</div>
+        <div>{{ $user->email }}</div>
+        <div>{{ $user->email }}</div>
+    </div>
     
     <div id="toolbar">
         <div id="toolbar-left">
@@ -283,26 +352,96 @@
         pdfjsLib.GlobalWorkerOptions.workerSrc = 
             "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-        const url = "/view-book/{{ $id }}";
+        const url = "{{ route('view.book', ['id' => $id]) }}";
         let pdfDoc = null;
         let currentPage = 1;
         let scale = 1.2;
         let pages = [];
-
-        // Load PDF
-        pdfjsLib.getDocument(url).promise.then(pdf => {
-            pdfDoc = pdf;
-            document.getElementById('page-count').textContent = pdf.numPages;
-            document.getElementById('loading').style.display = 'none';
-            
-            // Render all pages
-            for (let i = 1; i <= pdf.numPages; i++) {
-                renderPage(i);
+        
+        // Grace period to prevent false positives on page load
+        let pageLoadTime = Date.now();
+        let securityEnabled = false;
+        let hasBeenVisible = false;
+        
+        // Track if page has been visible (not just loaded)
+        function checkVisibility() {
+            if (!document.hidden) {
+                hasBeenVisible = true;
             }
-        }).catch(error => {
-            console.error('Error loading PDF:', error);
-            document.getElementById('loading').textContent = 'Error loading PDF';
-        });
+        }
+        
+        // Check visibility immediately and on changes
+        checkVisibility();
+        document.addEventListener('visibilitychange', checkVisibility);
+        
+        // Enable security checks after 10 seconds to prevent false positives on page load
+        // This gives the page plenty of time to fully load and stabilize
+        setTimeout(() => {
+            securityEnabled = true;
+        }, 10000); // 10 second grace period
+
+        const pdfRequestOptions = {
+            url: url,
+            withCredentials: true,
+            httpHeaders: {
+                'Accept': 'application/pdf'
+            }
+        };
+
+        // Check if URL is accessible first
+        fetch(url, {
+            method: 'HEAD',
+            credentials: 'include'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    const loadingEl = document.getElementById('loading');
+                    if (response.status === 403) {
+                        loadingEl.textContent = 'Access denied. You may need to wait for librarian approval to view this resource.';
+                    } else if (response.status === 404) {
+                        loadingEl.textContent = 'PDF file not found. Please contact the librarian.';
+                    } else {
+                        loadingEl.textContent = 'Error loading PDF (HTTP ' + response.status + '). Please contact the librarian.';
+                    }
+                    loadingEl.style.color = '#ff4444';
+                    throw new Error('HTTP ' + response.status);
+                }
+                // URL is accessible, proceed with PDF.js
+                return pdfjsLib.getDocument(pdfRequestOptions).promise;
+            })
+            .then(pdf => {
+                pdfDoc = pdf;
+                document.getElementById('page-count').textContent = pdf.numPages;
+                document.getElementById('loading').style.display = 'none';
+                
+                // Render all pages
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    renderPage(i);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading PDF:', error);
+                const loadingEl = document.getElementById('loading');
+                
+                // Only show generic error if we haven't already set a specific message
+                if (loadingEl.textContent === 'Loading PDF...') {
+                    let errorMsg = 'Error loading PDF';
+                    
+                    if (error.message && error.message.includes('HTTP')) {
+                        // Already handled by fetch check above
+                        return;
+                    } else if (error.name === 'InvalidPDFException') {
+                        errorMsg = 'Invalid PDF file. The file may be corrupted.';
+                    } else if (error.name === 'MissingPDFException') {
+                        errorMsg = 'PDF file not found. Please contact the librarian.';
+                    } else if (error.message) {
+                        errorMsg += ': ' + error.message;
+                    }
+                    
+                    loadingEl.textContent = errorMsg;
+                    loadingEl.style.color = '#ff4444';
+                }
+            });
 
         // Render a single page
         function renderPage(pageNum) {
@@ -420,6 +559,7 @@
             // PrintScreen key
             if (e.key === "PrintScreen" || (e.keyCode === 44)) {
                 e.preventDefault();
+                enhanceWatermark();
                 showWarning();
                 return false;
             }
@@ -427,13 +567,15 @@
             // Windows + PrintScreen
             if (e.key === "PrintScreen" && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault();
+                enhanceWatermark();
                 showWarning();
                 return false;
             }
 
             // Disable certain keyboard shortcuts
-            if (e.ctrlKey && ["s", "p", "u", "c"].includes(e.key.toLowerCase())) {
+            if (e.ctrlKey && !e.shiftKey && ["s", "p", "u", "c"].includes(e.key.toLowerCase())) {
                 e.preventDefault();
+                enhanceWatermark();
                 showWarning();
                 return false;
             }
@@ -462,6 +604,23 @@
             // Ctrl+Shift+C (Inspect Element)
             if (e.ctrlKey && e.shiftKey && e.key === "C") {
                 e.preventDefault();
+                showWarning();
+                return false;
+            }
+
+            // Ctrl+Shift+S (Snipping Tool / Save As)
+            if (e.ctrlKey && e.shiftKey && (e.key === "S" || e.key === "s")) {
+                e.preventDefault();
+                enhanceWatermark();
+                showWarning();
+                return false;
+            }
+
+            // Windows Key + Shift + S (Windows 10+ Snipping Tool)
+            // Note: Windows key detection is limited in browsers, but we try to catch it
+            if (e.metaKey && e.shiftKey && (e.key === "S" || e.key === "s")) {
+                e.preventDefault();
+                enhanceWatermark();
                 showWarning();
                 return false;
             }
@@ -498,8 +657,39 @@
             }
         }, 500);
 
+        // Enhance watermark visibility
+        function enhanceWatermark() {
+            const watermark = document.getElementById('watermark');
+            const watermarkOverlay = document.getElementById('watermark-text-overlay');
+            
+            if (watermark) {
+                watermark.classList.add('enhanced');
+            }
+            if (watermarkOverlay) {
+                watermarkOverlay.classList.add('enhanced');
+            }
+            
+            // Keep enhanced state for 30 seconds
+            setTimeout(() => {
+                if (watermark) {
+                    watermark.classList.remove('enhanced');
+                }
+                if (watermarkOverlay) {
+                    watermarkOverlay.classList.remove('enhanced');
+                }
+            }, 30000);
+        }
+
         // Show warning popup
         function showWarning() {
+            // Don't show warnings during grace period (first 2 seconds after page load)
+            if (!securityEnabled) {
+                return;
+            }
+            
+            // Enhance watermark when screenshot is detected
+            enhanceWatermark();
+            
             const popup = document.getElementById('warning-popup');
             const overlay = document.getElementById('overlay-block');
             popup.classList.add('show');
@@ -520,17 +710,29 @@
         }
 
 
-        // Detect right-click
+        // Detect right-click (only after grace period)
         document.addEventListener("contextmenu", e => {
             e.preventDefault();
-            showWarning();
+            if (securityEnabled) {
+                showWarning();
+            }
             return false;
         });
 
         // Detect browser DevTools opening (for desktop)
         let devToolsOpen = false;
-        const threshold = 160;
+        const threshold = 200; // Increased threshold to reduce false positives
         setInterval(() => {
+            // Only check after grace period AND at least 5 seconds after page load
+            if (!securityEnabled || (Date.now() - pageLoadTime < 5000)) {
+                return;
+            }
+            
+            // Only check if window is actually focused
+            if (!document.hasFocus()) {
+                return;
+            }
+            
             if (window.outerHeight - window.innerHeight > threshold || 
                 window.outerWidth - window.innerWidth > threshold) {
                 if (!devToolsOpen) {
@@ -540,37 +742,62 @@
             } else {
                 devToolsOpen = false;
             }
-        }, 500);
+        }, 1000); // Check less frequently
 
-        // Detect mobile screenshot attempts
+        // Detect mobile screenshot attempts (only on mobile devices)
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
         // iOS screenshot detection
-        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        if (isMobile && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+            let lastBlurTime = 0;
+            
             // Detect when app goes to background (common when taking screenshot)
             document.addEventListener("visibilitychange", () => {
+                if (!securityEnabled) return;
+                
+                // Only trigger if page was visible for at least 5 seconds
+                if (Date.now() - pageLoadTime < 5000) return;
+                
                 if (document.hidden) {
                     setTimeout(() => {
-                        if (document.hidden) {
+                        if (document.hidden && securityEnabled && (Date.now() - pageLoadTime > 5000)) {
                             showWarning();
                         }
-                    }, 100);
+                    }, 500); // Increased delay to reduce false positives
                 }
             });
 
             // Detect blur event (app switching)
             window.addEventListener("blur", () => {
+                if (!securityEnabled) return;
+                
+                // Only trigger if page was visible for at least 5 seconds
+                if (Date.now() - pageLoadTime < 5000) return;
+                
+                // Don't trigger if blur happened too recently (likely page transition)
+                const now = Date.now();
+                if (now - lastBlurTime < 2000) return;
+                lastBlurTime = now;
+                
                 setTimeout(() => {
-                    if (document.hidden) {
+                    if (document.hidden && securityEnabled && (Date.now() - pageLoadTime > 5000)) {
                         showWarning();
                     }
-                }, 100);
+                }, 500);
             });
         }
 
         // Android screenshot detection
         if (/Android/.test(navigator.userAgent)) {
+            let lastBlurTime = 0;
             // Monitor for rapid visibility changes
             let lastVisibilityChange = Date.now();
             document.addEventListener("visibilitychange", () => {
+                if (!securityEnabled) return;
+                
+                // Only trigger if page was visible for at least 5 seconds
+                if (Date.now() - pageLoadTime < 5000) return;
+                
                 const now = Date.now();
                 if (document.hidden && (now - lastVisibilityChange) < 500) {
                     showWarning();
@@ -579,11 +806,56 @@
             });
 
             window.addEventListener("blur", () => {
+                if (!securityEnabled) return;
+                
+                // Only trigger if page was visible for at least 5 seconds
+                if (Date.now() - pageLoadTime < 5000) return;
+                
+                // Don't trigger if blur happened too recently
+                const now = Date.now();
+                if (now - lastBlurTime < 2000) return;
+                lastBlurTime = now;
+                
                 setTimeout(() => {
-                    if (document.hidden) {
+                    if (document.hidden && securityEnabled && (Date.now() - pageLoadTime > 5000)) {
                         showWarning();
                     }
-                }, 100);
+                }, 500);
+            });
+        }
+
+        // Desktop: Detect window blur (could indicate Snipping Tool or screenshot software)
+        if (!isMobile) {
+            let lastBlurTime = 0;
+            let blurTimeout;
+            
+            window.addEventListener("blur", () => {
+                if (!securityEnabled) return;
+                if (Date.now() - pageLoadTime < 5000) return;
+                
+                const now = Date.now();
+                // Don't trigger if blur happened too recently
+                if (now - lastBlurTime < 2000) return;
+                lastBlurTime = now;
+                
+                // Preemptively enhance watermark when window loses focus
+                // This helps catch Snipping Tool usage
+                enhanceWatermark();
+                
+                // If window stays blurred for more than 1 second, show warning
+                blurTimeout = setTimeout(() => {
+                    if (document.hidden && securityEnabled) {
+                        showWarning();
+                    }
+                }, 1000);
+            });
+            
+            window.addEventListener("focus", () => {
+                // Clear timeout if window regains focus quickly
+                if (blurTimeout) {
+                    clearTimeout(blurTimeout);
+                    blurTimeout = null;
+                }
             });
         }
 
@@ -592,10 +864,12 @@
             window.top.location = window.self.location;
         }
 
-        // Detect copy attempts
+        // Detect copy attempts (only after grace period)
         document.addEventListener("copy", (e) => {
             e.preventDefault();
-            showWarning();
+            if (securityEnabled) {
+                showWarning();
+            }
             return false;
         });
 
@@ -632,5 +906,6 @@
         `;
         document.head.appendChild(style);
     </script>
+    @include('partials.globalLoader')
 </body>
 </html>

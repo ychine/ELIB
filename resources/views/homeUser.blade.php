@@ -12,8 +12,22 @@
   <title>Home | ISU StudyGo</title>
 
   <style>
+    :root {
+      --featured-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
     /* === GLOBAL FIXES === */
     html, body, .main-content { overflow-x: hidden; }
+
+    .main-content {
+      opacity: 0;
+      animation: pageFadeIn 0.65s var(--featured-ease) 80ms forwards;
+    }
+
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     /* Sidebar Styles */
     .sidebar {
@@ -90,23 +104,29 @@
     /* === BOOK GRID & CARDS === */
     .books-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
       width: 100%;
+      grid-template-columns: repeat(auto-fit, minmax(clamp(160px, 18vw, 220px), 1fr));
     }
-    @media (min-width: 640px) { .books-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (min-width: 1024px) { .books-grid { grid-template-columns: repeat(5, 1fr); } }
 
     .book-card {
       background: white;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
+      transition:
+        opacity 0.35s var(--featured-ease),
+        transform 0.35s var(--featured-ease),
+        box-shadow 0.3s ease;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       height: 100%;
+    }
+    .book-card[data-visible="false"] {
+      opacity: 0;
+      transform: translateY(18px);
+      pointer-events: none;
     }
     .book-card:hover {
       transform: translateY(-6px);
@@ -141,6 +161,43 @@
       overflow: hidden;
     }
     .book-author { font-size: 0.8rem; color: #6b7280; }
+
+    .featured-pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .featured-pagination button {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      background: white;
+      color: #047857;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 8px 18px rgba(15, 118, 110, 0.12);
+    }
+    .featured-pagination button i {
+      pointer-events: none;
+      color: #047857;
+      font-size: 1rem;
+    }
+    .featured-pagination button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .featured-pagination span {
+      font-weight: 600;
+      color: #065f46;
+      letter-spacing: 0.05em;
+    }
 
     /* Filter Tabs */
     .filter-tabs {
@@ -278,7 +335,7 @@
     <!-- Main Content -->
     <div class="flex flex-col flex-1 transition-all duration-300 main-content bg-gray-50">
       <div class="hero-container relative  w-full greenhue z-1">
-        <img src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" alt="Library" class="w-full h-50 z-[-1] object-cover absolute" style="object-position: 70% middle;"/>
+        <img src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" alt="Library" class="hero-image w-full h-50 z-[-1] object-cover absolute" style="object-position: 70% middle;"/>
         <div class="herotext h-50 ml-30 flex relative z-2">
           <div class="column">
             <h1 style="transform: translateY(50%); line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 45px; text-shadow: 0 4px 4px #000; color: #FFF;">
@@ -301,8 +358,14 @@
 
               <div class="books-grid">
                 @forelse($featuredResources as $resource)
-                  <div class="book-card cursor-pointer" 
-                        data-resource="{{ $resource->append(['average_rating', 'formatted_publish_date', 'authors', 'tags'])->toJson() }}">
+                  @php
+                    $resource->append(['average_rating', 'formatted_publish_date', 'authors', 'tags']);
+                    $resourceData = $resource->toArray();
+                    $resourceData['is_borrowed'] = $resource->is_borrowed ?? false;
+                  @endphp
+                  <div class="book-card cursor-pointer transition-opacity duration-200" 
+                        data-index="{{ $loop->index }}"
+                        data-resource="{{ json_encode($resourceData) }}">
                       <div class="book-cover bg-gray-400">
                         @if($resource->thumbnail_path && Storage::disk('public')->exists($resource->thumbnail_path))
                           <img src="{{ asset('storage/' . $resource->thumbnail_path) }}" 
@@ -335,6 +398,15 @@
                   <div class="col-span-full text-center py-12 text-gray-500">No featured resources available.</div>
                 @endforelse
               </div>
+              <div id="featuredPagination" class="featured-pagination hidden">
+                <button type="button" id="featuredPrev" aria-label="Previous page">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <span id="featuredPageIndicator">1 / 1</span>
+                <button type="button" id="featuredNext" aria-label="Next page">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
             </div>
 
             <!-- Community Uploads -->
@@ -365,18 +437,56 @@
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
   <script>
-    window.addEventListener('scroll', () => {
+    function initGlassNavScroll() {
       const nav = document.querySelector('.glass-nav');
-      const libraryImg = document.querySelector('.main-content img');
-      const libraryHeight = libraryImg.offsetHeight; 
-      const scrollPosition = window.scrollY;
+      if (!nav) return;
 
-      if (scrollPosition > libraryHeight) {
-        nav.classList.add('scrolled');
-      } else {
-        nav.classList.remove('scrolled');
+      const heroSelectors = [
+        '.hero-image',
+        '.hero-container img',
+        '.main-content .hero-container img',
+        '.hero-container'
+      ];
+
+      const heroElement = heroSelectors.map(selector => document.querySelector(selector)).find(Boolean) || null;
+      const heroContainer = heroElement instanceof HTMLElement && heroElement.classList.contains('hero-container')
+        ? heroElement
+        : heroElement?.closest('.hero-container') || document.querySelector('.hero-container');
+
+      const updateNavBlur = () => {
+        const reference = heroContainer || heroElement;
+
+        if (!reference) {
+          nav.classList.add('scrolled');
+          return;
+        }
+
+        const rect = reference.getBoundingClientRect();
+        const tolerance = nav.offsetHeight + 16;
+
+        if (rect.bottom <= tolerance) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
+      };
+
+      window.addEventListener('load', updateNavBlur, { once: true });
+      window.addEventListener('scroll', updateNavBlur, { passive: true });
+      window.addEventListener('resize', updateNavBlur);
+
+      if (heroElement instanceof HTMLImageElement && !heroElement.complete) {
+        heroElement.addEventListener('load', updateNavBlur, { once: true });
       }
-    });
+
+      updateNavBlur();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initGlassNavScroll);
+    } else {
+      initGlassNavScroll();
+    }
   </script>
   <script>
     // Modal Functions
@@ -415,6 +525,21 @@
         tagsContainer.innerHTML = '<span class="text-gray-500 text-sm">No tags</span>';
       }
 
+      // Handle borrow button state
+      const borrowButton = document.getElementById('borrowButton');
+      const borrowForm = document.getElementById('borrowForm');
+      const alreadyBorrowedMessage = document.getElementById('alreadyBorrowedMessage');
+      
+      if (resource.is_borrowed) {
+        borrowForm.classList.add('hidden');
+        alreadyBorrowedMessage.classList.remove('hidden');
+        borrowButton.disabled = true;
+      } else {
+        borrowForm.classList.remove('hidden');
+        alreadyBorrowedMessage.classList.add('hidden');
+        borrowButton.disabled = false;
+      }
+
       // Increment views via AJAX
       const incrementUrl = '{{ route("resources.increment.view", "placeholder") }}'.replace('placeholder', resource.Resource_ID);
       fetch(incrementUrl, {
@@ -442,34 +567,133 @@
       document.getElementById('borrowModal').classList.add('hidden');
     }
 
-    document.querySelectorAll('.book-card').forEach(card => {
-      card.addEventListener('click', function () {
-        const resource = JSON.parse(this.dataset.resource);
-        openBorrowModal(resource);
+    // Prevent tab clicks from bubbling up to card listeners
+    const filterTabsWrapper = document.querySelector('.filter-tabs');
+    if (filterTabsWrapper) {
+      filterTabsWrapper.addEventListener('click', (event) => {
+        event.stopPropagation();
       });
-    });
+    }
 
     document.getElementById('borrowModal').addEventListener('click', function (e) {
       if (e.target === this) closeBorrowModal();
     });
 
-    // Navbar Scroll
-    window.addEventListener('scroll', () => {
-      const nav = document.querySelector('.glass-nav');
-      const libraryImg = document.querySelector('.main-content img');
-      const libraryHeight = libraryImg ? libraryImg.offsetHeight : 0;
-      if (window.scrollY > libraryHeight) nav.classList.add('scrolled');
-      else nav.classList.remove('scrolled');
-    });
+    function initFeaturedPagination() {
+      const paginationWrapper = document.getElementById('featuredPagination');
+      const prevButton = document.getElementById('featuredPrev');
+      const nextButton = document.getElementById('featuredNext');
+      const indicator = document.getElementById('featuredPageIndicator');
+      const booksGrid = document.querySelector('.books-grid');
+      const bookCards = Array.from(document.querySelectorAll('.books-grid .book-card'));
+
+      if (!bookCards.length || !paginationWrapper) return;
+
+      bookCards.forEach(card => {
+        card.dataset.visible = 'false';
+        card.style.display = 'none';
+        card.addEventListener('click', function () {
+          const resource = JSON.parse(this.dataset.resource);
+          openBorrowModal(resource);
+        });
+      });
+
+      const rowsPerPage = 2;
+      const columnsForPage = () => {
+        if (window.innerWidth >= 1280) return 4;
+        if (window.innerWidth >= 1024) return 3;
+        if (window.innerWidth >= 768) return 2;
+        return 1;
+      };
+      const computeCardsPerPage = () => columnsForPage() * rowsPerPage;
+
+      let cardsPerPage = computeCardsPerPage();
+      let currentFeaturedPage = 0;
+      let featuredTotalPages = Math.max(1, Math.ceil(bookCards.length / cardsPerPage));
+
+      const setCardVisibility = (card, shouldShow) => {
+        if (shouldShow) {
+          if (card.dataset.visible === 'true') return;
+          card.style.display = '';
+          requestAnimationFrame(() => {
+            card.dataset.visible = 'true';
+          });
+        } else {
+          if (card.dataset.visible === 'false') return;
+          const handle = () => {
+            card.style.display = 'none';
+            card.removeEventListener('transitionend', handle);
+          };
+          card.addEventListener('transitionend', handle);
+          card.dataset.visible = 'false';
+          setTimeout(handle, 450);
+        }
+      };
+
+      const renderPage = (pageIndex = currentFeaturedPage) => {
+        cardsPerPage = computeCardsPerPage();
+        featuredTotalPages = Math.max(1, Math.ceil(bookCards.length / cardsPerPage));
+
+        currentFeaturedPage = Math.min(pageIndex, featuredTotalPages - 1);
+        currentFeaturedPage = Math.max(currentFeaturedPage, 0);
+
+        const start = currentFeaturedPage * cardsPerPage;
+        const end = start + cardsPerPage;
+
+        bookCards.forEach((card, index) => {
+          setCardVisibility(card, index >= start && index < end);
+        });
+
+        const hidePagination = featuredTotalPages <= 1;
+        paginationWrapper.classList.toggle('hidden', hidePagination);
+
+        if (!hidePagination && indicator) {
+          indicator.textContent = `${currentFeaturedPage + 1} / ${featuredTotalPages}`;
+          if (prevButton) prevButton.disabled = currentFeaturedPage === 0;
+          if (nextButton) nextButton.disabled = currentFeaturedPage === featuredTotalPages - 1;
+        }
+      };
+
+      prevButton?.addEventListener('click', () => {
+        if (currentFeaturedPage > 0) {
+          renderPage(currentFeaturedPage - 1);
+        }
+      });
+
+      nextButton?.addEventListener('click', () => {
+        if (currentFeaturedPage < featuredTotalPages - 1) {
+          renderPage(currentFeaturedPage + 1);
+        }
+      });
+
+      let resizeTimeout;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => renderPage(currentFeaturedPage), 150);
+      });
+
+      renderPage(0);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initFeaturedPagination);
+    } else {
+      initFeaturedPagination();
+    }
 
     // Sidebar Toggle
     const sidebar = document.querySelector('.sidebar');
-    sidebar.addEventListener('click', () => sidebar.classList.toggle('expanded'));
+    sidebar.addEventListener('click', (event) => {
+      if (event.target.closest('.sidebar a, .sidebar button, .sidebar form')) return;
+      sidebar.classList.toggle('expanded');
+    });
     document.addEventListener('click', (e) => {
       if (sidebar.classList.contains('expanded') && !sidebar.contains(e.target)) {
+        if (e.target.closest('.filter-tabs')) return;
         sidebar.classList.remove('expanded');
       }
     });
   </script>
+  @include('partials.globalLoader')
 </body>
 </html>

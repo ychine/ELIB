@@ -12,7 +12,63 @@
   @vite(['resources/css/app.css', 'resources/css/kulimpark.css', 'resources/css/Inter.css', 'resources/css/kantumruypro.css'])
   
   <style>
-    .parent { min-height: 100vh; }
+    .parent { min-height: 100vh; position: relative; overflow: hidden; }
+    .auth-card {
+      border-radius: 32px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 35px 120px rgba(15, 23, 42, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(14px);
+    }
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      border: 1px solid rgba(34, 197, 94, 0.18);
+    }
+    .auth-field {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.06);
+      transition: border-color 200ms ease, background 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+    }
+    .auth-field:focus-within {
+      border-color: rgba(34, 197, 94, 0.65);
+      background: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 24px 45px rgba(34, 197, 94, 0.14);
+    }
+    .auth-field input,
+    .auth-field select {
+      background: transparent;
+      color: #0f172a;
+    }
+    .auth-submit {
+      border-radius: 16px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      box-shadow: 0 20px 60px rgba(34, 197, 94, 0.35);
+    }
+    @media (max-width: 1024px) {
+      .parent {
+        grid-template-columns: 1fr;
+        padding-top: 20vw;
+      }
+      .auth-card {
+        border-radius: 24px;
+      }
+    }
+    @media (max-width: 640px) {
+      .auth-card {
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3);
+      }
+      .auth-card img {
+        width: 56px;
+        height: 56px;
+      }
+    }
 
     #toast {
       position: fixed;
@@ -105,12 +161,12 @@
 
     <!-- RIGHT SIDE (FORM) -->
     <div class="relative flex flex-col h-full lg:rounded-r-4xl bg-gray-100 z-1">
-      <div class="relative z-10 flex items-center justify-between px-4 sm:px-6 lg:px-12 pt-4 sm:pt-6">
+      <div class="relative z-10 flex items-center justify-between px-4 sm:px-6 lg:px-12 sm:pt-6">
         <div class="flex-shrink-0"></div>
         <img src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" alt="ISU Logo" class="w-[3vw] h-[3vw] translate-y-2.5 sm:w-12 sm:h-12 rounded-full shadow" />
       </div>
 
-      <div class="relative z-10 flex-1 flex items-start justify-center px-4 sm:px-6 lg:px-16 pt-4 sm:pt-6 lg:pt-10">
+      <div class="relative z-10 flex-1 flex items-start justify-center px-4 sm:px-6 lg:px-16 pt-2 sm:pt-4">
         <div class="w-full max-w-md sm:max-w-lg lg:max-w-xl">
           <div class="mb-4 sm:mb-6 text-left">
             <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight flex items-center gap-2">
@@ -147,9 +203,9 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">First Name</label>
-                <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg">
+                <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
                   <input type="text" name="first_name" value="{{ old('first_name') }}" required placeholder="John"
-                         class="w-full px-3 py-1 sm:py-3 outline-none bg-[#D9D9D9] rounded-lg focus:bg-white text-sm sm:text-base">
+                         class="w-full px-3 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
                 </div>
                 @error('first_name')
                   <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
@@ -158,9 +214,9 @@
 
               <div>
                 <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Last Name</label>
-                <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg">
+                <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
                   <input type="text" name="last_name" value="{{ old('last_name') }}" required placeholder="Doe"
-                         class="w-full px-3 py-1 sm:py-3 outline-none bg-[#D9D9D9] rounded-lg focus:bg-white text-sm sm:text-base">
+                         class="w-full px-3 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
                 </div>
                 @error('last_name')
                   <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
@@ -170,9 +226,9 @@
 
             <div>
               <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Email</label>
-              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg">
+              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
                 <input type="email" name="email" value="{{ old('email') }}" required placeholder="example@mail.com"
-                       class="w-full px-3 py-1 sm:py-3 outline-none bg-[#D9D9D9] rounded-lg focus:bg-white text-sm sm:text-base">
+                       class="w-full px-3 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
               </div>
               @error('email')
                 <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
@@ -181,9 +237,9 @@
 
             <div>
               <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Password</label>
-              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg">
+              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
                 <input type="password" name="password" required placeholder="*********"
-                       class="w-full px-2 py-1 sm:py-3 outline-none bg-[#D9D9D9] rounded-lg focus:bg-white text-sm sm:text-base">
+                       class="w-full px-2 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
               </div>
               @error('password')
                 <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
@@ -192,49 +248,51 @@
 
             <div>
               <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Confirm Password</label>
-              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg">
+              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
                 <input type="password" name="password_confirmation" required placeholder="*********"
-                       class="w-full px-2 py-1 sm:py-3 outline-none bg-[#D9D9D9] rounded-lg focus:bg-white text-sm sm:text-base">
+                       class="w-full px-2 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
               </div>
             </div>
 
-            <div>
-              <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Role</label>
-              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg">
-                <select name="role" required
-                        class="w-full px-3 py-1 sm:py-3 outline-none bg-[#D9D9D9] rounded-lg focus:bg-white text-sm sm:text-base">
-                  <option value="">Select Role</option>
-                  <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Student</option>
-                  <option value="faculty" {{ old('role') == 'faculty' ? 'selected' : '' }}>Faculty</option>
-                  <option value="librarian" {{ old('role') == 'librarian' ? 'selected' : '' }}>Librarian</option>
-                  <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                </select>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Role</label>
+                <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
+                  <select name="role" required
+                          class="w-full px-3 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
+                    <option value="">Select Role</option>
+                    <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Student</option>
+                    <option value="faculty" {{ old('role') == 'faculty' ? 'selected' : '' }}>Faculty</option>
+                    <option value="librarian" {{ old('role') == 'librarian' ? 'selected' : '' }}>Librarian</option>
+                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                  </select>
+                </div>
+                @error('role')
+                  <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                @enderror
               </div>
-              @error('role')
-                <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-              @enderror
-            </div>
 
-            <div>
-              <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Campus</label>
-              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg">
-                <select name="campus_id" required
-                        class="w-full px-3 py-1 sm:py-3 outline-none bg-[#D9D9D9] rounded-lg focus:bg-white text-sm sm:text-base">
-                  <option value="">Select Campus</option>
-                  @foreach($campuses as $campus)
-                    <option value="{{ $campus->Campus_ID }}" {{ old('campus_id') == $campus->Campus_ID ? 'selected' : '' }}>
-                      {{ $campus->Campus_Name }}
-                    </option>
-                  @endforeach
-                </select>
+              <div>
+                <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Campus</label>
+                <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
+                  <select name="campus_id" required
+                          class="w-full px-3 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
+                    <option value="">Select Campus</option>
+                    @foreach($campuses as $campus)
+                      <option value="{{ $campus->Campus_ID }}" {{ old('campus_id') == $campus->Campus_ID ? 'selected' : '' }}>
+                        {{ $campus->Campus_Name }}
+                      </option>
+                    @endforeach
+                  </select>
+                </div>
+                @error('campus_id')
+                  <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                @enderror
               </div>
-              @error('campus_id')
-                <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-              @enderror
             </div>
 
             <button type="submit"
-                    class="w-full bg-green-800 text-white py-3 sm:py-4 rounded-md hover:bg-green-900 transition text-sm sm:text-base">
+                    class="w-full bg-green-800 text-white py-3 sm:py-4 rounded-md hover:bg-green-900 transition text-sm sm:text-base auth-submit">
               Register
             </button>
           </form>
@@ -248,12 +306,12 @@
         </div>
       </div>
 
-      <img src="{{ Vite::asset('resources/images/wave.png') }}" alt="Wave"
-           class="absolute bottom-0 left-0 right-0 w-full h-20 sm:h-24 lg:rounded-br-4xl lg:h-auto object-fill pointer-events-none">
+    
     </div>
   </div>
 
   <!-- FONT AWESOME FOR ICON -->
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  @include('partials.globalLoader')
 </body>
 </html>

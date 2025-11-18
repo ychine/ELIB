@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Resource;
+use App\Models\Borrower;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -44,6 +45,17 @@ class HomeController extends Controller
             'authors',
             'tags'
         ]);
+
+        // Get user's borrow list to check if resources are already borrowed
+        $userBorrowIds = Borrower::where('UID', Auth::id())
+            ->where('isReturned', 0)
+            ->pluck('resource_id')
+            ->toArray();
+
+        // Add is_borrowed flag to each resource
+        $featuredResources->each(function ($resource) use ($userBorrowIds) {
+            $resource->is_borrowed = in_array($resource->Resource_ID, $userBorrowIds);
+        });
 
         // Community Uploads (also select views, remove from append)
         $communityUploads = Resource::communityUploads()

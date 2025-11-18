@@ -63,14 +63,18 @@
                             class="px-8 py-3 bg-white text-gray-700 border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all font-medium text-sm shadow-sm">
                         Cancel
                     </button>
-                    <form method="POST" action="{{ route('borrow.request') }}" class="inline">
+                    <form method="POST" action="{{ route('borrow.request') }}" class="inline" id="borrowForm">
                         @csrf
                         <input type="hidden" name="resource_id" id="modalResourceId">
-                        <button type="submit"
-                                class="px-12 py-3 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-xl hover:from-[#16A34A] hover:to-[#15803D] transition-all font-medium text-sm shadow-lg hover:shadow-xl">
+                        <button type="submit" id="borrowButton"
+                                class="px-12 py-3 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-xl hover:from-[#16A34A] hover:to-[#15803D] transition-all font-medium text-sm shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-[#22C55E] disabled:hover:to-[#16A34A]">
                             Add to Borrow List
                         </button>
                     </form>
+                    <div id="alreadyBorrowedMessage" class="hidden px-12 py-3 bg-gray-200 text-gray-600 rounded-xl font-medium text-sm flex items-center gap-2">
+                        <i class="fas fa-check-circle"></i>
+                        Already on Borrow List
+                    </div>
                 </div>
             </div>
         </div>

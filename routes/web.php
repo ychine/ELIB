@@ -14,7 +14,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/borrow/show/{id}', [App\Http\Controllers\BorrowController::class, 'showBorrow'])
     ->name('borrow.show');
     Route::get('/yourshelf', [ShelfController::class, 'index'])->name('yourshelf');
-    Route::get('/view-book/{id}', [ShelfController::class, 'viewBook']);
+    Route::post('/return/{id}', [ShelfController::class, 'returnBook'])->name('return.book');
+    Route::get('/view-book/{id}', [ShelfController::class, 'viewBook'])
+        ->name('view.book');
     Route::get('/viewer/{id}', function($id){
         return view('pdf-viewer', ['id'=>$id, 'user'=>auth()->user()]);
     })->name('viewer');
@@ -125,6 +127,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/resources', [ResourceController::class, 'store'])->name('resources.store');
         Route::get('/resources/{resource}', [ResourceController::class, 'show'])->name('resources.show');
         Route::patch('/resources/{resource}', [ResourceController::class, 'update'])->name('resources.update');
+        Route::delete('/resources/{resource}', [ResourceController::class, 'destroy'])->name('resources.destroy');
     });
 
     /* LIBRARIAN FEATURED */

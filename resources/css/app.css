@@ -9,3 +9,109 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+@layer base {
+    :root {
+        --ui-ease: cubic-bezier(0.16, 1, 0.3, 1);
+        --ui-duration-fast: 160ms;
+        --ui-duration: 240ms;
+        --ui-duration-slow: 360ms;
+        --ui-surface: #ffffff;
+        --ui-border: rgba(15, 118, 110, 0.12);
+        --ui-shadow-soft: 0 10px 40px rgba(15, 118, 110, 0.08);
+    }
+
+    body {
+        font-family: var(--font-sans);
+        background-color: #f5f7f0;
+        color: #0f172a;
+        min-height: 100vh;
+        scroll-behavior: smooth;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            transition-duration: 0ms !important;
+            animation-duration: 0ms !important;
+        }
+    }
+}
+
+@layer components {
+    :where(button, [type='button'], [type='submit'], [role='button'], .filter-tab, .community-item, .book-card, .nav-item) {
+        transition:
+            background-color var(--ui-duration-fast) var(--ui-ease),
+            color var(--ui-duration-fast) var(--ui-ease),
+            border-color var(--ui-duration-fast) var(--ui-ease),
+            box-shadow var(--ui-duration) var(--ui-ease),
+            transform var(--ui-duration) var(--ui-ease);
+    }
+
+    :where(button, [type='button'], [type='submit'], [role='button'], .filter-tab, .community-item, .book-card, .nav-item):hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 24px rgba(15, 118, 110, 0.15);
+    }
+
+    :where(button, [type='button'], [type='submit'], [role='button'], .filter-tab, .community-item, .book-card, .nav-item):active {
+        transform: translateY(0);
+        box-shadow: 0 8px 16px rgba(15, 118, 110, 0.16);
+    }
+
+    :where(input, select, textarea) {
+        transition:
+            border-color var(--ui-duration-fast) var(--ui-ease),
+            background-color var(--ui-duration-fast) var(--ui-ease),
+            box-shadow var(--ui-duration-fast) var(--ui-ease);
+    }
+
+    :where(input, select, textarea):focus {
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+    }
+
+    .modal-backdrop {
+        transition: opacity var(--ui-duration) var(--ui-ease);
+    }
+
+    .modal-panel {
+        transition:
+            transform var(--ui-duration) var(--ui-ease),
+            opacity var(--ui-duration) var(--ui-ease);
+        transform-origin: top center;
+    }
+
+    #borrowModal:not(.hidden) .bg-white {
+        animation: modal-pop var(--ui-duration-slow) var(--ui-ease);
+    }
+
+    .auth-card {
+        backdrop-filter: blur(6px);
+        box-shadow: var(--ui-shadow-soft);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: transform var(--ui-duration) var(--ui-ease), box-shadow var(--ui-duration) var(--ui-ease);
+    }
+
+    .auth-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 30px 60px rgba(15, 118, 110, 0.18);
+    }
+
+    .auth-card .field-label {
+        letter-spacing: 0.04em;
+    }
+}
+
+@layer utilities {
+    @keyframes modal-pop {
+        0% {
+            opacity: 0;
+            transform: translateY(24px) scale(0.97);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+}

@@ -39,9 +39,10 @@ class ShelfController extends Controller
             abort(404, 'PDF file not found.');
         }
 
+        // response()->file() automatically sets Content-Disposition for inline viewing
+        // Only set Content-Type to avoid duplicate headers
         return response()->file($filePath, [
-            "Content-Type" => "application/pdf",
-            "Content-Disposition" => "inline; filename='{$resource->Resource_Name}.pdf'"
+            "Content-Type" => "application/pdf"
         ]);
     }
 }

@@ -357,7 +357,7 @@
         <img
           src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}"
           alt="Library"
-          class="w-full h-50 z-[-1] object-cover absolute"
+          class="hero-image w-full h-50 z-[-1] object-cover absolute"
           style="object-position: 70% middle;"
         />
         <div class="herotext h-50 ml-30 flex relative z-2">
@@ -393,19 +393,29 @@
               </ul>
             </div>
           @endif
+          
+          <!-- Search Bar -->
+          <div class="mb-4">
+            <input type="text" 
+                   id="searchInput" 
+                   placeholder="Search by requester name, email, or resource name..." 
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 searchbar">
+          </div>
+          
           <!-- Borrow Requests Table -->
-          <table class="min-w-full bg-white rounded-lg overflow-hidden">
+          <table class="min-w-full bg-white rounded-lg overflow-hidden" id="borrowTable">
             <thead>
               <tr>
                 <th class="py-3 px-6 border-b border-gray-500 text-left kantumruy-pro-regular">Requester</th>
                 <th class="py-3 px-6 border-b border-gray-500 text-left kantumruy-pro-regular">Resource</th>
                 <th class="py-3 px-6 border-b border-gray-500 text-left kantumruy-pro-regular">Request Date</th>
-                <th class="py-3 px-6 border-b border-gray-500 text-left kantumruy-pro-regular">Actions</th>
               </tr>
             </thead>
             <tbody>
                 @forelse($borrowRequests as $request)
-                    <tr class="hover:bg-gray-50 transition-colors">
+                    <tr class="hover:bg-gray-50 transition-colors cursor-pointer borrow-row" 
+                        data-borrow-id="{{ $request->Borrower_ID }}"
+                        onclick="openDetailsModal({{ $request->Borrower_ID }})">
                         <td class="py-2 px-6 border-b border-gray-400 kantumruy-pro-regular">
                             {{ $request->user->full_name ?? 'Unknown' }}<br>
                             <small class="text-gray-500">{{ $request->user->email ?? 'N/A' }}</small>
@@ -414,35 +424,11 @@
                             {{ $request->resource->Resource_Name ?? 'Unknown Resource' }}
                         </td>
                         <td class="py-2 px-6 border-b border-gray-400 kantumruy-pro-regular">
-    {{ $request->created_at->timezone('Asia/Manila')->format('Y-m-d H:i') }}
-</td>
-
-
-                        {{--  ←  STOP PROPAGATION HERE  --}}
-                        <td class="py-2 px-6 border-b border-gray-400" onclick="event.stopPropagation();">
-                            <div class="borrow-actions">
-                                <form method="POST" action="{{ route('borrow.approve', $request->Borrower_ID) }}" style="display:inline;">
-                                    @csrf
-                                    <button type="submit" class="btn-approve">Approve</button>
-                                </form>
-
-                                <form method="POST" action="{{ route('borrow.reject', $request->Borrower_ID) }}" style="display:inline;">
-                                    @csrf
-                                    <button type="submit" class="btn-reject">Reject</button>
-                                </form>
-
-                                {{--  ←  POINTER-EVENTS AUTO  --}}
-                                <button type="button"
-                                        onclick="openDetailsModal({{ $request->Borrower_ID }})"
-                                        class="btn-details"
-                                        style="pointer-events:auto;">
-                                    Details
-                                </button>
-                            </div>
+                            {{ $request->created_at->timezone('Asia/Manila')->format('Y-m-d H:i') }}
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="4" class="py-12 text-center text-gray-500">No pending borrow requests.</td></tr>
+                    <tr><td colspan="3" class="py-12 text-center text-gray-500">No pending borrow requests.</td></tr>
                 @endforelse
             </tbody>
           </table>
@@ -455,13 +441,13 @@
   <div id="detailsModal" class="modal">
     <div class="modal-content kantumruy-pro-regular tracking-tight">
       <div class="modal-header">
-        <h3 class="text-xl font-bold">Requester Details</h3>
+        <h3 class="text-xl font-bold">Borrow Request Details</h3>
       </div>
       <div class="modal-body" id="detailsBody">
         <!-- Populated dynamically -->
       </div>
-      <div class="modal-footer">
-        <button type="button" onclick="closeDetailsModal()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Close</button>
+      <div class="modal-footer" id="modalActions">
+        <!-- Actions will be populated dynamically -->
       </div>
     </div>
   </div>
@@ -469,44 +455,84 @@
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <!-- Scroll Effect for Navbar -->
   <script>
-    window.addEventListener('scroll', () => {
+    // Improved scroll blur effect - waits for image to load and uses multiple selectors
+    function initScrollBlur() {
       const nav = document.querySelector('.glass-nav');
-      const libraryImg = document.querySelector('.main-content img');
-      const libraryHeight = libraryImg ? libraryImg.offsetHeight : 0;
-      const scrollPosition = window.scrollY;
-      if (scrollPosition > libraryHeight) {
-        nav.classList.add('scrolled');
-      } else {
-        nav.classList.remove('scrolled');
+      if (!nav) return;
+
+      // Try multiple selectors for the hero image/container
+      const heroImage = document.querySelector('.hero-image') || 
+                       document.querySelector('.hero-container img') ||
+                       document.querySelector('.main-content .hero-container img');
+      
+      const heroContainer = document.querySelector('.hero-container');
+
+      function updateNavBlur() {
+        let libraryHeight = 0;
+        
+        if (heroImage && heroImage.offsetHeight > 0) {
+          libraryHeight = heroImage.offsetHeight;
+        } else if (heroContainer && heroContainer.offsetHeight > 0) {
+          libraryHeight = heroContainer.offsetHeight;
+        } else {
+          // Fallback: use a reasonable default height
+          libraryHeight = 400;
+        }
+
+        const scrollPosition = window.scrollY || window.pageYOffset;
+
+        if (scrollPosition > libraryHeight) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
       }
-    });
+
+      // Wait for image to load before calculating height
+      if (heroImage) {
+        if (heroImage.complete) {
+          updateNavBlur();
+        } else {
+          heroImage.addEventListener('load', updateNavBlur);
+        }
+      }
+
+      // Also check on load event for the whole page
+      window.addEventListener('load', updateNavBlur);
+      
+      // Update on scroll
+      window.addEventListener('scroll', updateNavBlur);
+      
+      // Update on resize (in case image size changes)
+      window.addEventListener('resize', updateNavBlur);
+
+      // Initial check
+      updateNavBlur();
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initScrollBlur);
+    } else {
+      initScrollBlur();
+    }
   </script>
   <!-- Sidebar Toggle & Click Outside to Collapse -->
   <script>
     const sidebar = document.querySelector('.sidebar');
-    const sidebarItems = document.querySelectorAll('.sidebar .cursor-pointer, .sidebar button, .sidebar form');
-    // Toggle sidebar on click
-    sidebar.addEventListener('click', (e) => {
-      // Only toggle if clicking on the sidebar background (not items)
-      if (e.target === sidebar || e.target.closest('.sidebar-content') === sidebar.querySelector('.sidebar-content')) {
+
+    if (sidebar) {
+      sidebar.addEventListener('click', (event) => {
+        if (event.target.closest('.sidebar a, .sidebar button, .sidebar form')) return;
         sidebar.classList.toggle('expanded');
-      }
-    });
-    // Prevent collapse when clicking inside sidebar items
-    sidebarItems.forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.stopPropagation();
       });
-    });
-    // Collapse when clicking outside
-    document.addEventListener('click', (e) => {
-      if (sidebar.classList.contains('expanded') && !sidebar.contains(e.target)) {
-        sidebar.classList.remove('expanded');
-      }
-    });
-    // Optional: Allow clicking the logo area to toggle
-    const logoArea = sidebar.querySelector('.sidebar-content');
-    logoArea.style.pointerEvents = 'auto';
+
+      document.addEventListener('click', (event) => {
+        if (sidebar.classList.contains('expanded') && !sidebar.contains(event.target)) {
+          sidebar.classList.remove('expanded');
+        }
+      });
+    }
   </script>
   <!-- Modal Close on Outside Click -->
   <script>
@@ -519,7 +545,10 @@
   </script>
   <!-- Details Modal Functions -->
   <script>
+    let currentBorrowId = null;
+
     function openDetailsModal(id) {
+        currentBorrowId = id;
         fetch(`/borrower/${id}/details`)
             .then(r => r.json())
             .then(data => {
@@ -528,14 +557,31 @@
                     : '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">Not Verified</span>';
 
                 document.getElementById('detailsBody').innerHTML = `
-                    <p><strong>Name:</strong> ${data.user.full_name}</p>
-                    <p><strong>Email:</strong> ${data.user.email}</p>
-                    <p><strong>Role:</strong> ${data.user.role}</p>
-                    <p><strong>Verified:</strong> ${verifiedBadge}</p>
-                    <p><strong>Campus:</strong> ${data.campus}</p>
-                    <p><strong>Request Date:</strong> ${data.request.created_at}</p>
-                    <p><strong>Resource:</strong> ${data.resource.Resource_Name}</p>
+                    <div class="space-y-3">
+                        <div><strong>Name:</strong> ${data.user.full_name}</div>
+                        <div><strong>Email:</strong> ${data.user.email}</div>
+                        <div><strong>Role:</strong> ${data.user.role}</div>
+                        <div><strong>Verified:</strong> ${verifiedBadge}</div>
+                        <div><strong>Campus:</strong> ${data.campus}</div>
+                        <div><strong>Request Date:</strong> ${data.request.created_at}</div>
+                        <div><strong>Resource:</strong> ${data.resource.Resource_Name}</div>
+                    </div>
                 `;
+
+                // Add action buttons
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+                document.getElementById('modalActions').innerHTML = `
+                    <button type="button" onclick="closeDetailsModal()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Close</button>
+                    <form method="POST" action="/borrow/reject/${id}" style="display:inline;" onsubmit="return confirm('Are you sure you want to reject this request?');">
+                        <input type="hidden" name="_token" value="${csrfToken}">
+                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Reject</button>
+                    </form>
+                    <form method="POST" action="/borrow/approve/${id}" style="display:inline;" onsubmit="return confirm('Are you sure you want to approve this request?');">
+                        <input type="hidden" name="_token" value="${csrfToken}">
+                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Approve</button>
+                    </form>
+                `;
+
                 document.getElementById('detailsModal').classList.add('active');
             })
             .catch(err => console.error('Error:', err));
@@ -543,7 +589,24 @@
 
     function closeDetailsModal() {
       document.getElementById('detailsModal').classList.remove('active');
+      currentBorrowId = null;
     }
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const rows = document.querySelectorAll('#borrowTable tbody tr.borrow-row');
+      
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
   </script>
+  @include('partials.globalLoader')
 </body>
 </html>

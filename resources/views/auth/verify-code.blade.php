@@ -80,5 +80,6 @@
         this.appendChild(hidden);
     });
 </script>
+@include('partials.globalLoader')
 </body>
 </html>

@@ -206,11 +206,159 @@
     /* Modal Styles */
     .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center; opacity: 0; transition: opacity 0.3s ease; }
     .modal.active { display:flex; opacity: 1; }
-    .modal-content { background:white; border-radius:12px; width:90%; max-width:600px; max-height:90vh; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.3); transform: scale(0.95); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease; }
+    .modal-content { 
+      background:white; 
+      border-radius:12px; 
+      width:90%; 
+      max-width:600px; 
+      height:85vh; 
+      max-height:700px;
+      min-height:500px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.3); 
+      transform: scale(0.95); 
+      opacity: 0; 
+      transition: transform 0.3s ease, opacity 0.3s ease; 
+      display: flex; 
+      flex-direction: column; 
+      position: relative;
+      overflow: hidden;
+    }
+    @media (max-width: 768px) {
+      .modal-content {
+        height:90vh;
+        max-height:90vh;
+        min-height:400px;
+        width:95%;
+      }
+    }
+    @media (max-height: 600px) {
+      .modal-content {
+        height:95vh;
+        max-height:95vh;
+        min-height:300px;
+      }
+    }
     .modal.active .modal-content { transform: scale(1); opacity: 1; }
-    .modal-header { padding:1.5rem; border-bottom:1px solid #e5e7eb; }
-    .modal-body { padding:1.5rem; }
-    .modal-footer { padding:1rem 1.5rem; border-top:1px solid #e5e7eb; display:flex; justify-content:flex-end; gap:0.5rem; }
+    .modal-header { 
+      padding:1.5rem; 
+      border-bottom:1px solid #e5e7eb; 
+      flex-shrink: 0; 
+      background: white;
+    }
+    .modal-body { 
+      padding:1.5rem; 
+      padding-bottom: 90px;
+      flex: 1;
+      overflow-y: auto; 
+      overflow-x: hidden;
+      min-height: 0;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+      margin-bottom: 0;
+      
+      /* Scroll shadows using background gradients */
+      background:
+        /* Shadow Cover TOP */
+        linear-gradient(
+          white 30%,
+          rgba(255, 255, 255, 0)
+        ) center top,
+        
+        /* Shadow Cover BOTTOM */
+        linear-gradient(
+          rgba(255, 255, 255, 0), 
+          white 70%
+        ) center bottom,
+        
+        /* Shadow TOP */
+        radial-gradient(
+          farthest-side at 50% 0,
+          rgba(0, 0, 0, 0.2),
+          rgba(0, 0, 0, 0)
+        ) center top,
+        
+        /* Shadow BOTTOM - positioned above footer */
+        radial-gradient(
+          farthest-side at 50% 100%,
+          rgba(0, 0, 0, 0.25),
+          rgba(0, 0, 0, 0)
+        ) center bottom;
+      
+      background-repeat: no-repeat;
+      background-size: 100% 40px, 100% 40px, 100% 14px, 100% 20px;
+      background-attachment: local, local, scroll, scroll;
+      background-position: center top, center bottom, center top, center bottom;
+    }
+    .modal-body.scrolled-top {
+      background:
+        /* Shadow Cover BOTTOM */
+        linear-gradient(
+          rgba(255, 255, 255, 0), 
+          white 70%
+        ) center bottom,
+        
+        /* Shadow BOTTOM */
+        radial-gradient(
+          farthest-side at 50% 100%,
+          rgba(0, 0, 0, 0.25),
+          rgba(0, 0, 0, 0)
+        ) center bottom;
+      background-repeat: no-repeat;
+      background-size: 100% 40px, 100% 20px;
+      background-attachment: local, scroll;
+      background-position: center bottom, center bottom;
+    }
+    .modal-body.scrolled-bottom {
+      background:
+        /* Shadow Cover TOP */
+        linear-gradient(
+          white 30%,
+          rgba(255, 255, 255, 0)
+        ) center top,
+        
+        /* Shadow TOP */
+        radial-gradient(
+          farthest-side at 50% 0,
+          rgba(0, 0, 0, 0.2),
+          rgba(0, 0, 0, 0)
+        ) center top;
+      background-repeat: no-repeat;
+      background-size: 100% 40px, 100% 14px;
+      background-attachment: local, scroll;
+      background-position: center top, center top;
+    }
+    .modal-body.scrolled-top.scrolled-bottom {
+      background: white;
+    }
+    #editResourceModal .modal-body {
+      max-height: calc(85vh - 180px);
+    }
+    @media (max-width: 768px) {
+      #editResourceModal .modal-body {
+        max-height: calc(90vh - 180px);
+      }
+    }
+    @media (max-height: 600px) {
+      #editResourceModal .modal-body {
+        max-height: calc(95vh - 180px);
+      }
+    }
+    .modal-footer { 
+      padding:1rem 1.5rem; 
+      border-top:1px solid #e5e7eb; 
+      display:flex; 
+      justify-content:space-between; 
+      gap:0.5rem; 
+      flex-shrink: 0; 
+      background: white; 
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      min-height: 70px;
+    }
     /* Theme Fonts */
     .kantumruy-pro-regular { font-family: 'Kantumruy Pro', sans-serif; }
     .kulim-park-bold { font-family: 'Kulim Park', sans-serif; font-weight: 700; }
@@ -348,7 +496,7 @@
         <img
           src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}"
           alt="Library"
-          class="w-full h-50 z-[-1] object-cover absolute"
+          class="hero-image w-full h-50 z-[-1] object-cover absolute"
           style="object-position: 70% middle;"
         />
         <div class="herotext h-50 ml-30 flex relative z-2">
@@ -384,10 +532,18 @@
               </ul>
             </div>
           @endif
-          <!-- Add Resource Button -->
-          <button onclick="openAddModal()" class="bg-green-600 text-white px-4 py-2 rounded mb-4 hover:bg-green-700 kantumruy-pro-regular">Add Resource</button>
+          
+          <!-- Search Bar and Add Resource Button -->
+          <div class="flex gap-4 mb-4 items-center">
+            <input type="text" 
+                   id="resourceSearchInput" 
+                   placeholder="Search by title, author, or status..." 
+                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 searchbar">
+            <button onclick="openAddModal()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 kantumruy-pro-regular">Add Resource</button>
+          </div>
+          
           <!-- Resources Table -->
-          <table class="min-w-full bg-white rounded-lg overflow-hidden">
+          <table class="min-w-full bg-white rounded-lg overflow-hidden" id="resourceTable">
             <thead>
               <tr>
                 <th class="py-3 px-6 border-b border-gray-500 text-left kantumruy-pro-regular">Title</th>
@@ -408,7 +564,7 @@
                 @endphp
 
                 <tr 
-                  class="hover:bg-gray-50 transition-colors cursor-pointer" 
+                  class="hover:bg-gray-50 transition-colors cursor-pointer resource-row" 
                   data-resource="{{ json_encode($resource->only(['Resource_ID', 'Resource_Name', 'Description', 'publish_year', 'publish_month', 'publish_day', 'File_Path', 'status']) + ['tags' => collect($resource->tags)->pluck('name')]) }}"
                   data-authors="{{ $authorsString }}"
                   onclick="openEditModalFromRow(this)"
@@ -643,13 +799,23 @@
           </div>
           <input type="hidden" name="Type" value="Featured">
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+          <button type="button" onclick="confirmDeleteResource()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2">
+            <i class="fa-solid fa-trash" style="color: white; font-size: 16px;"></i>
+            <span>Delete</span>
+          </button>
+          <div style="display: flex; gap: 0.5rem;">
           <button type="button" onclick="document.getElementById('editResourceModal').classList.remove('active')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Cancel</button>
           <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Update</button>
+          </div>
         </div>
       </form>
     </div>
   </div>
+  <form id="deleteForm" action="" method="POST" class="hidden">
+    @csrf
+    @method('DELETE')
+  </form>
   <!-- Preview Modal -->
   <div id="previewModal" class="modal">
     <div class="modal-content" style="width:90%; max-width:800px; height:90vh;">
@@ -667,44 +833,84 @@
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <!-- Scroll Effect for Navbar -->
   <script>
-    window.addEventListener('scroll', () => {
+    // Improved scroll blur effect - waits for image to load and uses multiple selectors
+    function initScrollBlur() {
       const nav = document.querySelector('.glass-nav');
-      const libraryImg = document.querySelector('.main-content img');
-      const libraryHeight = libraryImg ? libraryImg.offsetHeight : 0;
-      const scrollPosition = window.scrollY;
-      if (scrollPosition > libraryHeight) {
-        nav.classList.add('scrolled');
-      } else {
-        nav.classList.remove('scrolled');
+      if (!nav) return;
+
+      // Try multiple selectors for the hero image/container
+      const heroImage = document.querySelector('.hero-image') || 
+                       document.querySelector('.hero-container img') ||
+                       document.querySelector('.main-content .hero-container img');
+      
+      const heroContainer = document.querySelector('.hero-container');
+
+      function updateNavBlur() {
+        let libraryHeight = 0;
+        
+        if (heroImage && heroImage.offsetHeight > 0) {
+          libraryHeight = heroImage.offsetHeight;
+        } else if (heroContainer && heroContainer.offsetHeight > 0) {
+          libraryHeight = heroContainer.offsetHeight;
+        } else {
+          // Fallback: use a reasonable default height
+          libraryHeight = 400;
+        }
+
+        const scrollPosition = window.scrollY || window.pageYOffset;
+
+        if (scrollPosition > libraryHeight) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
       }
-    });
+
+      // Wait for image to load before calculating height
+      if (heroImage) {
+        if (heroImage.complete) {
+          updateNavBlur();
+        } else {
+          heroImage.addEventListener('load', updateNavBlur);
+        }
+      }
+
+      // Also check on load event for the whole page
+      window.addEventListener('load', updateNavBlur);
+      
+      // Update on scroll
+      window.addEventListener('scroll', updateNavBlur);
+      
+      // Update on resize (in case image size changes)
+      window.addEventListener('resize', updateNavBlur);
+
+      // Initial check
+      updateNavBlur();
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initScrollBlur);
+    } else {
+      initScrollBlur();
+    }
   </script>
   <!-- Sidebar Toggle & Click Outside to Collapse -->
   <script>
     const sidebar = document.querySelector('.sidebar');
-    const sidebarItems = document.querySelectorAll('.sidebar .cursor-pointer, .sidebar button, .sidebar form');
-    // Toggle sidebar on click
-    sidebar.addEventListener('click', (e) => {
-      // Only toggle if clicking on the sidebar background (not items)
-      if (e.target === sidebar || e.target.closest('.sidebar-content') === sidebar.querySelector('.sidebar-content')) {
+
+    if (sidebar) {
+      sidebar.addEventListener('click', (event) => {
+        if (event.target.closest('.sidebar a, .sidebar button, .sidebar form')) return;
         sidebar.classList.toggle('expanded');
-      }
-    });
-    // Prevent collapse when clicking inside sidebar items
-    sidebarItems.forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.stopPropagation();
       });
-    });
-    // Collapse when clicking outside
-    document.addEventListener('click', (e) => {
-      if (sidebar.classList.contains('expanded') && !sidebar.contains(e.target)) {
-        sidebar.classList.remove('expanded');
-      }
-    });
-    // Optional: Allow clicking the logo area to toggle
-    const logoArea = sidebar.querySelector('.sidebar-content');
-    logoArea.style.pointerEvents = 'auto';
+
+      document.addEventListener('click', (event) => {
+        if (sidebar.classList.contains('expanded') && !sidebar.contains(event.target)) {
+          sidebar.classList.remove('expanded');
+        }
+      });
+    }
   </script>
   <!-- Modal Close on Outside Click -->
   <script>
@@ -866,6 +1072,7 @@
         document.getElementById('edit_description').value = data.Description || '';
         document.getElementById('edit_status').value = data.status || 'Available';
         document.getElementById('editFileText').textContent = 'Current file: ' + (data.File_Path ? data.File_Path.split('/').pop() : 'Unknown') + ' (drag & drop to replace)';
+        window.currentResourceId = resourceId;
 
         // Set date selects
         const year = data.publish_year || null;
@@ -987,6 +1194,92 @@
         input.value = '';
       }
     });
+    function confirmDeleteResource() {
+      if (!window.currentResourceId) {
+        alert('Please select a resource to delete.');
+        return;
+      }
+
+      if (!confirm('Are you sure you want to delete this resource? This action cannot be undone.')) {
+        return;
+      }
+
+      const deleteForm = document.getElementById('deleteForm');
+      deleteForm.action = '{{ url("/resources") }}/' + window.currentResourceId;
+      deleteForm.submit();
+    }
+
+    // Search functionality for resource table
+    document.getElementById('resourceSearchInput').addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const rows = document.querySelectorAll('#resourceTable tbody tr.resource-row');
+      
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+
+    // Scroll shadows for modal body
+    function updateScrollShadows(element) {
+      if (!element) return;
+      
+      const isScrolledToTop = element.scrollTop === 0;
+      const isScrolledToBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 1;
+      
+      if (isScrolledToTop) {
+        element.classList.add('scrolled-top');
+      } else {
+        element.classList.remove('scrolled-top');
+      }
+      
+      if (isScrolledToBottom) {
+        element.classList.add('scrolled-bottom');
+      } else {
+        element.classList.remove('scrolled-bottom');
+      }
+    }
+
+    // Initialize scroll shadows for edit modal
+    const editModalBody = document.querySelector('#editResourceModal .modal-body');
+    if (editModalBody) {
+      // Initial check
+      updateScrollShadows(editModalBody);
+      
+      // Update on scroll
+      editModalBody.addEventListener('scroll', function() {
+        updateScrollShadows(this);
+      });
+      
+      // Update when modal opens
+      const editModal = document.getElementById('editResourceModal');
+      if (editModal) {
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+              if (editModal.classList.contains('active')) {
+                setTimeout(() => updateScrollShadows(editModalBody), 100);
+              }
+            }
+          });
+        });
+        observer.observe(editModal, { attributes: true });
+      }
+    }
+
+    // Also handle add modal if it exists
+    const addModalBody = document.querySelector('#addResourceModal .modal-body');
+    if (addModalBody) {
+      updateScrollShadows(addModalBody);
+      addModalBody.addEventListener('scroll', function() {
+        updateScrollShadows(this);
+      });
+    }
   </script>
+  @include('partials.globalLoader')
 </body>
 </html>

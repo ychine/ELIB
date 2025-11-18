@@ -534,5 +534,6 @@
     loadPosition(document.getElementById('position_select').value);
   });
 </script>
+  @include('partials.globalLoader')
 </body>
 </html>

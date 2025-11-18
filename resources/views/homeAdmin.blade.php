@@ -7,22 +7,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
-  @vite(['resources/css/app.css', 'resources/css/kulimpark.css', 'resources/css/Inter.css', 'resources/css/kantumruypro.css'])
+  @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/kulimpark.css', 'resources/css/Inter.css', 'resources/css/kantumruypro.css'])
 
   <title>Admin Dashboard | ISU StudyGo</title>
 
   <style>
-    /* ---------- Sidebar (click-to-toggle) ---------- */
+    html, body, .main-content { overflow-x: hidden; }
+
     .sidebar {
       width: 4rem;
       transition: all 0.3s cubic-bezier(0.215, 0.610, 0.355, 1);
       overflow: hidden;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
-      cursor: pointer;              
+      cursor: pointer;
     }
     .sidebar.expanded { width: 18rem; }
-
     .sidebar .label {
       opacity: 0;
       transform: translateX(-10px);
@@ -31,50 +31,25 @@
       padding-left: 1rem;
     }
     .sidebar.expanded .label { opacity: 1; transform: translateX(0); }
-
     .isu-studygo-border-logo { opacity: 0; transition: opacity 0.3s ease; }
-    .isu-studygo-logo       { opacity: 1; transition: opacity 0.3s ease; }
+    .isu-studygo-logo { opacity: 1; transition: opacity 0.3s ease; }
     .sidebar.expanded .isu-studygo-border-logo { opacity: 1; }
-    .sidebar.expanded .isu-studygo-logo       { opacity: 0; }
-
-    .sidebar-content { display: flex; flex-direction: column; align-items: center; min-height: 100%; transition: all 0.3s ease; }
-    .sidebar-icons   { transform: translate(35%, 5%); transition: transform 0.3s ease; }
+    .sidebar.expanded .isu-studygo-logo { opacity: 0; }
+    .sidebar-content { display: flex; flex-direction: column; align-items: center; transition: all 0.3s ease; min-height: 100%; }
+    .sidebar-icons { transform: translate(35%, 5%); transition: transform 0.3s ease; }
     .sidebar.expanded .sidebar-icons { transform: translateX(20px); }
     .sidebar.expanded .sidebar-content { align-items: flex-start; padding-left: 0.5rem; padding-right: 0.5rem; }
-
     .sidebar.expanded + .main-content { margin-left: 15rem; margin-top: 0; }
-
-
-    .isu-studygo-border-logo {
-      opacity: 0;
-    }
-
-    .isu-studygo-logo {
-      opacity: 1;
-      transition: all 0.3s ease;
-    }
-
-   
-  
-
-    .searchbar:focus {
-      outline: none;
-      box-shadow: 
-        0 0 0 3px rgba(34, 197, 94, 0.5), 
-        0 0 10px 3px rgba(0, 0, 0, 0.5);
-      transition: all 0.3s ease-in-out;
-    }
 
     .glass-nav {
       background: transparent;
       transition: all 0.3s ease;
     }
-
     .glass-nav.scrolled {
       background: linear-gradient(rgba(4, 30, 10, 0.9), rgba(4, 30, 10, 0.7), rgba(4, 30, 10, 0.5), rgba(255, 255, 255, 0.0));
       background-position: 50% center;
       background-size: cover;
-      backdrop-filter: blur(20px); 
+      backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
     }
 
@@ -104,19 +79,62 @@
       visibility: hidden;
       transition: visibility 0.3s ease;
     }
-
-    .glass-nav.scrolled .nav-item {
-      visibility: visible;
-    }
+    .glass-nav.scrolled .nav-item { visibility: visible; }
 
     .searchbar {
-      background: rgba(217, 217, 217, 1); 
-      color: #000; 
+      background: rgba(217, 217, 217, 1);
+      color: #000;
       transition: all 0.3s ease;
     }
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      width: 100%;
+    }
+    @media (min-width: 640px) { .books-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1024px) { .books-grid { grid-template-columns: repeat(5, 1fr); } }
+
+    .filter-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .filter-tab {
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      color: #6b7280;
+    }
+    .filter-tab:hover { color: #22C55E; }
+    .filter-tab.active { color: #22C55E; border-bottom-color: #22C55E; }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .bottom-nav { display: flex; }
+      .main-content { padding-bottom: 4.5rem; }
+    }
+    @media (min-width: 769px) { .bottom-nav { display: none; } }
+
+    #borrowModal .modal-content {
+      max-width: 900px;
+      width: 95%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    }
+    @media (max-width: 768px) {
+      #borrowModal .modal-content { width: 96%; border-radius: 16px; }
+    }
+    #borrowModal::-webkit-scrollbar { width: 8px; }
+    #borrowModal::-webkit-scrollbar-thumb { background: #22c55e; border-radius: 4px; }
   </style>
 </head>
-<body class="bg-yellow-50">
+<body class="bg-gray-50">
   <div class="w-full h-[100vh] flex">
 
     <!-- Navigation -->
@@ -277,38 +295,75 @@
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
   <script>
-    window.addEventListener('scroll', () => {
+    function initGlassNavScroll() {
       const nav = document.querySelector('.glass-nav');
-      const libraryImg = document.querySelector('.main-content img');
-      const libraryHeight = libraryImg.offsetHeight; 
-      const scrollPosition = window.scrollY;
+      if (!nav) return;
 
-      if (scrollPosition > libraryHeight) {
-        nav.classList.add('scrolled');
-      } else {
-        nav.classList.remove('scrolled');
+      const heroSelectors = [
+        '.hero-image',
+        '.hero-container img',
+        '.main-content .hero-container img',
+        '.hero-container'
+      ];
+
+      const heroElement = heroSelectors.map(selector => document.querySelector(selector)).find(Boolean) || null;
+      const heroContainer = heroElement instanceof HTMLElement && heroElement.classList.contains('hero-container')
+        ? heroElement
+        : heroElement?.closest('.hero-container') || document.querySelector('.hero-container');
+
+      const updateNavBlur = () => {
+        const reference = heroContainer || heroElement;
+
+        if (!reference) {
+          nav.classList.add('scrolled');
+          return;
+        }
+
+        const rect = reference.getBoundingClientRect();
+        const tolerance = nav.offsetHeight + 16;
+
+        if (rect.bottom <= tolerance) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
+      };
+
+      window.addEventListener('load', updateNavBlur, { once: true });
+      window.addEventListener('scroll', updateNavBlur, { passive: true });
+      window.addEventListener('resize', updateNavBlur);
+
+      if (heroElement instanceof HTMLImageElement && !heroElement.complete) {
+        heroElement.addEventListener('load', updateNavBlur, { once: true });
       }
-    });
+
+      updateNavBlur();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initGlassNavScroll);
+    } else {
+      initGlassNavScroll();
+    }
   </script>
 
   <!-- Sidebar Click Toggle -->
   <script>
     const sidebar = document.querySelector('.sidebar');
-    const items = document.querySelectorAll('.sidebar .cursor-pointer, .sidebar button, .sidebar form');
 
-    sidebar.addEventListener('click', (e) => {
-      if (e.target === sidebar || e.target.closest('.sidebar-content') === sidebar.querySelector('.sidebar-content')) {
+    if (sidebar) {
+      sidebar.addEventListener('click', (event) => {
+        if (event.target.closest('.sidebar a, .sidebar button, .sidebar form')) return;
         sidebar.classList.toggle('expanded');
-      }
-    });
+      });
 
-    items.forEach(item => item.addEventListener('click', e => e.stopPropagation()));
-
-    document.addEventListener('click', (e) => {
-      if (sidebar.classList.contains('expanded') && !sidebar.contains(e.target)) {
-        sidebar.classList.remove('expanded');
-      }
-    });
+      document.addEventListener('click', (event) => {
+        if (sidebar.classList.contains('expanded') && !sidebar.contains(event.target)) {
+          sidebar.classList.remove('expanded');
+        }
+      });
+    }
   </script>
+  @include('partials.globalLoader')
 </body>
 </html>
