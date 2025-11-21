@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="icon" href="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -164,46 +165,8 @@
 </head>
 <body class="bg-gray-50">
   <div class="w-full h-[100vh] flex">
-    <div class="fixed w-full top-0 left-0 flex justify-between items-center px-4 py-2 z-10 glass-nav">
-      <span class="text-5xl jersey-20-regular pl-3 text-white"></span>
-      <div class="relative flex items-center">
-        <input class="searchbar pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" type="text" placeholder="Search for books, papers..">
-        <img src="{{ Vite::asset('resources/images/Search.png') }}" alt="Search icon" class="absolute right-5 w-6 h-6"/>
-      </div>
-      <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
-        <span>Profile</span>
-      </div>
-    </div>
-
-    <div class="fixed top-0 left-0 h-full bg-[#149637] shadow-[5px_-10px_22.5px_2px_rgba(0,0,0,0.59)] rounded-tr-[50px] sidebar z-20 pt-8">
-      <div class="sidebar-content space-y-2 text-white">
-        <img src="{{ Vite::asset('resources/images/ISUStudyGoBorder.svg') }}" alt="Logo" class="w-full h-20 isu-studygo-border-logo"/>
-        <img src="{{ Vite::asset('resources/images/ISUclpsd.svg') }}" alt="Logo" class="w-full h-10 translate-y-[20px] absolute isu-studygo-logo"/>
-        <a href="{{ route('home.user') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img src="{{ Vite::asset('resources/images/HomeToggle.png') }}" alt="Home" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Home</span>
-        </a>
-        <a href="{{ route('featured') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img src="{{ Vite::asset('resources/images/Featured.png') }}" alt="Featured" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Featured</span>
-        </a>
-        <a href="{{ route('community.uploads') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img src="{{ Vite::asset('resources/images/Member.png') }}" alt="Community" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Community Uploads</span>
-        </a>
-        <a href="{{ route('yourshelf') }}" class="w-full h-12 bg-green-500 rounded-xl flex items-center gap-3 cursor-pointer">
-          <img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Shelf" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Your Shelf</span>
-        </a>
-        <form method="POST" action="{{ route('logout') }}" class="mt-auto w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3">
-          @csrf
-          <button type="submit" class="flex items-center gap-3 w-full h-full bg-transparent border-none text-white cursor-pointer">
-            <i class="fa-solid fa-sign-out-alt text-2xl sidebar-icons"></i>
-            <span class="label text-lg">Logout</span>
-          </button>
-        </form>
-      </div>
-    </div>
+    <!-- Universal Sidebar -->
+    @include('partials.universalSidebar')
 
     <div class="bottom-nav fixed bottom-0 left-0 w-full h-16 bg-[#149637] z-20 flex justify-around items-center shadow-lg">
       <a href="{{ route('home.user') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/HomeToggle.png') }}" alt="Home"/><span>Home</span></a>
@@ -215,18 +178,40 @@
       </form>
     </div>
 
+    <!-- Navigation -->
+    <div class="fixed w-full top-0 left-0 flex justify-between items-center px-4 py-2 z-10 glass-nav">
+      <span class="text-5xl jersey-20-regular pl-3 text-white"></span>
+      <div class="relative flex items-center">
+        <input class="searchbar pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" type="text" placeholder="Search for books, papers..">
+        <img 
+          src="{{ Vite::asset('resources/images/Search.png') }}" 
+          alt="Search icon" 
+          class="absolute right-5 w-6 h-6"
+        />
+      </div>
+      <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
+        <!-- Empty space to match admin/librarian layout -->
+      </div>
+    </div>
+
     <div class="flex flex-col flex-1 transition-all duration-300 main-content bg-gray-50">
-      <div class="hero-container relative w-full greenhue z-1">
-        <img src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" alt="Library" class="hero-image w-full h-50 z-[-1] object-cover absolute" style="object-position: 70% middle;"/>
-        <div class="herotext h-50 ml-30 flex relative z-2">
+      <div class="hero-container relative w-full greenhue z-1" style="min-height: 200px;">
+        <img 
+          src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" 
+          alt="ISU Logo" 
+          class="absolute right-0 w-15 h-15 m-7"
+        />
+        <h5 class="absolute text-white right-0 m-7 mr-10 translate-y-30 kulim-park-semibold">One ISU</h5>
+        <img src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" alt="Library" class="hero-image w-full h-full z-[-1] object-cover absolute" style="object-position: 70% middle; height: 200px;"/>
+        <div class="herotext ml-30 flex relative z-2 py-8">
           <div class="column">
-            <h1 style="transform: translateY(50%); line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 45px; text-shadow: 0 4px 4px #000; color: #FFF;">
+            <h1 style="line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 45px; text-shadow: 0 4px 4px #000; color: #FFF;">
               Bridging knowledge <br> from one campus <br> to another
             </h1>
           </div>
         </div>
 
-        <div class="px-4 lg:px-[5%] mt-5">
+        <div class="px-4 lg:px-[5%] mt-8 pt-4">
           <div class="flex flex-col lg:pl-28 lg:pr-20 lg:flex-row gap-6 content-wrapper">
             <div class="w-full">
               <h2 class="text-2xl sm:text-3xl font-extrabold kulim-park-bold tracking-tight mb-4">Your Shelf</h2>
@@ -529,29 +514,22 @@
       const nav = document.querySelector('.glass-nav');
       if (!nav) return;
 
-      const heroSelectors = [
-        '.hero-image',
-        '.hero-container img',
-        '.main-content .hero-container img',
-        '.hero-container'
-      ];
-
-      const heroElement = heroSelectors.map(selector => document.querySelector(selector)).find(Boolean) || null;
-      const heroContainer = heroElement instanceof HTMLElement && heroElement.classList.contains('hero-container')
-        ? heroElement
-        : heroElement?.closest('.hero-container') || document.querySelector('.hero-container');
+      // Find the library green image specifically
+      const heroImage = document.querySelector('.hero-container img[src*="libgreenptr"]');
+      const heroContainer = document.querySelector('.hero-container');
 
       const updateNavBlur = () => {
-        const reference = heroContainer || heroElement;
-
-        if (!reference) {
+        if (!heroImage && !heroContainer) {
           nav.classList.add('scrolled');
           return;
         }
 
+        // Use the image if available, otherwise use the container
+        const reference = heroImage || heroContainer;
         const rect = reference.getBoundingClientRect();
         const tolerance = nav.offsetHeight + 16;
 
+        // Add scrolled class when scrolled past the image/container
         if (rect.bottom <= tolerance) {
           nav.classList.add('scrolled');
         } else {
@@ -563,8 +541,8 @@
       window.addEventListener('scroll', updateNavBlur, { passive: true });
       window.addEventListener('resize', updateNavBlur);
 
-      if (heroElement instanceof HTMLImageElement && !heroElement.complete) {
-        heroElement.addEventListener('load', updateNavBlur, { once: true });
+      if (heroImage instanceof HTMLImageElement && !heroImage.complete) {
+        heroImage.addEventListener('load', updateNavBlur, { once: true });
       }
 
       updateNavBlur();

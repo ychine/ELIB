@@ -72,48 +72,11 @@
     </div>
     <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
       <span class="bg-green-800 rounded-3xl px-3 py-1 border-2 border-amber-400 text-[13px] kantumruy-pro-regular">ADMIN</span>
-        <span>Profile</span>
     </div>
   </div>
 
-  <!-- SIDEBAR -->
-  <div class="fixed top-0 left-0 h-full bg-[#149637] shadow-[5px_-10px_22.5px_2px_rgba(0,0,0,0.59)] rounded-tr-[50px] sidebar z-20 pt-8">
-    <div class="sidebar-content space-y-2 text-white">
-      <img src="{{ Vite::asset('resources/images/ISUStudyGoBorder.svg') }}" alt="Logo" class="w-full h-20 isu-studygo-border-logo">
-      <img src="{{ Vite::asset('resources/images/ISUclpsd.svg') }}" alt="Logo" class="w-full h-10 translate-y-[20px] absolute isu-studygo-logo">
-
-      <a href="{{ route('admin.approvals') }}" class=" hover:bg-green-700 shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)]  w-full h-12 rounded-xl flex items-center gap-3 cursor-pointer {{ request()->routeIs('admin.approvals') ? 'bg-green-800' : 'bg-green-800' }}">
-        <img src="{{ Vite::asset('resources/images/Dashboard.png') }}" alt="Dashboard" class="w-7 h-7 sidebar-icons">
-        <span class="label kulim-park-regular text-lg">Dashboard</span>
-      </a>
-
-      <a href="{{ route('admin.users') }}" class="w-full h-12 bg-green-500 rounded-xl  flex items-center gap-3 cursor-pointertransition-colors">
-        <img src="{{ Vite::asset('resources/images/umgmttoggle.png') }}" alt="User Management" class="w-7 h-7 sidebar-icons">
-        <span class="label kulim-park-regular text-lg">User Management</span>
-      </a>
-
-      <a href="#" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-        <img src="{{ Vite::asset('resources/images/Featured.png') }}" alt="Featured" class="w-7 h-7 translate-y-[-1px] translate-x-[1px] sidebar-icons">
-        <span class="label kulim-park-regular text-lg">Featured</span>
-      </a>
-      <a href="#" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-        <img src="{{ Vite::asset('resources/images/Member.png') }}" alt="Community" class="w-7 h-7 sidebar-icons">
-        <span class="label kulim-park-regular text-lg">Community Uploads</span>
-      </a>
-      <a href="{{ route('yourshelf') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-        <img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Shelf" class="w-7 h-7 sidebar-icons">
-        <span class="label kulim-park-regular text-lg">Your Shelf</span>
-      </a>
-
-      <form method="POST" action="{{ route('logout') }}" class="mt-auto w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3">
-        @csrf
-        <button type="submit" class="flex items-center gap-3 w-full h-full bg-transparent border-none text-white cursor-pointer hover:bg-red-700 transition-colors rounded-xl">
-          <i class="fa-solid fa-sign-out-alt text-2xl sidebar-icons"></i>
-          <span class="label text-lg">Logout</span>
-        </button>
-      </form>
-    </div>
-  </div>
+  <!-- Universal Sidebar -->
+  @include('partials.universalSidebar')
 
   <!-- MAIN CONTENT -->
   <div class="flex bg-gray-200 flex-col flex-1 transition-all duration-300 main-content">

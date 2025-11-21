@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Resource;
 use App\Models\Borrower;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -24,17 +26,17 @@ class HomeController extends Controller
             ->with(['authors', 'tags', 'ratings', 'user']) // Add 'user' for role/full_name
             ->select(['*', 'views']); // Explicitly select views column
 
-        // Apply filter
+        // Apply filter - limit to 7 for homepage
         switch ($filter) {
             case 'popular_month':
-                $featuredResources = $featuredQuery->popularThisMonth()->take(12)->get();
+                $featuredResources = $featuredQuery->popularThisMonth()->take(7)->get();
                 break;
             case 'popular_year':
-                $featuredResources = $featuredQuery->popularThisYear()->take(12)->get();
+                $featuredResources = $featuredQuery->popularThisYear()->take(7)->get();
                 break;
             case 'latest':
             default:
-                $featuredResources = $featuredQuery->latestUploads()->take(12)->get();
+                $featuredResources = $featuredQuery->latestUploads()->take(7)->get();
                 break;
         }
 
@@ -66,7 +68,66 @@ class HomeController extends Controller
             ->get()
             ->append(['authors', 'tags']); // Remove 'views' from here too
 
-        return view('homeUser', compact('featuredResources', 'communityUploads', 'filter'));
+        // Get popular tags (tags used by most resources)
+        $popularTags = Tag::select('tags.*', DB::raw('COUNT(resource_tags.resource_id) as resource_count'))
+            ->join('resource_tags', 'tags.id', '=', 'resource_tags.tag_id')
+            ->groupBy('tags.id', 'tags.name', 'tags.created_at', 'tags.updated_at')
+            ->orderBy('resource_count', 'desc')
+            ->take(10)
+            ->get();
+
+        return view('homeUser', compact('featuredResources', 'communityUploads', 'filter', 'popularTags'));
+    }
+
+    public function featured(Request $request)
+    {
+        // Authorization - allow all authenticated users
+        $user = Auth::user();
+        if (!in_array($user->role, ['student', 'faculty', 'librarian'])) {
+            abort(403);
+        }
+
+        $filter = $request->get('filter', 'latest');
+
+        // Base query with eager loading
+        $featuredQuery = Resource::featured()
+            ->with(['authors', 'tags', 'ratings', 'user'])
+            ->select(['*', 'views']);
+
+        // Apply filter - show ALL resources (no limit)
+        switch ($filter) {
+            case 'popular_month':
+                $featuredResources = $featuredQuery->popularThisMonth()->get();
+                break;
+            case 'popular_year':
+                $featuredResources = $featuredQuery->popularThisYear()->get();
+                break;
+            case 'latest':
+            default:
+                $featuredResources = $featuredQuery->latestUploads()->get();
+                break;
+        }
+
+        // Append accessors
+        $featuredResources = $featuredResources->append([
+            'average_rating',
+            'formatted_publish_date',
+            'authors',
+            'tags'
+        ]);
+
+        // Get user's borrow list
+        $userBorrowIds = Borrower::where('UID', Auth::id())
+            ->where('isReturned', 0)
+            ->pluck('resource_id')
+            ->toArray();
+
+        // Add is_borrowed flag
+        $featuredResources->each(function ($resource) use ($userBorrowIds) {
+            $resource->is_borrowed = in_array($resource->Resource_ID, $userBorrowIds);
+        });
+
+        return view('featured', compact('featuredResources', 'filter'));
     }
 
     public function show($id)

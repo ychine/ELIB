@@ -1,0 +1,58 @@
+/* UI Component Library Utilities */
+
+/* Spacing Utilities */
+.ui-spacing-xs { margin: 0.25rem; }
+.ui-spacing-sm { margin: 0.5rem; }
+.ui-spacing-md { margin: 1rem; }
+.ui-spacing-lg { margin: 1.5rem; }
+.ui-spacing-xl { margin: 2rem; }
+
+.ui-padding-xs { padding: 0.25rem; }
+.ui-padding-sm { padding: 0.5rem; }
+.ui-padding-md { padding: 1rem; }
+.ui-padding-lg { padding: 1.5rem; }
+.ui-padding-xl { padding: 2rem; }
+
+/* Typography Utilities */
+.ui-text-xs { font-size: 0.75rem; line-height: 1rem; }
+.ui-text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+.ui-text-base { font-size: 1rem; line-height: 1.5rem; }
+.ui-text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+.ui-text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+.ui-text-2xl { font-size: 1.5rem; line-height: 2rem; }
+
+.ui-font-kulim { font-family: 'Kulim Park', sans-serif; }
+.ui-font-inter { font-family: 'Inter', sans-serif; }
+.ui-font-kantumruy { font-family: 'Kantumruy Pro', sans-serif; }
+
+.ui-font-bold { font-weight: 700; }
+.ui-font-semibold { font-weight: 600; }
+.ui-font-medium { font-weight: 500; }
+.ui-font-normal { font-weight: 400; }
+
+/* Layout Utilities */
+.ui-flex { display: flex; }
+.ui-flex-col { flex-direction: column; }
+.ui-flex-row { flex-direction: row; }
+.ui-items-center { align-items: center; }
+.ui-justify-center { justify-content: center; }
+.ui-justify-between { justify-content: space-between; }
+.ui-gap-sm { gap: 0.5rem; }
+.ui-gap-md { gap: 1rem; }
+.ui-gap-lg { gap: 1.5rem; }
+
+/* Sidebar Layout Adjustments */
+body.has-universal-sidebar-expanded .main-content {
+  margin-left: 15rem;
+  transition: margin-left 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+@media (max-width: 768px) {
+  body.has-universal-sidebar-expanded .main-content {
+    margin-left: 0;
+  }
+}
+
+
+
+

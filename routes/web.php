@@ -96,6 +96,8 @@ Route::middleware('auth')->group(function () {
             Route::patch('/positions/{id}', [PositionController::class, 'update']);
             Route::delete('/positions/{id}', [PositionController::class, 'destroy']);
 
+            Route::get('/audit', [AuthController::class, 'auditTrail'])->name('audit');
+            Route::get('/analytics', [AuthController::class, 'resourceAnalytics'])->name('analytics');
             
         });
 
@@ -130,11 +132,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/resources/{resource}', [ResourceController::class, 'destroy'])->name('resources.destroy');
     });
 
-    /* LIBRARIAN FEATURED */
-    Route::get('/featured', function () {
-        if (Auth::user()->role !== 'librarian') abort(403);
-        return view('featured');
-    })->name('featured');
+    /* FEATURED - Available to all authenticated users */
+    Route::get('/featured', [HomeController::class, 'featured'])->name('featured');
 
     /* LIBRARIAN COMMUNITY UPLOADS */
     Route::get('/community-uploads', function () {

@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="icon" href="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/Inter.css', 'resources/css/kulimpark.css'])
 
   <title>Home | ISU StudyGo</title>
@@ -273,53 +275,8 @@
 <body class="bg-gray-50">
   <div class="w-full h-[100vh] flex">
 
-    <!-- Navigation -->
-    <div class="fixed w-full top-0 left-0 flex justify-between items-center px-4 py-2 z-10 glass-nav">
-      <span class="text-5xl jersey-20-regular pl-3 text-white"></span>
-      <div class="relative flex items-center">
-        <input class="searchbar pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" type="text" placeholder="Search for books, papers..">
-        <img 
-          src="{{ Vite::asset('resources/images/Search.png') }}" 
-          alt="Search icon" 
-          class="absolute right-5 w-6 h-6"
-        />
-      </div>
-      <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
-        
-        <span>Profile</span>
-      </div>
-    </div>
-
-    <!-- Sidebar -->
-    <div class="fixed top-0 left-0 h-full bg-[#149637] shadow-[5px_-10px_22.5px_2px_rgba(0,0,0,0.59)] rounded-tr-[50px] sidebar z-20 pt-8">
-      <div class="sidebar-content space-y-2 text-white">
-        <img src="{{ Vite::asset('resources/images/ISUStudyGoBorder.svg') }}" alt="Logo" class="w-full h-20 isu-studygo-border-logo"/>
-        <img src="{{ Vite::asset('resources/images/ISUclpsd.svg') }}" alt="Logo" class="w-full h-10 translate-y-[20px] absolute isu-studygo-logo"/>
-        <a href="{{ route('home.user') }}" class="w-full h-12 bg-green-500 rounded-xl flex items-center gap-3 cursor-pointer">
-          <img src="{{ Vite::asset('resources/images/HomeToggle.png') }}" alt="Home" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Home</span>
-        </a>
-        <a href="{{ route('featured') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img src="{{ Vite::asset('resources/images/Featured.png') }}" alt="Featured" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Featured</span>
-        </a>
-        <a href="{{ route('community.uploads') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img src="{{ Vite::asset('resources/images/Member.png') }}" alt="Community" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Community Uploads</span>
-        </a>
-        <a href="{{ route('yourshelf') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Shelf" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Your Shelf</span>
-        </a>
-        <form method="POST" action="{{ route('logout') }}" class="mt-auto w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3">
-          @csrf
-          <button type="submit" class="flex items-center gap-3 w-full h-full bg-transparent border-none text-white cursor-pointer">
-            <i class="fa-solid fa-sign-out-alt text-2xl sidebar-icons"></i>
-            <span class="label text-lg">Logout</span>
-          </button>
-        </form>
-      </div>
-    </div>
+    <!-- Universal Sidebar -->
+    @include('partials.universalSidebar')
 
     <!-- Bottom Nav (Mobile) -->
     <div class="bottom-nav fixed bottom-0 left-0 w-full h-16 bg-[#149637] z-20 flex justify-around items-center shadow-lg">
@@ -332,23 +289,45 @@
       </form>
     </div>
 
+    <!-- Navigation -->
+    <div class="fixed w-full top-0 left-0 flex justify-between items-center px-4 py-2 z-10 glass-nav">
+      <span class="text-5xl jersey-20-regular pl-3 text-white"></span>
+      <div class="relative flex items-center">
+        <input class="searchbar pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" type="text" placeholder="Search for books, papers..">
+        <img 
+          src="{{ Vite::asset('resources/images/Search.png') }}" 
+          alt="Search icon" 
+          class="absolute right-5 w-6 h-6"
+        />
+      </div>
+      <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
+        <!-- Empty space to match admin/librarian layout -->
+      </div>
+    </div>
+
     <!-- Main Content -->
-    <div class="flex flex-col flex-1 transition-all duration-300 main-content bg-gray-50">
-      <div class="hero-container relative  w-full greenhue z-1">
-        <img src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" alt="Library" class="hero-image w-full h-50 z-[-1] object-cover absolute" style="object-position: 70% middle;"/>
-        <div class="herotext h-50 ml-30 flex relative z-2">
+    <div class="flex flex-col flex-1 transition-all duration-300 main-content bg-gray-50 ">
+      <div class="hero-container relative w-full greenhue z-1" style="min-height: 200px;">
+        <img 
+          src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" 
+          alt="ISU Logo" 
+          class="absolute right-0 w-15 h-15 m-7"
+        />
+        <h5 class="absolute text-white right-0 m-7 mr-10 translate-y-30 kulim-park-semibold">One ISU</h5>
+        <img src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" alt="Library" class="hero-image w-full h-full z-[-1] object-cover absolute" style="object-position: 70% middle; height: 200px;"/>
+        <div class="herotext ml-30 flex relative z-2 py-8">
           <div class="column">
-            <h1 style="transform: translateY(50%); line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 45px; text-shadow: 0 4px 4px #000; color: #FFF;">
+            <h1 style="line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 45px; text-shadow: 0 4px 4px #000; color: #FFF;">
               Bridging knowledge <br> from one campus <br> to another
             </h1>
           </div>
         </div>
 
-        <div class="px-4 lg:px-[5%] mt-5">
-          <div class="flex flex-col lg:pl-28 lg:pr-20 lg:flex-row gap-6 content-wrapper">
+        <div class="px-4 lg:px-[5%] mt-4">
+          <div class="flex flex-col lg:pl-28 lg:pr-20 lg:flex-row gap-10 pt-10 content-wrapper">
             <!-- Featured Section -->
             <div class="featured-section" style="flex: 0 0 70%;">
-              <h2 class="text-2xl sm:text-3xl font-extrabold kulim-park-bold tracking-tight mb-4">Featured Resources</h2>
+              <h2 class="text-2xl sm:text-3xl font-extrabold kulim-park-bold tracking-tight mb-4">ISU Featured Resources</h2>
               
               <div class="filter-tabs">
                 <a href="{{ route('home.user', ['filter' => 'latest']) }}" class="filter-tab {{ $filter === 'latest' ? 'active' : '' }}">Latest Uploads</a>
@@ -397,17 +376,36 @@
                 @empty
                   <div class="col-span-full text-center py-12 text-gray-500">No featured resources available.</div>
                 @endforelse
+                
+                <!-- View More Button -->
+                @if($featuredResources->count() >= 7)
+                  <a href="{{ route('featured') }}" class="book-card flex items-center justify-center bg-green-100 hover:bg-green-200 transition-colors border-2 border-dashed border-green-400 rounded-lg">
+                    <div class="text-center">
+                      <div class="text-4xl font-bold text-green-700 mb-2">+</div>
+                      <div class="text-sm font-semibold text-green-700">View More</div>
               </div>
-              <div id="featuredPagination" class="featured-pagination hidden">
-                <button type="button" id="featuredPrev" aria-label="Previous page">
-                  <i class="fas fa-chevron-left"></i>
-                </button>
-                <span id="featuredPageIndicator">1 / 1</span>
-                <button type="button" id="featuredNext" aria-label="Next page">
-                  <i class="fas fa-chevron-right"></i>
-                </button>
+                  </a>
+                @endif
               </div>
             </div>
+
+            <!-- Right Sidebar: Popular Tags and Community Uploads -->
+            <div class="flex flex-col gap-6" style="flex: 0 0 30%;">
+              <!-- Popular Tags Section -->
+              @if($popularTags && $popularTags->count() > 0)
+                <div>
+                  <h2 class="text-xl font-extrabold kulim-park-bold tracking-tight mb-4">Popular Tags</h2>
+                  <div class="bg-white rounded-lg p-4 shadow-lg">
+                    <div class="flex flex-wrap gap-2">
+                      @foreach($popularTags as $tag)
+                        <span class="text-xs bg-green-100 text-green-800 px-3 py-1.5 rounded-full font-medium hover:bg-green-200 transition-colors cursor-pointer">
+                          {{ $tag->name }}
+                        </span>
+                      @endforeach
+                    </div>
+                  </div>
+                </div>
+              @endif
 
             <!-- Community Uploads -->
             <div class="community-section">
@@ -425,6 +423,7 @@
                   <div class="text-center py-8 text-gray-500">No community uploads yet.</div>
                 @endforelse
               </div>
+              </div>
             </div>
           </div>
         </div>
@@ -441,29 +440,22 @@
       const nav = document.querySelector('.glass-nav');
       if (!nav) return;
 
-      const heroSelectors = [
-        '.hero-image',
-        '.hero-container img',
-        '.main-content .hero-container img',
-        '.hero-container'
-      ];
-
-      const heroElement = heroSelectors.map(selector => document.querySelector(selector)).find(Boolean) || null;
-      const heroContainer = heroElement instanceof HTMLElement && heroElement.classList.contains('hero-container')
-        ? heroElement
-        : heroElement?.closest('.hero-container') || document.querySelector('.hero-container');
+      // Find the library green image specifically
+      const heroImage = document.querySelector('.hero-container img[src*="libgreenptr"]');
+      const heroContainer = document.querySelector('.hero-container');
 
       const updateNavBlur = () => {
-        const reference = heroContainer || heroElement;
-
-        if (!reference) {
+        if (!heroImage && !heroContainer) {
           nav.classList.add('scrolled');
           return;
         }
 
+        // Use the image if available, otherwise use the container
+        const reference = heroImage || heroContainer;
         const rect = reference.getBoundingClientRect();
         const tolerance = nav.offsetHeight + 16;
 
+        // Add scrolled class when scrolled past the image/container
         if (rect.bottom <= tolerance) {
           nav.classList.add('scrolled');
         } else {
@@ -475,8 +467,8 @@
       window.addEventListener('scroll', updateNavBlur, { passive: true });
       window.addEventListener('resize', updateNavBlur);
 
-      if (heroElement instanceof HTMLImageElement && !heroElement.complete) {
-        heroElement.addEventListener('load', updateNavBlur, { once: true });
+      if (heroImage instanceof HTMLImageElement && !heroImage.complete) {
+        heroImage.addEventListener('load', updateNavBlur, { once: true });
       }
 
       updateNavBlur();

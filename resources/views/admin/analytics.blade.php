@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/kulimpark.css', 'resources/css/Inter.css', 'resources/css/kantumruypro.css'])
 
-  <title>Admin Dashboard | ISU StudyGo</title>
+  <title>Resource Analytics | ISU StudyGo</title>
 
   <style>
     html, body, .main-content { overflow-x: hidden; }
@@ -88,52 +88,6 @@
       color: #000;
       transition: all 0.3s ease;
     }
-    .books-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-      width: 100%;
-    }
-    @media (min-width: 640px) { .books-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (min-width: 1024px) { .books-grid { grid-template-columns: repeat(5, 1fr); } }
-
-    .filter-tabs {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      border-bottom: 2px solid #e5e7eb;
-    }
-    .filter-tab {
-      padding: 0.75rem 1.5rem;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      transition: all 0.3s ease;
-      font-weight: 500;
-      color: #6b7280;
-    }
-    .filter-tab:hover { color: #22C55E; }
-    .filter-tab.active { color: #22C55E; border-bottom-color: #22C55E; }
-
-    @media (max-width: 768px) {
-      .sidebar { display: none; }
-      .bottom-nav { display: flex; }
-      .main-content { padding-bottom: 4.5rem; }
-    }
-    @media (min-width: 769px) { .bottom-nav { display: none; } }
-
-    #borrowModal .modal-content {
-      max-width: 900px;
-      width: 95%;
-      max-height: 90vh;
-      overflow-y: auto;
-      border-radius: 20px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-    }
-    @media (max-width: 768px) {
-      #borrowModal .modal-content { width: 96%; border-radius: 16px; }
-    }
-    #borrowModal::-webkit-scrollbar { width: 8px; }
-    #borrowModal::-webkit-scrollbar-thumb { background: #22c55e; border-radius: 4px; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -151,21 +105,17 @@
         />
       </div>
       <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
-        <!-- Role badge removed -->
       </div>
     </div>
     
-    <!-- Universal Sidebar -->
     @include('partials.universalSidebar')
 
     <div class="flex bg-gray-200 flex-col flex-1 transition-all duration-300 main-content">
-      <!-- Container for the hero section -->
       <div class="hero-container relative w-full greenhue z-1">
         <img 
           src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" 
           alt="ISU Logo" 
           class="absolute right-0 w-15 h-15 m-7"
-          style=""
         />
         <h5 class="absolute text-white right-0 m-7 mr-10 translate-y-30 kulim-park-semibold">One ISU</h5>
         <img 
@@ -181,113 +131,92 @@
               from one campus <br>
               to another
             </h1>
-               
           </div>
-           
         </div>
         <div class="homediv lg:mx-[10%] mt-5 rounded-md">
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight mb-4">Dashboard</h2>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight mb-4">Resource Analytics</h2>
         </div>
         
-        <!-- Dashboard Cards -->
-        <div class="homediv lg:mx-[10%] flex flex-row flex-wrap gap-4 mb-6">
-          <div class="rounded-2xl bg-white shadow-lg p-6 hover:shadow-xl transition-shadow flex-1 min-w-[200px]">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600 kulim-park-regular mb-1">Total Users</p>
-                <p class="text-3xl font-bold text-green-700 kulim-park-bold">{{ $totalUsers ?? 0 }}</p>
-              </div>
-              <div class="bg-green-100 rounded-full p-3">
-                <i class="fas fa-users text-green-700 text-2xl"></i>
-              </div>
-            </div>
-          </div>
-          
-          <div class="rounded-2xl bg-white shadow-lg p-6 hover:shadow-xl transition-shadow flex-1 min-w-[200px]">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600 kulim-park-regular mb-1">Pending Approvals</p>
-                <p class="text-3xl font-bold text-yellow-700 kulim-park-bold">{{ $pendingApprovals ?? 0 }}</p>
-              </div>
-              <div class="bg-yellow-100 rounded-full p-3">
-                <i class="fas fa-clock text-yellow-700 text-2xl"></i>
-              </div>
-            </div>
-          </div>
-          
-          <div class="rounded-2xl bg-white shadow-lg p-6 hover:shadow-xl transition-shadow flex-1 min-w-[200px]">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600 kulim-park-regular mb-1">Total Resources</p>
-                <p class="text-3xl font-bold text-blue-700 kulim-park-bold">{{ $totalResources ?? 0 }}</p>
-              </div>
-              <div class="bg-blue-100 rounded-full p-3">
-                <i class="fas fa-book text-blue-700 text-2xl"></i>
-              </div>
-            </div>
-          </div>
-          
-          <div class="rounded-2xl bg-white shadow-lg p-6 hover:shadow-xl transition-shadow flex-1 min-w-[200px]">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600 kulim-park-regular mb-1">Active Borrows</p>
-                <p class="text-3xl font-bold text-purple-700 kulim-park-bold">{{ $activeBorrows ?? 0 }}</p>
-              </div>
-              <div class="bg-purple-100 rounded-full p-3">
-                <i class="fas fa-hand-holding text-purple-700 text-2xl"></i>
-              </div>
-            </div>
+        <!-- Stats Cards -->
+        <div class="homediv lg:mx-[10%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <div class="rounded-2xl bg-white shadow-lg p-6">
+            <h3 class="text-lg font-semibold kulim-park-semibold text-gray-700 mb-2">Total Resources</h3>
+            <p class="text-3xl font-bold text-green-700">{{ $totalResources }}</p>
           </div>
         </div>
-        
-        <div class="homediv lg:mx-[10%] rounded-2xl bg-white shadow-lg p-6">
-          <h2 class="text-1xl sm:text-2xl lg:text-3xl font-extrabold kulim-park-bold tracking-tight mb-6">Pending User Approvals</h2>
 
-          @if(session('status'))
-            <div class="bg-green-100 text-green-700 p-3  rounded mb-4 text-sm">
-              {{ session('status') }}
-            </div>
-          @endif
-
-          @if($users->isEmpty())
-            <p class="text-gray-600">No pending approvals.</p>
+        <!-- Resources by Type -->
+        <div class="homediv lg:mx-[10%] rounded-2xl bg-white shadow-lg p-6 mb-6">
+          <h2 class="text-1xl sm:text-2xl lg:text-3xl font-extrabold kulim-park-bold tracking-tight mb-6">Resources by Type</h2>
+          @if($resourcesByType->isEmpty())
+            <p class="text-gray-600">No resources found.</p>
           @else
-            <table class="w-full  kantumruy-pro-regular tracking-tight bg-white shadow rounded-lg">
+            <table class="w-full kantumruy-pro-regular tracking-tight bg-white shadow rounded-lg">
               <thead>
                 <tr class="bg-gray-200">
-                  <th class="p-3 text-left">Name</th>
-                  <th class="p-3 text-left">Email</th>
-                  <th class="p-3 text-left">Role</th>
-                  <th class="p-3 text-left">Campus</th>
-                  <th class="p-3 text-left">Actions</th>
+                  <th class="p-3 text-left">Type</th>
+                  <th class="p-3 text-left">Count</th>
                 </tr>
               </thead>
               <tbody>
-                @foreach($users as $user)
+                @foreach($resourcesByType as $type)
                   <tr>
-                    <td class="p-3">
-                      @if($user->faculty)
-                        {{ $user->faculty->First_Name }} {{ $user->faculty->Last_Name }}
-                      @elseif($user->librarian)
-                        {{ $user->librarian->First_Name }} {{ $user->librarian->Last_Name }}
-                      @else
-                        N/A
-                      @endif
-                    </td>
-                    <td class="p-3">{{ $user->email }}</td>
-                    <td class="p-3">{{ ucfirst($user->role) }}</td>
-                    <td class="p-3">{{ $user->campus ? $user->campus->Campus_Name : 'N/A' }}</td>
-                    <td class="p-3">
-                      <form action="{{ route('admin.approve', $user->id) }}" method="POST" class="inline">
-                        @csrf
-                        <button type="submit" class="bg-green-700 text-white px-3 py-1 rounded hover:bg-green-800">Approve</button>
-                      </form>
-                      <form action="{{ route('admin.reject', $user->id) }}" method="POST" class="inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="bg-red-700 text-white px-3 py-1 rounded hover:bg-red-800">Reject</button>
-                      </form>
-                    </td>
+                    <td class="p-3">{{ $type->Type ?? 'Unknown' }}</td>
+                    <td class="p-3">{{ $type->count }}</td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
+          @endif
+        </div>
+
+        <!-- Top Viewed Resources -->
+        <div class="homediv lg:mx-[10%] rounded-2xl bg-white shadow-lg p-6 mb-6">
+          <h2 class="text-1xl sm:text-2xl lg:text-3xl font-extrabold kulim-park-bold tracking-tight mb-6">Top Viewed Resources</h2>
+          @if($topViewed->isEmpty())
+            <p class="text-gray-600">No resources found.</p>
+          @else
+            <table class="w-full kantumruy-pro-regular tracking-tight bg-white shadow rounded-lg">
+              <thead>
+                <tr class="bg-gray-200">
+                  <th class="p-3 text-left">Resource Name</th>
+                  <th class="p-3 text-left">Type</th>
+                  <th class="p-3 text-left">Views</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach($topViewed as $resource)
+                  <tr>
+                    <td class="p-3">{{ $resource->Resource_Name ?? 'N/A' }}</td>
+                    <td class="p-3">{{ $resource->Type ?? 'N/A' }}</td>
+                    <td class="p-3">{{ $resource->views ?? 0 }}</td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
+          @endif
+        </div>
+
+        <!-- Recent Uploads -->
+        <div class="homediv lg:mx-[10%] rounded-2xl bg-white shadow-lg p-6">
+          <h2 class="text-1xl sm:text-2xl lg:text-3xl font-extrabold kulim-park-bold tracking-tight mb-6">Recent Uploads</h2>
+          @if($recentUploads->isEmpty())
+            <p class="text-gray-600">No recent uploads.</p>
+          @else
+            <table class="w-full kantumruy-pro-regular tracking-tight bg-white shadow rounded-lg">
+              <thead>
+                <tr class="bg-gray-200">
+                  <th class="p-3 text-left">Resource Name</th>
+                  <th class="p-3 text-left">Type</th>
+                  <th class="p-3 text-left">Upload Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach($recentUploads as $resource)
+                  <tr>
+                    <td class="p-3">{{ $resource->Resource_Name ?? 'N/A' }}</td>
+                    <td class="p-3">{{ $resource->Type ?? 'N/A' }}</td>
+                    <td class="p-3">{{ $resource->created_at ? $resource->created_at->format('Y-m-d') : 'N/A' }}</td>
                   </tr>
                 @endforeach
               </tbody>
@@ -346,23 +275,7 @@
     }
   </script>
 
-  <!-- Sidebar Click Toggle -->
-  <script>
-    const sidebar = document.querySelector('.sidebar');
-
-    if (sidebar) {
-      sidebar.addEventListener('click', (event) => {
-        if (event.target.closest('.sidebar a, .sidebar button, .sidebar form')) return;
-        sidebar.classList.toggle('expanded');
-      });
-
-      document.addEventListener('click', (event) => {
-        if (sidebar.classList.contains('expanded') && !sidebar.contains(event.target)) {
-          sidebar.classList.remove('expanded');
-        }
-      });
-    }
-  </script>
   @include('partials.globalLoader')
 </body>
 </html>
+

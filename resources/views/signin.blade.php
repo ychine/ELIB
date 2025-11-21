@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>Login - ISU StudyGo</title>
   <link rel="icon" href="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -221,7 +222,7 @@
 
 
           <!-- LOGIN FORM -->
-          <form method="POST" action="/signin" class="space-y-4 sm:space-y-6">
+          <form method="POST" action="{{ route('login.post') }}" class="space-y-4 sm:space-y-6" id="login-form">
             @csrf
             <div>
               <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Email</label>

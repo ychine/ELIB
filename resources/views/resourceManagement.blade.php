@@ -410,60 +410,11 @@
       </div>
       <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
         <span class="bg-green-800 rounded-3xl px-3 py-1 border-2 border-amber-400 text-[13px] kantumruy-pro-regular">LIBRARIAN</span>
-        <span>Profile</span>
       </div>
     </div>
-    <!-- Sidebar -->
-    <div class="fixed top-0 left-0 h-full bg-[#149637] shadow-[5px_-10px_22.5px_2px_rgba(0,0,0,0.59)] rounded-tr-[50px] sidebar z-20 pt-8">
-      <div class="sidebar-content space-y-2 text-white">
-        <img
-          src="{{ Vite::asset('resources/images/ISUStudyGoBorder.svg') }}"
-          alt="Library"
-          class="w-full h-20 isu-studygo-border-logo"
-        />
-        <img
-          src="{{ Vite::asset('resources/images/ISUclpsd.svg') }}"
-          alt="Library"
-          class="w-full h-10 translate-y-[20px] absolute isu-studygo-logo"
-        />
-        <a href="{{ route('home.librarian') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img src="{{ Vite::asset('resources/images/Dashboard.png') }}" alt="Dashboard" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Dashboard</span>
-        </a>
-        <a href="{{ route('borrowers') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img src="{{ Vite::asset('resources/images/borrowers.png') }}" alt="Shelf" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Borrowers</span>
-        </a>
-        <a href="{{ route('resource.management') }}" class="w-full h-12 bg-green-500 rounded-xl flex items-center gap-3 cursor-pointer">
-          <img src="{{ Vite::asset('resources/images/resmgmttoggle.png') }}" alt="Dashboard" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Resource Management</span>
-        </a>
-        <a href="{{ route('featured') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img
-            src="{{ Vite::asset('resources/images/Featured.png') }}"
-            alt="Featured"
-            class="w-7 h-7 translate-y-[-1px] translate-x-[1px] sidebar-icons"
-          />
-          <span class="label kulim-park-regular text-lg">Featured</span>
-        </a>
-        <a href="{{ route('community.uploads') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img
-            src="{{ Vite::asset('resources/images/Member.png') }}"
-            alt="Community Uploads"
-            class="w-7 h-7 sidebar-icons"
-          />
-          <span class="label kulim-park-regular text-lg">Community Uploads</span>
-        </a>
- 
-        <form method="POST" action="{{ route('logout') }}" class="mt-auto w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3">
-          @csrf
-          <button type="submit" class="flex items-center gap-3 w-full h-full bg-transparent border-none text-white cursor-pointer">
-            <i class="fa-solid fa-sign-out-alt text-2xl sidebar-icons"></i>
-            <span class="label text-lg">Logout</span>
-          </button>
-        </form>
-      </div>
-    </div>
+    <!-- Universal Sidebar -->
+    @include('partials.universalSidebar')
+    
     <!-- Bottom Navigation for Small Screens -->
     <div class="bottom-nav">
       <a href="{{ route('home.librarian') }}" class="nav-item">
@@ -632,6 +583,27 @@
               <div class="error-message">{{ $message }}</div>
             @enderror
           </div>
+          <div>
+            <label for="tags" class="block font-medium">Tags</label>
+            <div id="addTagsContainer" class="tags-container"></div>
+            <input type="text" id="addTagsInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('tags') border-red-500 @enderror" placeholder="Type tag and press space/enter" autocomplete="off">
+            <input type="hidden" name="tags" id="addTagsHidden" value="{{ old('tags') }}">
+            <p class="text-xs text-gray-500 mt-1">Press space or enter to add a tag</p>
+            @error('tags')
+              <div class="error-message">{{ $message }}</div>
+            @enderror
+          </div>
+          <script>
+            // Populate tags from old input if validation failed
+            @if(old('tags'))
+              document.addEventListener('DOMContentLoaded', () => {
+                const oldTags = '{{ old('tags') }}'.split(',').map(t => t.trim()).filter(t => t);
+                oldTags.forEach(tag => {
+                  if (tag) addTag('add', tag);
+                });
+              });
+            @endif
+          </script>
           <div>
             <label class="block font-medium">Publish Date</label>
             <div id="addDatePicker" class="flex space-x-2">
@@ -1185,7 +1157,20 @@
       document.getElementById(`${prefix}TagsHidden`).value = tags.join(',');
     }
 
-    // Handle keypress for tags input
+    // Handle keypress for tags input (add form)
+    const addTagsInput = document.getElementById('addTagsInput');
+    if (addTagsInput) {
+      addTagsInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const input = e.target;
+          addTag('add', input.value);
+          input.value = '';
+        }
+      });
+    }
+
+    // Handle keypress for tags input (edit form)
     document.getElementById('editTagsInput').addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();

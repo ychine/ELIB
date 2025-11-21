@@ -267,60 +267,10 @@
       </div>
       <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
         <span class="bg-green-800 rounded-3xl px-3 py-1 border-2 border-amber-400 text-[13px] kantumruy-pro-regular">LIBRARIAN</span>
-        <span>Profile</span>
       </div>
     </div>
-    <!-- Sidebar -->
-    <div class="fixed top-0 left-0 h-full bg-[#149637] shadow-[5px_-10px_22.5px_2px_rgba(0,0,0,0.59)] rounded-tr-[50px] sidebar z-20 pt-8">
-      <div class="sidebar-content space-y-2 text-white">
-        <img
-          src="{{ Vite::asset('resources/images/ISUStudyGoBorder.svg') }}"
-          alt="Library"
-          class="w-full h-20 isu-studygo-border-logo"
-        />
-        <img
-          src="{{ Vite::asset('resources/images/ISUclpsd.svg') }}"
-          alt="Library"
-          class="w-full h-10 translate-y-[20px] absolute isu-studygo-logo"
-        />
-        <a href="{{ route('home.librarian') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img src="{{ Vite::asset('resources/images/Dashboard.png') }}" alt="Dashboard" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Dashboard</span>
-        </a>
-        <a href="/borrowers" class="w-full h-12 bg-green-500 rounded-xl flex items-center gap-3 cursor-pointer">
-          <img src="{{ Vite::asset('resources/images/borrowerstoggle.png') }}" alt="Borrowers" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Borrowers</span>
-        </a>
-        <a href="{{ route('resource.management') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img src="{{ Vite::asset('resources/images/resmgmt.png') }}" alt="Resource Management" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Resource Management</span>
-        </a>
-        <a href="{{ route('featured') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img
-            src="{{ Vite::asset('resources/images/Featured.png') }}"
-            alt="Featured"
-            class="w-7 h-7 translate-y-[-1px] translate-x-[1px] sidebar-icons"
-          />
-          <span class="label kulim-park-regular text-lg">Featured</span>
-        </a>
-        <a href="{{ route('community.uploads') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img
-            src="{{ Vite::asset('resources/images/Member.png') }}"
-            alt="Community Uploads"
-            class="w-7 h-7 sidebar-icons"
-          />
-          <span class="label kulim-park-regular text-lg">Community Uploads</span>
-        </a>
- 
-        <form method="POST" action="{{ route('logout') }}" class="mt-auto w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3">
-          @csrf
-          <button type="submit" class="flex items-center gap-3 w-full h-full bg-transparent border-none text-white cursor-pointer">
-            <i class="fa-solid fa-sign-out-alt text-2xl sidebar-icons"></i>
-            <span class="label text-lg">Logout</span>
-          </button>
-        </form>
-      </div>
-    </div>
+    <!-- Universal Sidebar -->
+    @include('partials.universalSidebar')
     <!-- Bottom Navigation for Small Screens -->
     <div class="bottom-nav">
       <a href="{{ route('home.librarian') }}" class="nav-item">

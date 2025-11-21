@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="icon" href="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/Inter.css', 'resources/css/kulimpark.css', 'resources/css/kantumruypro.css'])
 
@@ -260,63 +262,12 @@
       </div>
       
       <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
-        <span class="bg-green-800 rounded-3xl px-3 py-1 border-2 border-amber-400 text-[13px] kantumruy-pro-regular">LIBRARIAN</span>
-        <span>Profile</span>
+        <!-- Role badge removed -->
       </div>
     </div>
 
-    <!-- Sidebar -->
-    <div class="fixed top-0 left-0 h-full bg-[#149637] shadow-[5px_-10px_22.5px_2px_rgba(0,0,0,0.59)] rounded-tr-[50px] sidebar z-20 pt-8">
-      <div class="sidebar-content space-y-2 text-white">
-        <img 
-          src="{{ Vite::asset('resources/images/ISUStudyGoBorder.svg') }}" 
-          alt="Library" 
-          class="w-full h-20 isu-studygo-border-logo"
-        />
-        <img 
-          src="{{ Vite::asset('resources/images/ISUclpsd.svg') }}" 
-          alt="Library" 
-          class="w-full h-10 translate-y-[20px] absolute isu-studygo-logo"
-        />
-        <a href="{{ route('home.librarian') }}" class="w-full h-12 bg-green-500 rounded-xl flex items-center gap-3 cursor-pointer">
-          <img src="{{ Vite::asset('resources/images/DashboardToggled.png') }}" alt="Dashboard" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Dashboard</span>
-        </a>
-        <a href="{{ route('borrowers') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer hover:bg-green-700 transition-colors">
-          <img src="{{ Vite::asset('resources/images/borrowers.png') }}" alt="Shelf" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Borrowers</span>
-        </a>
-         <a href="{{ route('resource.management') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer  hover:bg-green-700 transition-colors">
-          <img src="{{ Vite::asset('resources/images/resmgmt.png') }}" alt="Dashboard" class="w-7 h-7 sidebar-icons"/>
-          <span class="label kulim-park-regular text-lg">Resource Management</span>
-        </a>
-        
-        <a href="{{ route('featured') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer  hover:bg-green-700 transition-colors">
-          <img 
-            src="{{ Vite::asset('resources/images/Featured.png') }}" 
-            alt="Featured" 
-            class="w-7 h-7 translate-y-[-1px] translate-x-[1px] sidebar-icons"
-          />
-          <span class="label kulim-park-regular text-lg">Featured</span>
-        </a>
-        <a href="{{ route('community.uploads') }}" class="w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3 cursor-pointer  hover:bg-green-700 transition-colors">
-          <img 
-            src="{{ Vite::asset('resources/images/Member.png') }}" 
-            alt="Community Uploads" 
-            class="w-7 h-7 sidebar-icons"
-          />
-          <span class="label kulim-park-regular text-lg">Community Uploads</span>
-        </a>
-        
-        <form method="POST" action="{{ route('logout') }}" class="mt-auto w-full h-12 bg-green-800 rounded-xl shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] flex items-center gap-3">
-          @csrf
-          <button type="submit" class="flex items-center gap-3 w-full h-full bg-transparent border-none text-white cursor-pointer">
-            <i class="fa-solid fa-sign-out-alt text-2xl sidebar-icons"></i>
-            <span class="label text-lg">Logout</span>
-          </button>
-        </form>
-      </div>
-    </div>
+    <!-- Universal Sidebar -->
+    @include('partials.universalSidebar')
 
     <!-- Bottom Navigation for Small Screens -->
     <div class="bottom-nav">
@@ -348,6 +299,12 @@
     <!-- Main Content -->
     <div class="flex flex-col flex-1 transition-all duration-300 main-content bg-gray-200">
       <div class="hero-container relative w-full greenhue z-1">
+        <img 
+          src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" 
+          alt="ISU Logo" 
+          class="absolute right-0 w-15 h-15 m-7"
+        />
+        <h5 class="absolute text-white right-0 m-7 mr-10 translate-y-30 kulim-park-semibold">One ISU</h5>
         <img 
           src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" 
           alt="Library" 
@@ -386,29 +343,22 @@
       const nav = document.querySelector('.glass-nav');
       if (!nav) return;
 
-      const heroSelectors = [
-        '.hero-image',
-        '.hero-container img',
-        '.main-content .hero-container img',
-        '.hero-container'
-      ];
-
-      const heroElement = heroSelectors.map(selector => document.querySelector(selector)).find(Boolean) || null;
-      const heroContainer = heroElement instanceof HTMLElement && heroElement.classList.contains('hero-container')
-        ? heroElement
-        : heroElement?.closest('.hero-container') || document.querySelector('.hero-container');
+      // Find the library green image specifically
+      const heroImage = document.querySelector('.hero-container img[src*="libgreenptr"]');
+      const heroContainer = document.querySelector('.hero-container');
 
       const updateNavBlur = () => {
-        const reference = heroContainer || heroElement;
-
-        if (!reference) {
+        if (!heroImage && !heroContainer) {
           nav.classList.add('scrolled');
           return;
         }
 
+        // Use the image if available, otherwise use the container
+        const reference = heroImage || heroContainer;
         const rect = reference.getBoundingClientRect();
         const tolerance = nav.offsetHeight + 16;
 
+        // Add scrolled class when scrolled past the image/container
         if (rect.bottom <= tolerance) {
           nav.classList.add('scrolled');
         } else {
@@ -420,8 +370,8 @@
       window.addEventListener('scroll', updateNavBlur, { passive: true });
       window.addEventListener('resize', updateNavBlur);
 
-      if (heroElement instanceof HTMLImageElement && !heroElement.complete) {
-        heroElement.addEventListener('load', updateNavBlur, { once: true });
+      if (heroImage instanceof HTMLImageElement && !heroImage.complete) {
+        heroImage.addEventListener('load', updateNavBlur, { once: true });
       }
 
       updateNavBlur();

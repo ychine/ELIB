@@ -9,6 +9,8 @@ use App\Models\Librarian;
 use App\Models\Student;
 use App\Models\VerifyCode;
 use App\Models\Campus;
+use App\Models\Resource;
+use App\Models\Borrower;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -18,8 +20,10 @@ use App\Mail\VerificationCodeMail;
 class AuthController extends Controller
 {
     // ────────────────────── SHOW FORMS ──────────────────────
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
+        // Ensure session is started to generate CSRF token
+        $request->session()->start();
         return view('signin');
     }
 
@@ -32,6 +36,9 @@ class AuthController extends Controller
     // ────────────────────── LOGIN ──────────────────────
     public function login(Request $request)
     {
+        // Ensure session is started
+        $request->session()->start();
+        
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
@@ -39,12 +46,13 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
+            // Don't regenerate CSRF token here - it causes 419 errors
             $user = Auth::user();
 
-            // EMAIL VERIFICATION CHECK
-            if (!$user->hasVerifiedEmail()) {
+            // EMAIL VERIFICATION CHECK (skip for admin)
+            if ($user->role !== 'admin' && !$user->hasVerifiedEmail()) {
                 Auth::logout();
-                return back()->withErrors(['email' => 'Please verify your email first.']);
+                return redirect()->route('login')->withErrors(['email' => 'Please verify your email first.']);
             }
 
             // APPROVAL CHECK (faculty, librarian, student)
@@ -57,12 +65,20 @@ class AuthController extends Controller
                 }
             }
 
-            return redirect()->intended($user->role === 'admin' ? '/admin' : '/');
+            // Redirect based on role - use direct routes to avoid redirect chain issues
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.approvals');
+            } elseif ($user->role === 'librarian') {
+                return redirect()->route('home.librarian');
+            } else {
+                // For students and faculty, go directly to home.user
+                return redirect()->route('home.user');
+            }
         }
 
-        return back()->withErrors([
+        return redirect()->route('login')->withErrors([
             'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        ])->withInput($request->only('email'));
     }
 
     /* --------------------------------------------------------------
@@ -225,7 +241,15 @@ class AuthController extends Controller
                      ->whereIn('role', ['faculty', 'librarian'])
                      ->with(['campus', 'faculty', 'librarian'])
                      ->get();
-        return view('homeAdmin', compact('users'));
+        
+        // Dashboard stats
+        $totalUsers = User::where('is_approved', true)->count();
+        $pendingApprovals = User::where('is_approved', false)->count();
+        $totalResources = \App\Models\Resource::count();
+        $totalBorrows = \App\Models\Borrower::count();
+        $activeBorrows = \App\Models\Borrower::where('isReturned', false)->count();
+        
+        return view('homeAdmin', compact('users', 'totalUsers', 'pendingApprovals', 'totalResources', 'totalBorrows', 'activeBorrows'));
     }
 
     public function approveUser(Request $request, User $user)
@@ -238,6 +262,28 @@ class AuthController extends Controller
     {
         $user->delete();
         return redirect()->route('admin.approvals')->with('status', 'User rejected and deleted.');
+    }
+
+    // ────────────────────── AUDIT TRAIL ──────────────────────
+    public function auditTrail()
+    {
+        // Get audit trail data (user actions, approvals, etc.)
+        $auditLogs = [];
+        // TODO: Implement actual audit trail logging system
+        return view('admin.audit', compact('auditLogs'));
+    }
+
+    // ────────────────────── RESOURCE ANALYTICS ──────────────────────
+    public function resourceAnalytics()
+    {
+        $totalResources = Resource::count();
+        $resourcesByType = Resource::selectRaw('Type, count(*) as count')
+            ->groupBy('Type')
+            ->get();
+        $topViewed = Resource::orderBy('views', 'desc')->limit(10)->get();
+        $recentUploads = Resource::orderBy('created_at', 'desc')->limit(10)->get();
+        
+        return view('admin.analytics', compact('totalResources', 'resourcesByType', 'topViewed', 'recentUploads'));
     }
 
     // ────────────────────── LOGOUT ──────────────────────
