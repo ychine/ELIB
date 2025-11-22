@@ -36,6 +36,7 @@
           class="universal-sidebar__link"
           :class="{ 'is-active': isActiveRoute(link.key) }"
           @click.stop="handleLinkClick(link, $event)"
+          :data-tooltip="!isExpanded ? link.label : ''"
         >
           <img
             v-if="link.icon"
@@ -58,9 +59,11 @@
       <div class="universal-sidebar__profile" @click.stop="toggleProfileDropdown">
         <div class="universal-sidebar__profile-avatar">
           <img
-            v-if="user.avatar"
-            :src="user.avatar"
+            v-if="user?.profile_picture"
+            :src="getProfilePictureUrl(user.profile_picture)"
             :alt="user.name"
+            class="w-full h-full object-cover rounded-full"
+            @error="handleImageError"
           />
           <div v-else class="universal-sidebar__profile-placeholder">
             {{ userInitials }}
@@ -87,9 +90,13 @@
         >
           <button
             class="universal-sidebar__dropdown-item"
-            @click="openAccountSettings"
+            type="button"
+            @click.stop="openAccountSettings"
           >
-            <i class="fas fa-user-cog"></i>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
             <span>Account Settings</span>
           </button>
           <form
@@ -100,7 +107,9 @@
           >
             <input type="hidden" name="_token" :value="csrfToken" />
             <button type="submit" class="universal-sidebar__dropdown-item universal-sidebar__dropdown-item--logout">
-              <i class="fas fa-sign-out-alt"></i>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              </svg>
               <span>Logout</span>
             </button>
           </form>
@@ -110,7 +119,7 @@
 
     <!-- Footer -->
     <div class="universal-sidebar__footer">
-      <p class="universal-sidebar__footer-text">© Copyright B&S, ISU StudyGo. All rights reserved.</p>
+      <p class="universal-sidebar__footer-text">© Copyright Sapaula, A. & Benitez, R.D., ISU StudyGo.<br></br> All rights reserved.</p>
     </div>
 
    </div>
@@ -118,8 +127,9 @@
   <!-- Account Settings Overlay -->
   <AccountSettingsOverlay
     v-if="showAccountSettings"
+    v-model="showAccountSettings"
     :user="user"
-    @close="closeAccountSettings"
+    @save="handleAccountSave"
   />
 </template>
 
@@ -178,6 +188,25 @@ const sidebarRef = ref(null);
 const logoutHref = computed(() => {
   return props.logoutUrl || '/logout';
 });
+
+const getProfilePictureUrl = (profilePicture) => {
+  if (!profilePicture) return null;
+  // If path already includes /storage/, use it as is
+  if (profilePicture.startsWith('/storage/')) {
+    return profilePicture;
+  }
+  // If path starts with storage/ (no leading slash), add leading slash
+  if (profilePicture.startsWith('storage/')) {
+    return `/${profilePicture}`;
+  }
+  // Otherwise, prepend /storage/
+  return `/storage/${profilePicture}`;
+};
+
+const handleImageError = (event) => {
+  // If image fails to load, hide it and show placeholder
+  event.target.style.display = 'none';
+};
 
 const userInitials = computed(() => {
   if (!props.user.name) return 'U';
@@ -248,15 +277,16 @@ const toggleProfileDropdown = () => {
   }
 };
 
-const openAccountSettings = () => {
+const openAccountSettings = (event) => {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
   showProfileDropdown.value = false;
-  showAccountSettings.value = true;
-  document.body.style.overflow = 'hidden';
-};
-
-const closeAccountSettings = () => {
-  showAccountSettings.value = false;
-  document.body.style.overflow = '';
+  // Use nextTick to ensure DOM is ready
+  setTimeout(() => {
+    showAccountSettings.value = true;
+  }, 100);
 };
 
 const handleLogoutSubmit = (event) => {
@@ -273,6 +303,43 @@ const handleLogoutSubmit = (event) => {
   return true;
 };
 
+const handleAccountSave = async (data) => {
+  try {
+    const formData = new FormData();
+    formData.append('name', data.name);
+    formData.append('email', data.email);
+    if (data.newPassword && data.newPassword === data.confirmPassword) {
+      formData.append('password', data.newPassword);
+      formData.append('password_confirmation', data.confirmPassword);
+    }
+
+    const response = await fetch('/profile/update', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        'Accept': 'application/json',
+      },
+      body: formData,
+    });
+
+    if (response.ok) {
+      // Show success message and close modal
+      alert('Profile updated successfully!');
+      showAccountSettings.value = false;
+      // Optionally reload to refresh sidebar data
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } else {
+      const errorData = await response.json();
+      alert(errorData.message || 'Failed to update profile. Please try again.');
+    }
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    alert('An error occurred while updating your profile. Please try again.');
+  }
+};
+
 const updateBodyClass = () => {
   if (document && document.body) {
     document.body.classList.toggle('has-universal-sidebar-expanded', isExpanded.value);
@@ -282,14 +349,14 @@ const updateBodyClass = () => {
 const handleClickOutside = (event) => {
   // Close profile dropdown if clicking outside
   if (showProfileDropdown.value && sidebarRef.value && !sidebarRef.value.contains(event.target)) {
-    if (!event.target.closest('.account-settings-overlay')) {
+    if (!event.target.closest('.account-settings-modal')) {
       showProfileDropdown.value = false;
     }
   }
   
   if (isExpanded.value && sidebarRef.value && !sidebarRef.value.contains(event.target)) {
     // Don't collapse if clicking on account settings overlay
-    if (event.target.closest('.account-settings-overlay')) {
+    if (event.target.closest('.account-settings-modal')) {
       return;
     }
     isExpanded.value = false;
@@ -298,13 +365,44 @@ const handleClickOutside = (event) => {
   }
 };
 
+// Ensure sidebar stays fixed - AGGRESSIVE
+const ensureSidebarFixed = () => {
+  if (sidebarRef.value) {
+    // Remove from any parent that might scroll
+    if (sidebarRef.value.parentElement) {
+      const parent = sidebarRef.value.parentElement;
+      if (parent.style.position === 'relative' || parent.style.position === 'absolute') {
+        parent.style.position = 'static';
+      }
+    }
+    // Force fixed positioning with !important via setAttribute
+    sidebarRef.value.setAttribute('style', 'position: fixed !important; top: 0 !important; left: 0 !important; z-index: 9999 !important; margin: 0 !important; transform: none !important;');
+    // Also set via style for immediate effect
+    sidebarRef.value.style.position = 'fixed';
+    sidebarRef.value.style.top = '0';
+    sidebarRef.value.style.left = '0';
+    sidebarRef.value.style.zIndex = '9999';
+    sidebarRef.value.style.margin = '0';
+    sidebarRef.value.style.transform = 'none';
+  }
+};
+
 onMounted(() => {
   updateBodyClass();
   document.addEventListener('click', handleClickOutside);
+  
+  // Ensure sidebar stays fixed on mount
+  ensureSidebarFixed();
+  
+  // Re-apply fixed positioning on scroll and resize
+  window.addEventListener('scroll', ensureSidebarFixed, { passive: true, capture: true });
+  window.addEventListener('resize', ensureSidebarFixed);
 });
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside);
+  window.removeEventListener('scroll', ensureSidebarFixed);
+  window.removeEventListener('resize', ensureSidebarFixed);
   if (document && document.body) {
     document.body.classList.remove('has-universal-sidebar-expanded');
   }
@@ -315,25 +413,35 @@ watch(() => props.defaultExpanded, (newVal) => {
   isExpanded.value = newVal;
   updateBodyClass();
 });
+
+watch(showAccountSettings, (isOpen) => {
+  if (document && document.body) {
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+});
 </script>
 
 <style scoped>
 .universal-sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  background: #149637;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100vh !important;
+  background: #149637 !important;
   box-shadow: 5px -10px 22.5px 2px rgba(0, 0, 0, 0.59);
   border-top-right-radius: 50px;
-  z-index: 20;
+  z-index: 20 !important;
   padding: 2rem 0.5rem;
-  display: flex;
+  display: flex !important;
   flex-direction: column;
   transition: width 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   cursor: pointer;
   width: 4rem;
+  /* Ensure sidebar renders immediately */
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .universal-sidebar.is-expanded {
@@ -537,6 +645,50 @@ watch(() => props.defaultExpanded, (newVal) => {
   overflow: hidden;
 }
 
+/* Tooltip for collapsed sidebar */
+.universal-sidebar.is-collapsed .universal-sidebar__link {
+  position: relative;
+}
+
+.universal-sidebar.is-collapsed .universal-sidebar__link::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 0.75rem);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1f2937;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: 'Kulim Park', sans-serif;
+}
+
+.universal-sidebar.is-collapsed .universal-sidebar__link::after {
+  content: '';
+  position: absolute;
+  left: calc(100% + 0.5rem);
+  top: 50%;
+  transform: translateY(-50%);
+  border: 6px solid transparent;
+  border-right-color: #1f2937;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 1001;
+}
+
+.universal-sidebar.is-collapsed .universal-sidebar__link:hover::before,
+.universal-sidebar.is-collapsed .universal-sidebar__link:hover::after {
+  opacity: 1;
+}
+
 .universal-sidebar__profile-wrapper {
   position: relative;
   margin-top: auto;
@@ -559,7 +711,7 @@ watch(() => props.defaultExpanded, (newVal) => {
   font-family: 'Kulim Park', sans-serif;
   font-weight: 400;
   margin: 0;
-  white-space: nowrap;
+
 }
 
 .universal-sidebar.is-expanded .universal-sidebar__footer {
@@ -723,8 +875,8 @@ watch(() => props.defaultExpanded, (newVal) => {
 .universal-sidebar__profile-dropdown {
   position: absolute;
   bottom: 100%;
-  left: 0;
-  right: 0;
+  left: 0 !important;
+  right: auto;
   margin-bottom: 0.5rem;
   background: white;
   border-radius: 0.75rem;
@@ -732,6 +884,8 @@ watch(() => props.defaultExpanded, (newVal) => {
   overflow: hidden;
   z-index: 100;
   min-width: 100%;
+  text-align: left;
+  transform: translateX(0) !important;
 }
 
 .universal-sidebar__dropdown-item-form {
@@ -748,13 +902,13 @@ watch(() => props.defaultExpanded, (newVal) => {
   padding: 0.75rem 1rem;
   background: transparent;
   border: none;
-  color: #1f2937;
+  color: #1f2937 !important;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s ease;
   text-align: left;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Kantumruy Pro', sans-serif;
 }
 
 .universal-sidebar__dropdown-item:hover {

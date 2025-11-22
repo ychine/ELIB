@@ -211,7 +211,7 @@
           </div>
         </div>
 
-        <div class="px-4 lg:px-[5%] mt-8 pt-4">
+        <div class="px-4 lg:px-[5%] mt-2 pt-2">
           <div class="flex flex-col lg:pl-28 lg:pr-20 lg:flex-row gap-6 content-wrapper">
             <div class="w-full">
               <h2 class="text-2xl sm:text-3xl font-extrabold kulim-park-bold tracking-tight mb-4">Your Shelf</h2>
@@ -367,9 +367,9 @@
 </div>
 
   <!-- Borrow Modal for Your Shelf -->
-  <div id="shelfModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/50">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden">
-      <div class="flex h-full">
+  <div id="shelfModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/50 overflow-y-auto" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] my-4 overflow-y-auto">
+      <div class="flex h-full min-h-0">
         <!-- Left: Thumbnail -->
         <div class="w-72 flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200 p-6 flex items-center justify-center border-r border-gray-200">
           <div class="w-60 h-96 bg-gray-100 border-8 border-gray-300 rounded-lg shadow-xl flex items-center justify-center overflow-hidden">
@@ -385,7 +385,7 @@
         </div>
 
         <!-- Right: Details -->
-        <div class="flex-1 p-8 flex flex-col">
+        <div class="flex-1 p-8 flex flex-col overflow-y-auto min-h-0">
           <!-- Title -->
           <h2 id="shelfModalTitle" class="text-3xl kulim-park-bold font-bold text-gray-900 mb-6 leading-tight"></h2>
 
@@ -434,14 +434,14 @@
               Cancel
             </button>
             <a id="shelfModalViewBook" href="#" target="_blank"
-               class="px-8 py-3 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-xl hover:from-[#16A34A] hover:to-[#15803D] transition-all font-medium text-sm shadow-lg hover:shadow-xl flex items-center gap-2">
+               class="shelf-modal-btn-view">
               <i class="fas fa-book-open"></i>
               View Book
             </a>
             <form method="POST" id="shelfModalReturnForm" class="inline">
               @csrf
               <button type="submit"
-                      class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all font-medium text-sm shadow-lg hover:shadow-xl flex items-center gap-2"
+                      class="shelf-modal-btn-return"
                       onclick="return confirm('Are you sure you want to return this book?')">
                 <i class="fas fa-undo"></i>
                 Return Book
@@ -504,6 +504,46 @@
         flex: 1;
         justify-content: center;
       }
+    }
+    
+    /* Ensure buttons in shelf modal have proper styling - override global styles */
+    .shelf-modal-btn-view,
+    .shelf-modal-btn-return {
+      padding: 0.75rem 2rem !important;
+      border-radius: 0.75rem !important;
+      font-weight: 500 !important;
+      font-size: 0.875rem !important;
+      color: white !important;
+      border: none !important;
+      cursor: pointer !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      min-height: 2.5rem !important;
+      text-decoration: none !important;
+      gap: 0.5rem !important;
+      transition: all 0.2s ease !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .shelf-modal-btn-view {
+      background: linear-gradient(to right, #22C55E, #16A34A) !important;
+    }
+    
+    .shelf-modal-btn-view:hover {
+      background: linear-gradient(to right, #16A34A, #15803D) !important;
+      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3) !important;
+      transform: translateY(-1px) !important;
+    }
+    
+    .shelf-modal-btn-return {
+      background: linear-gradient(to right, #dc2626, #b91c1c) !important;
+    }
+    
+    .shelf-modal-btn-return:hover {
+      background: linear-gradient(to right, #b91c1c, #991b1b) !important;
+      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3) !important;
+      transform: translateY(-1px) !important;
     }
   </style>
 
@@ -611,11 +651,19 @@
       viewBookLink.href = '{{ route("viewer", ":id") }}'.replace(':id', borrow.Resource_ID);
       returnForm.action = '{{ route("return.book", ":id") }}'.replace(':id', borrow.Borrower_ID);
 
-      document.getElementById('shelfModal').classList.remove('hidden');
+      const modal = document.getElementById('shelfModal');
+      modal.style.display = 'flex';
+      modal.classList.remove('hidden');
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
     }
 
     function closeShelfModal() {
-      document.getElementById('shelfModal').classList.add('hidden');
+      const modal = document.getElementById('shelfModal');
+      modal.style.display = 'none';
+      modal.classList.add('hidden');
+      // Restore body scroll when modal is closed
+      document.body.style.overflow = '';
     }
 
     // Make currently borrowed cards clickable

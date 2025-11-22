@@ -16,26 +16,21 @@ export default {
     }
   },
   mounted() {
-    // Track initial page load first (before listening to navigation events)
-    if (document.readyState === 'loading' || document.readyState === 'interactive') {
-      this.trackPageLoad()
-    }
+    // Always track initial page load
+    this.trackPageLoad()
     
     // Listen to app:loading events from navigation interceptor (for link clicks, etc.)
     this.handleLoadingEvent = (event) => {
       const active = event.detail?.active ?? event.detail ?? false
       if (active) {
-        // Only start if not already tracking page load
-        if (!this.isLoading) {
-          this.startProgress()
-        }
+        // Start progress for navigation
+        this.startProgress()
       } else {
-        // Only complete if this is a navigation event, not initial page load
-        // Don't complete if we're still tracking the initial page load
-        if (document.readyState === 'complete') {
-          // Page is fully loaded, safe to complete
+        // Complete progress when navigation finishes
+        // Wait a bit to ensure page is rendered
+        setTimeout(() => {
           this.completeProgress()
-        }
+        }, 200)
       }
     }
     window.addEventListener('app:loading', this.handleLoadingEvent)
@@ -141,18 +136,22 @@ export default {
       this.isLoading = true
       this.progress = 10
       
-      // Simulate progress from 10% to 80% gradually
+      // Simulate progress from 10% to 90% gradually
       let currentProgress = 10
-      const targetProgress = 80
+      const targetProgress = 90
       
       this.progressInterval = setInterval(() => {
         if (currentProgress < targetProgress) {
           // Gradually increase progress
-          const increment = Math.max(1, (targetProgress - currentProgress) * 0.1)
+          const increment = Math.max(1, (targetProgress - currentProgress) * 0.15)
           currentProgress = Math.min(targetProgress, currentProgress + increment)
           this.progress = Math.round(currentProgress)
+        } else {
+          // Stop at 90% and wait for completion
+          clearInterval(this.progressInterval)
+          this.progressInterval = null
         }
-      }, 50)
+      }, 30)
     },
     completeProgress() {
       this.clearProgress()

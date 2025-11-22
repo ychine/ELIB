@@ -6,7 +6,9 @@
   <link rel="icon" href="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet"></noscript>
   @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/Inter.css', 'resources/css/kulimpark.css', 'resources/css/kantumruypro.css'])
   <title>Borrowers | ISU StudyGo</title>
   <style>
@@ -270,7 +272,9 @@
       </div>
     </div>
     <!-- Universal Sidebar -->
+    <!-- Universal Sidebar - Load First -->
     @include('partials.universalSidebar')
+    @vite(['resources/js/app.js'])
     <!-- Bottom Navigation for Small Screens -->
     <div class="bottom-nav">
       <a href="{{ route('home.librarian') }}" class="nav-item">
@@ -289,7 +293,7 @@
         <img src="{{ Vite::asset('resources/images/Member.png') }}" alt="Community Uploads" />
         <span>Community</span>
       </a>
-      <a href="{{ route('your.shelf') }}" class="nav-item">
+      <a href="{{ route('yourshelf') }}" class="nav-item">
         <img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Your Shelf" />
         <span>Shelf</span>
       </a>
@@ -353,7 +357,7 @@
           </div>
           
           <!-- Borrow Requests Table -->
-          <table class="min-w-full bg-white rounded-lg overflow-hidden" id="borrowTable">
+          <table class="min-w-full bg-white rounded border border-gray-200 shadow-sm overflow-hidden" id="borrowTable">
             <thead>
               <tr>
                 <th class="py-3 px-6 border-b border-gray-500 text-left kantumruy-pro-regular">Requester</th>

@@ -283,7 +283,7 @@
         <img src="{{ Vite::asset('resources/images/Member.png') }}" alt="Community Uploads" />
         <span>Community</span>
       </a>
-      <a href="{{ route('your.shelf') }}" class="nav-item">
+      <a href="{{ route('yourshelf') }}" class="nav-item">
         <img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Your Shelf" />
         <span>Shelf</span>
       </a>

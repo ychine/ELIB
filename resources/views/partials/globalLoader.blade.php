@@ -1,5 +1,12 @@
 <div id="global-loading-root"></div>
-@vite(['resources/js/app.js'])
+@if(!isset($skipAppJs) || !$skipAppJs)
+  @vite(['resources/js/app.js'])
+@endif
+
+
+
+
+
 
 
 

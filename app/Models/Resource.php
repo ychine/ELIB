@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Resource extends Model
 {
@@ -55,7 +55,6 @@ class Resource extends Model
         return $this->hasMany(ResourceView::class, 'resource_id', 'Resource_ID');
     }
 
-   
     // === ACCESSORS (100% SAFE – NO ERRORS EVER) ===
     protected function averageRating(): Attribute
     {
@@ -70,14 +69,17 @@ class Resource extends Model
     {
         return Attribute::make(
             get: function () {
-                if (!$this->publish_year) return 'N/A';
+                if (! $this->publish_year) {
+                    return 'N/A';
+                }
                 $date = $this->publish_year;
                 if ($this->publish_month) {
-                    $date .= '-' . str_pad($this->publish_month, 2, '0', STR_PAD_LEFT);
+                    $date .= '-'.str_pad($this->publish_month, 2, '0', STR_PAD_LEFT);
                     if ($this->publish_day) {
-                        $date .= '-' . str_pad($this->publish_day, 2, '0', STR_PAD_LEFT);
+                        $date .= '-'.str_pad($this->publish_day, 2, '0', STR_PAD_LEFT);
                     }
                 }
+
                 return $date;
             }
         );
@@ -87,6 +89,7 @@ class Resource extends Model
     public function getAuthorsAttribute(): string
     {
         $authors = $this->getRelationValue('authors');
+
         return $authors && $authors->isNotEmpty()
             ? $authors->pluck('name')->implode(', ')
             : 'Unknown Author';
@@ -95,20 +98,22 @@ class Resource extends Model
     public function getTagsAttribute(): array
     {
         $tags = $this->getRelationValue('tags');
+
         return $tags ? $tags->toArray() : [];
     }
 
     public function getAverageRatingAttribute(): float
     {
         $ratings = $this->getRelationValue('ratings');
+
         return $ratings ? round($ratings->avg('rating') ?? 0, 1) : 0.0;
     }
 
     // Add this accessor for thumbnail_path to work with Storage facade
     public function getThumbnailUrlAttribute(): ?string
     {
-        return $this->thumbnail_path 
-            ? asset('storage/' . $this->thumbnail_path) 
+        return $this->thumbnail_path
+            ? asset('storage/'.$this->thumbnail_path)
             : null;
     }
 
@@ -132,9 +137,39 @@ class Resource extends Model
     {
         return $query->join('resource_views', 'resources.Resource_ID', '=', 'resource_views.resource_id')
             ->where('resource_views.viewed_at', '>=', now()->startOfMonth())
-            ->select('resources.*')
+            ->select([
+                'resources.Resource_ID',
+                'resources.Resource_Name',
+                'resources.File_Path',
+                'resources.thumbnail_path',
+                'resources.Type',
+                'resources.publish_year',
+                'resources.publish_month',
+                'resources.publish_day',
+                'resources.Uploaded_By',
+                'resources.Description',
+                'resources.status',
+                'resources.views',
+                'resources.created_at',
+                'resources.updated_at',
+            ])
             ->selectRaw('COUNT(resource_views.id) as month_views')
-            ->groupBy('resources.Resource_ID')
+            ->groupBy([
+                'resources.Resource_ID',
+                'resources.Resource_Name',
+                'resources.File_Path',
+                'resources.thumbnail_path',
+                'resources.Type',
+                'resources.publish_year',
+                'resources.publish_month',
+                'resources.publish_day',
+                'resources.Uploaded_By',
+                'resources.Description',
+                'resources.status',
+                'resources.views',
+                'resources.created_at',
+                'resources.updated_at',
+            ])
             ->orderByDesc('month_views');
     }
 
@@ -142,9 +177,39 @@ class Resource extends Model
     {
         return $query->join('resource_views', 'resources.Resource_ID', '=', 'resource_views.resource_id')
             ->where('resource_views.viewed_at', '>=', now()->startOfYear())
-            ->select('resources.*')
+            ->select([
+                'resources.Resource_ID',
+                'resources.Resource_Name',
+                'resources.File_Path',
+                'resources.thumbnail_path',
+                'resources.Type',
+                'resources.publish_year',
+                'resources.publish_month',
+                'resources.publish_day',
+                'resources.Uploaded_By',
+                'resources.Description',
+                'resources.status',
+                'resources.views',
+                'resources.created_at',
+                'resources.updated_at',
+            ])
             ->selectRaw('COUNT(resource_views.id) as year_views')
-            ->groupBy('resources.Resource_ID')
+            ->groupBy([
+                'resources.Resource_ID',
+                'resources.Resource_Name',
+                'resources.File_Path',
+                'resources.thumbnail_path',
+                'resources.Type',
+                'resources.publish_year',
+                'resources.publish_month',
+                'resources.publish_day',
+                'resources.Uploaded_By',
+                'resources.Description',
+                'resources.status',
+                'resources.views',
+                'resources.created_at',
+                'resources.updated_at',
+            ])
             ->orderByDesc('year_views');
     }
 

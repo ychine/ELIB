@@ -62,17 +62,12 @@
                 'iconActive' => Vite::asset('resources/images/resmgmttoggle.png'),
             ],
             [
-                'key' => 'featured',
-                'label' => 'Featured',
-                'href' => route('featured'),
+                'key' => 'librarian.roles',
+                'label' => 'Roles',
+                'href' => route('librarian.roles'),
                 'icon' => Vite::asset('resources/images/Featured.png'),
             ],
-            [
-                'key' => 'community.uploads',
-                'label' => 'Community Uploads',
-                'href' => route('community.uploads'),
-                'icon' => Vite::asset('resources/images/Member.png'),
-            ],
+
         ];
     } else {
         // Regular user
@@ -148,7 +143,11 @@
     data-logout-url="{{ route('logout') }}"
     data-role="{{ $role }}"
     data-default-expanded="false"
-></div>
+    style="position: fixed; top: 0; left: 0; height: 100vh; width: 4rem; background: #149637; z-index: 20; display: flex; align-items: center; justify-content: center;"
+>
+    <!-- Loading placeholder - shows immediately while Vue component mounts -->
+    <div style="color: white; font-size: 0.75rem; opacity: 0.7;">Loading...</div>
+</div>
 
 @if(!isset($skipVite))
     @include('partials.globalLoader')

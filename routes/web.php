@@ -1,24 +1,26 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\BorrowController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ResourceController;
-use App\Http\Controllers\HomeController; 
-use App\Http\Controllers\BorrowController;
 use App\Http\Controllers\ShelfController;
+use App\Http\Controllers\UserManagementController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/borrow/show/{id}', [App\Http\Controllers\BorrowController::class, 'showBorrow'])
-    ->name('borrow.show');
+        ->name('borrow.show');
     Route::get('/yourshelf', [ShelfController::class, 'index'])->name('yourshelf');
     Route::post('/return/{id}', [ShelfController::class, 'returnBook'])->name('return.book');
     Route::get('/view-book/{id}', [ShelfController::class, 'viewBook'])
         ->name('view.book');
-    Route::get('/viewer/{id}', function($id){
-        return view('pdf-viewer', ['id'=>$id, 'user'=>auth()->user()]);
+    Route::get('/viewer/{id}', function ($id) {
+        return view('pdf-viewer', ['id' => $id, 'user' => auth()->user()]);
     })->name('viewer');
 });
 
@@ -28,19 +30,35 @@ Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('regi
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 
 Route::get('/verify-code', [AuthController::class, 'showVerifyCode'])
-     ->name('verify.code');
+    ->name('verify.code');
 Route::post('/verify-code', [AuthController::class, 'verifyCode'])
-     ->name('verify.code.post');
+    ->name('verify.code.post');
 
-Route::post('/logout', function () {
+Route::post('/logout', function (Request $request) {
+    $user = Auth::user();
+    if ($user) {
+        // Update online status
+        $user->update(['is_online' => false]);
+
+        // Log logout
+        \App\Models\AuditLog::create([
+            'user_id' => $user->id,
+            'action' => 'logout',
+            'description' => 'User logged out',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+    }
+
     Auth::logout();
-    session()->invalidate();
-    session()->regenerateToken();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
     return redirect('/signin')->with('status', 'Logged out');
 })->name('logout');
 
 Route::middleware('auth')->group(function () {
-  
+
     Route::get('/email/verify', [Illuminate\Foundation\Auth\EmailVerificationPromptController::class, '__invoke'])
         ->name('verification.notice');
 
@@ -52,7 +70,6 @@ Route::middleware('auth')->group(function () {
         ->middleware(['signed', 'throttle:6,1'])
         ->name('verification.verify');
 
-
     /* ROOT REDIRECT */
     Route::get('/', function () {
         $user = Auth::user();
@@ -63,14 +80,17 @@ Route::middleware('auth')->group(function () {
         }
 
         if (in_array($role, ['faculty', 'student', 'librarian'])) {
-            if (!$user->is_approved) {
+            if (! $user->is_approved) {
                 Auth::logout();
+
                 return redirect('/signin')->with('error', 'Your account is pending admin approval.');
             }
+
             return redirect()->route($role === 'librarian' ? 'home.librarian' : 'home.user');
         }
 
         Auth::logout();
+
         return redirect('/signin');
     })->name('home');
 
@@ -98,7 +118,7 @@ Route::middleware('auth')->group(function () {
 
             Route::get('/audit', [AuthController::class, 'auditTrail'])->name('audit');
             Route::get('/analytics', [AuthController::class, 'resourceAnalytics'])->name('analytics');
-            
+
         });
 
     /* USER & LIBRARIAN DASHBOARDS */
@@ -108,10 +128,30 @@ Route::middleware('auth')->group(function () {
     Route::post('/borrow/request', [BorrowController::class, 'store'])->name('borrow.request');
     // NEW: Route for incrementing views
     Route::post('/resources/{resource}/view', [ResourceController::class, 'incrementView'])->name('resources.increment.view');
+    // Rating route
+    Route::post('/ratings', [App\Http\Controllers\RatingController::class, 'store'])->name('ratings.store');
 
     Route::get('/homeLibrarian', function () {
-        if (Auth::user()->role !== 'librarian') abort(403);
-        return view('homeLibrarian');
+        if (Auth::user()->role !== 'librarian') {
+            abort(403);
+        }
+
+        $user = Auth::user();
+        $pendingBorrows = \App\Models\Borrower::where('isReturned', 0)
+            ->whereNull('Approved_Date')
+            ->count();
+        $activeBorrows = \App\Models\Borrower::where('isReturned', 0)
+            ->whereNotNull('Approved_Date')
+            ->count();
+        $totalResources = \App\Models\Resource::count();
+
+        return Inertia::render('Librarian/Dashboard', [
+            'stats' => [
+                'pendingBorrows' => $pendingBorrows,
+                'activeBorrows' => $activeBorrows,
+                'totalResources' => $totalResources,
+            ],
+        ]);
     })->name('home.librarian');
 
     // Borrowers page for librarian
@@ -122,7 +162,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/borrower/{id}/details', [BorrowController::class, 'details'])->name('borrower.details');
     });
 
- 
     /* LIBRARIAN RESOURCE MANAGEMENT */
     Route::middleware(['role:librarian'])->group(function () {
         Route::get('/resource-management', [ResourceController::class, 'index'])->name('resource.management');
@@ -137,13 +176,25 @@ Route::middleware('auth')->group(function () {
 
     /* LIBRARIAN COMMUNITY UPLOADS */
     Route::get('/community-uploads', function () {
-        if (Auth::user()->role !== 'librarian') abort(403);
-        return view('communityuploads');
+        if (Auth::user()->role !== 'librarian') {
+            abort(403);
+        }
+
+        return Inertia::render('Librarian/CommunityUploads');
     })->name('community.uploads');
 
-    /* LIBRARIAN YOUR SHELF */
-    Route::get('/your-shelf', function () {
-        if (Auth::user()->role !== 'librarian') abort(403);
-        return view('yourshelf');
-    })->name('your.shelf');
+    /* LIBRARIAN ROLES MANAGEMENT */
+    Route::middleware(['role:librarian'])->group(function () {
+        Route::get('/librarian/roles', [App\Http\Controllers\RoleController::class, 'index'])->name('librarian.roles');
+    });
+
+    /* YOUR SHELF - Available to all authenticated users */
+    Route::get('/yourshelf', [ShelfController::class, 'index'])->name('yourshelf');
+
+    /* PROFILE */
+    Route::middleware('auth')->group(function () {
+        Route::post('/profile/picture', [App\Http\Controllers\ProfileController::class, 'updateProfilePicture'])->name('profile.picture.update');
+        Route::delete('/profile/picture', [App\Http\Controllers\ProfileController::class, 'removeProfilePicture'])->name('profile.picture.remove');
+        Route::post('/profile/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    });
 });

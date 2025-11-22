@@ -150,10 +150,10 @@
       </div>
       <div class="absolute inset-0 rounded-l-4xl p-10 lg:p-16 z-10">
         <div class="text-white drop-shadow-lg max-w-xl">
-          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:86.402%;letter-spacing:-4.05px;white-space:nowrap;">Bridging</h2>
-          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:86.402%;letter-spacing:-4.05px;white-space:nowrap;">knowledge from</h2>
-          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:86.402%;letter-spacing:-4.05px;white-space:nowrap;">one campus to</h2>
-          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:86.402%;letter-spacing:-4.05px;white-space:nowrap;">another</h2>
+          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">Bridging</h2>
+          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">knowledge from</h2>
+          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">one campus to</h2>
+          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">another</h2>
         </div>
         <p class="absolute kulim-park-light bottom-10 lg:bottom-16 font-semibold text-lg sm:text-xl text-white">One ISU</p>
       </div>
@@ -161,12 +161,12 @@
 
     <!-- RIGHT SIDE (FORM) -->
     <div class="relative flex flex-col h-full lg:rounded-r-4xl bg-gray-100 z-1">
-      <div class="relative z-10 flex items-center justify-between px-4 sm:px-6 lg:px-12 sm:pt-6">
+      <div class="relative z-10 flex items-center justify-between px-4 sm:px-6 lg:px-12 pt-2 sm:pt-4">
         <div class="flex-shrink-0"></div>
         <img src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" alt="ISU Logo" class="w-[3vw] h-[3vw] translate-y-2.5 sm:w-12 sm:h-12 rounded-full shadow" />
       </div>
 
-      <div class="relative z-10 flex-1 flex items-start justify-center px-4 sm:px-6 lg:px-16 pt-2 sm:pt-4">
+      <div class="relative z-10 flex-1 flex items-start justify-center px-4 sm:px-6 lg:px-16 pt-0 sm:pt-2">
         <div class="w-full max-w-md sm:max-w-lg lg:max-w-xl">
           <div class="mb-4 sm:mb-6 text-left">
             <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight flex items-center gap-2">

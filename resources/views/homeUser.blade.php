@@ -7,9 +7,11 @@
   <link rel="icon" href="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/Inter.css', 'resources/css/kulimpark.css'])
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+  @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/Inter.css', 'resources/css/kulimpark.css', 'resources/css/kantumruypro.css'])
 
   <title>Home | ISU StudyGo</title>
 
@@ -161,8 +163,13 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      font-family: 'Kantumruy Pro', sans-serif;
     }
-    .book-author { font-size: 0.8rem; color: #6b7280; }
+    .book-author { 
+      font-size: 0.8rem; 
+      color: #6b7280;
+      font-family: 'Kantumruy Pro', sans-serif;
+    }
 
     .featured-pagination {
       display: flex;
@@ -215,12 +222,13 @@
       transition: all 0.3s ease;
       font-weight: 500;
       color: #6b7280;
+      font-family: 'Kantumruy Pro', sans-serif;
     }
     .filter-tab:hover { color: #22C55E; }
     .filter-tab.active { color: #22C55E; border-bottom-color: #22C55E; }
 
     /* Community Section */
-    .community-section { flex: 0 0 30%; max-width: 30%; }
+    .community-section { width: 100%; }
     .community-item {
       display: flex;
       gap: 1rem;
@@ -242,11 +250,27 @@
       color: white;
       font-weight: bold;
       flex-shrink: 0;
+      font-family: 'Kantumruy Pro', sans-serif;
+    }
+    
+    .community-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin: 0;
+      font-family: 'Kantumruy Pro', sans-serif;
+    }
+    
+    .community-author {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin: 0.25rem 0 0;
+      font-family: 'Kantumruy Pro', sans-serif;
     }
 
     /* Responsive */
     @media (max-width: 1024px) {
-      .featured-section, .community-section { flex: 0 0 100% !important; max-width: 100%; }
+      .featured-section, .community-section { width: 100% !important; }
       .content-wrapper { flex-direction: column; }
     }
     @media (max-width: 768px) {
@@ -275,15 +299,16 @@
 <body class="bg-gray-50">
   <div class="w-full h-[100vh] flex">
 
-    <!-- Universal Sidebar -->
+    <!-- Universal Sidebar - Load First -->
     @include('partials.universalSidebar')
+    @vite(['resources/js/app.js'])
 
     <!-- Bottom Nav (Mobile) -->
     <div class="bottom-nav fixed bottom-0 left-0 w-full h-16 bg-[#149637] z-20 flex justify-around items-center shadow-lg">
-      <a href="{{ route('home.user') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/HomeToggle.png') }}" alt="Home"/><span>Home</span></a>
-      <a href="{{ route('featured') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/Featured.png') }}" alt="Featured"/><span>Featured</span></a>
-      <a href="{{ route('community.uploads') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/Member.png') }}" alt="Community"/><span>Community</span></a>
-      <a href="{{ route('yourshelf') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Shelf"/><span>Shelf</span></a>
+      <a href="{{ route('home.user') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/HomeToggle.png') }}" alt="Home" loading="lazy"/><span>Home</span></a>
+      <a href="{{ route('featured') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/Featured.png') }}" alt="Featured" loading="lazy"/><span>Featured</span></a>
+      <a href="{{ route('community.uploads') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/Member.png') }}" alt="Community" loading="lazy"/><span>Community</span></a>
+      <a href="{{ route('yourshelf') }}" class="nav-item"><img src="{{ Vite::asset('resources/images/Book Shelf.png') }}" alt="Shelf" loading="lazy"/><span>Shelf</span></a>
       <form method="POST" action="{{ route('logout') }}" class="nav-item">@csrf
         <button type="submit" class="flex flex-col items-center justify-center w-full h-full"><i class="fa-solid fa-sign-out-alt text-xl text-white"></i><span>Logout</span></button>
       </form>
@@ -291,16 +316,17 @@
 
     <!-- Navigation -->
     <div class="fixed w-full top-0 left-0 flex justify-between items-center px-4 py-2 z-10 glass-nav">
-      <span class="text-5xl jersey-20-regular pl-3 text-white"></span>
+      <span class="text-5xl pl-3 text-white kantumruy-pro-regular"></span>
       <div class="relative flex items-center">
-        <input class="searchbar pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" type="text" placeholder="Search for books, papers..">
+        <input class="searchbar pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)] kantumruy-pro-regular" type="text" placeholder="Search for books, papers..">
         <img 
           src="{{ Vite::asset('resources/images/Search.png') }}" 
           alt="Search icon" 
           class="absolute right-5 w-6 h-6"
+          loading="lazy"
         />
       </div>
-      <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
+      <div class="text-md flex space-x-4 gap-5 pr-6 kantumruy-pro-semibold text-white">
         <!-- Empty space to match admin/librarian layout -->
       </div>
     </div>
@@ -312,9 +338,10 @@
           src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" 
           alt="ISU Logo" 
           class="absolute right-0 w-15 h-15 m-7"
+          loading="lazy"
         />
         <h5 class="absolute text-white right-0 m-7 mr-10 translate-y-30 kulim-park-semibold">One ISU</h5>
-        <img src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" alt="Library" class="hero-image w-full h-full z-[-1] object-cover absolute" style="object-position: 70% middle; height: 200px;"/>
+        <img src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" alt="Library" class="hero-image w-full h-full z-[-1] object-cover absolute" style="object-position: 70% middle; height: 200px;" loading="lazy"/>
         <div class="herotext ml-30 flex relative z-2 py-8">
           <div class="column">
             <h1 style="line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 45px; text-shadow: 0 4px 4px #000; color: #FFF;">
@@ -323,8 +350,8 @@
           </div>
         </div>
 
-        <div class="px-4 lg:px-[5%] mt-4">
-          <div class="flex flex-col lg:pl-28 lg:pr-20 lg:flex-row gap-10 pt-10 content-wrapper">
+        <div class="px-4 lg:px-[5%] mt-2">
+          <div class="flex flex-col lg:pl-28 lg:pr-20 lg:flex-row gap-10 pt-4 content-wrapper">
             <!-- Featured Section -->
             <div class="featured-section" style="flex: 0 0 70%;">
               <h2 class="text-2xl sm:text-3xl font-extrabold kulim-park-bold tracking-tight mb-4">ISU Featured Resources</h2>
@@ -344,37 +371,42 @@
                   @endphp
                   <div class="book-card cursor-pointer transition-opacity duration-200" 
                         data-index="{{ $loop->index }}"
-                        data-resource="{{ json_encode($resourceData) }}">
+                        data-resource="{{ base64_encode(json_encode($resourceData)) }}"
+                        role="button"
+                        tabindex="0"
+                        onclick="event.preventDefault(); event.stopPropagation(); if(window.handleCardClick){window.handleCardClick(this);} return false;"
+                        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); if(window.handleCardClick){window.handleCardClick(this);}}">
                       <div class="book-cover bg-gray-400">
                         @if($resource->thumbnail_path && Storage::disk('public')->exists($resource->thumbnail_path))
                           <img src="{{ asset('storage/' . $resource->thumbnail_path) }}" 
                               alt="{{ $resource->Resource_Name }}" 
-                              class="w-full h-full object-cover">
+                              class="w-full h-full object-cover"
+                              loading="lazy">
                         @else
                           <span class="text-white text-4xl font-bold">{{ strtoupper(substr($resource->Resource_Name, 0, 2)) }}</span>
                         @endif
                       </div>
                       <div class="book-info">
                       <h3 class="book-title">{{ $resource->Resource_Name }}</h3>
-                      <div class="flex items-center gap-1 text-yellow-500 text-sm">
+                      <div class="flex items-center gap-1 text-yellow-500 text-sm kantumruy-pro-regular">
                         <span>★</span>
-                        <span class="text-gray-700 font-medium">{{ $resource->average_rating ?? '0.0' }}</span>
+                        <span class="text-gray-700 font-medium kantumruy-pro-regular">{{ $resource->average_rating ?? '0.0' }}</span>
                       </div>
                       <p class="book-author text-sm text-gray-600">{{ $resource->authors ?? 'Unknown Author' }}</p>
-                      <p class="text-xs text-gray-500">Published: {{ $resource->formatted_publish_date }}</p>
+                      <p class="text-xs text-gray-500 kantumruy-pro-regular">Published: {{ $resource->formatted_publish_date }}</p>
                       <div class="mt-2 flex flex-wrap gap-1">
                         @if(collect($resource->tags)->count() > 0)
                           @foreach(collect($resource->tags)->take(2) as $tag)
-                            <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">{{ $tag->name ?? $tag['name'] ?? $tag }}</span>
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full kantumruy-pro-regular">{{ $tag->name ?? $tag['name'] ?? $tag }}</span>
                           @endforeach
                         @else
-                          <span class="text-xs text-gray-400">No tags</span>
+                          <span class="text-xs text-gray-400 kantumruy-pro-regular">No tags</span>
                         @endif
                       </div>
                     </div>
                   </div>
                 @empty
-                  <div class="col-span-full text-center py-12 text-gray-500">No featured resources available.</div>
+                  <div class="col-span-full text-center py-12 text-gray-500 kantumruy-pro-regular">No featured resources available.</div>
                 @endforelse
                 
                 <!-- View More Button -->
@@ -398,7 +430,7 @@
                   <div class="bg-white rounded-lg p-4 shadow-lg">
                     <div class="flex flex-wrap gap-2">
                       @foreach($popularTags as $tag)
-                        <span class="text-xs bg-green-100 text-green-800 px-3 py-1.5 rounded-full font-medium hover:bg-green-200 transition-colors cursor-pointer">
+                        <span class="text-xs bg-green-100 text-green-800 px-3 py-1.5 rounded-full font-medium hover:bg-green-200 transition-colors cursor-pointer kantumruy-pro-regular">
                           {{ $tag->name }}
                         </span>
                       @endforeach
@@ -420,7 +452,7 @@
                     </div>
                   </a>
                 @empty
-                  <div class="text-center py-8 text-gray-500">No community uploads yet.</div>
+                  <div class="text-center py-8 text-gray-500 kantumruy-pro-regular">No community uploads yet.</div>
                 @endforelse
               </div>
               </div>
@@ -433,9 +465,9 @@
 
   @include('partials.borrowModal')
 
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <script>
+  <script defer>
     function initGlassNavScroll() {
       const nav = document.querySelector('.glass-nav');
       if (!nav) return;
@@ -481,8 +513,41 @@
     }
   </script>
   <script>
+    // Global card click handler - must be defined before defer scripts
+    window.handleCardClick = function(cardElement) {
+      try {
+        const resourceData = cardElement.dataset.resource;
+        if (resourceData) {
+          // Try base64 decode first, then JSON parse
+          let resource;
+          try {
+            // Try base64 decode
+            const decoded = atob(resourceData);
+            resource = JSON.parse(decoded);
+          } catch (e) {
+            // Fallback to direct JSON parse
+            resource = JSON.parse(resourceData);
+          }
+          if (window.openBorrowModal) {
+            window.openBorrowModal(resource);
+          } else {
+            console.error('openBorrowModal not available');
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing resource data:', error, 'Data:', cardElement.dataset.resource?.substring(0, 100));
+      }
+    };
+
     // Modal Functions
-    function openBorrowModal(resource) {
+    window.openBorrowModal = function(resource) {
+      console.log('Opening borrow modal for resource:', resource);
+      const modal = document.getElementById('borrowModal');
+      if (!modal) {
+        console.error('Borrow modal element not found!');
+        return;
+      }
+      
       document.getElementById('modalTitle').textContent = resource.Resource_Name;
       document.getElementById('modalRating').innerHTML = '★ ' + (resource.average_rating || '0.0');
       document.getElementById('modalAuthor').textContent = Array.isArray(resource.authors) ? resource.authors.map(a => a.name).join(', ') : (resource.authors || 'Unknown Author');
@@ -552,12 +617,28 @@
       })
       .catch(error => console.error('Error incrementing views:', error));
 
-      document.getElementById('borrowModal').classList.remove('hidden');
-    }
+      // Show the modal
+      const modalEl = document.getElementById('borrowModal');
+      if (modalEl) {
+        modalEl.classList.remove('hidden');
+        modalEl.style.display = 'flex';
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+        console.log('Modal should now be visible');
+      } else {
+        console.error('Borrow modal element not found!');
+      }
+    };
 
-    function closeBorrowModal() {
-      document.getElementById('borrowModal').classList.add('hidden');
-    }
+    window.closeBorrowModal = function() {
+      const modalEl = document.getElementById('borrowModal');
+      if (modalEl) {
+        modalEl.classList.add('hidden');
+        modalEl.style.display = 'none';
+        // Restore body scroll
+        document.body.style.overflow = '';
+      }
+    };
 
     // Prevent tab clicks from bubbling up to card listeners
     const filterTabsWrapper = document.querySelector('.filter-tabs');
@@ -567,111 +648,89 @@
       });
     }
 
-    document.getElementById('borrowModal').addEventListener('click', function (e) {
-      if (e.target === this) closeBorrowModal();
-    });
-
-    function initFeaturedPagination() {
-      const paginationWrapper = document.getElementById('featuredPagination');
-      const prevButton = document.getElementById('featuredPrev');
-      const nextButton = document.getElementById('featuredNext');
-      const indicator = document.getElementById('featuredPageIndicator');
-      const booksGrid = document.querySelector('.books-grid');
-      const bookCards = Array.from(document.querySelectorAll('.books-grid .book-card'));
-
-      if (!bookCards.length || !paginationWrapper) return;
-
-      bookCards.forEach(card => {
-        card.dataset.visible = 'false';
-        card.style.display = 'none';
-        card.addEventListener('click', function () {
-          const resource = JSON.parse(this.dataset.resource);
-          openBorrowModal(resource);
+    // Wait for modal to exist before adding listener
+    function setupModalClose() {
+      const borrowModal = document.getElementById('borrowModal');
+      if (borrowModal) {
+        borrowModal.addEventListener('click', function (e) {
+          if (e.target === this) window.closeBorrowModal();
         });
-      });
-
-      const rowsPerPage = 2;
-      const columnsForPage = () => {
-        if (window.innerWidth >= 1280) return 4;
-        if (window.innerWidth >= 1024) return 3;
-        if (window.innerWidth >= 768) return 2;
-        return 1;
-      };
-      const computeCardsPerPage = () => columnsForPage() * rowsPerPage;
-
-      let cardsPerPage = computeCardsPerPage();
-      let currentFeaturedPage = 0;
-      let featuredTotalPages = Math.max(1, Math.ceil(bookCards.length / cardsPerPage));
-
-      const setCardVisibility = (card, shouldShow) => {
-        if (shouldShow) {
-          if (card.dataset.visible === 'true') return;
-          card.style.display = '';
-          requestAnimationFrame(() => {
-            card.dataset.visible = 'true';
-          });
-        } else {
-          if (card.dataset.visible === 'false') return;
-          const handle = () => {
-            card.style.display = 'none';
-            card.removeEventListener('transitionend', handle);
-          };
-          card.addEventListener('transitionend', handle);
-          card.dataset.visible = 'false';
-          setTimeout(handle, 450);
-        }
-      };
-
-      const renderPage = (pageIndex = currentFeaturedPage) => {
-        cardsPerPage = computeCardsPerPage();
-        featuredTotalPages = Math.max(1, Math.ceil(bookCards.length / cardsPerPage));
-
-        currentFeaturedPage = Math.min(pageIndex, featuredTotalPages - 1);
-        currentFeaturedPage = Math.max(currentFeaturedPage, 0);
-
-        const start = currentFeaturedPage * cardsPerPage;
-        const end = start + cardsPerPage;
-
-        bookCards.forEach((card, index) => {
-          setCardVisibility(card, index >= start && index < end);
-        });
-
-        const hidePagination = featuredTotalPages <= 1;
-        paginationWrapper.classList.toggle('hidden', hidePagination);
-
-        if (!hidePagination && indicator) {
-          indicator.textContent = `${currentFeaturedPage + 1} / ${featuredTotalPages}`;
-          if (prevButton) prevButton.disabled = currentFeaturedPage === 0;
-          if (nextButton) nextButton.disabled = currentFeaturedPage === featuredTotalPages - 1;
-        }
-      };
-
-      prevButton?.addEventListener('click', () => {
-        if (currentFeaturedPage > 0) {
-          renderPage(currentFeaturedPage - 1);
-        }
-      });
-
-      nextButton?.addEventListener('click', () => {
-        if (currentFeaturedPage < featuredTotalPages - 1) {
-          renderPage(currentFeaturedPage + 1);
-        }
-      });
-
-      let resizeTimeout;
-      window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => renderPage(currentFeaturedPage), 150);
-      });
-
-      renderPage(0);
+      } else {
+        setTimeout(setupModalClose, 100);
+      }
     }
-
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initFeaturedPagination);
+      document.addEventListener('DOMContentLoaded', setupModalClose);
     } else {
-      initFeaturedPagination();
+      setupModalClose();
     }
+
+    // Ensure all cards are clickable - no pagination needed since all cards are visible
+    function initCardHandlers() {
+      const bookCards = document.querySelectorAll('.book-card[data-resource]');
+      bookCards.forEach(card => {
+        // Ensure card is visible and clickable
+        card.style.display = '';
+        card.dataset.visible = 'true';
+        card.style.cursor = 'pointer';
+        
+        // Remove any existing click listeners
+        const newCard = card.cloneNode(true);
+        card.parentNode.replaceChild(newCard, card);
+        
+        // Add proper event listener with strong prevention
+        newCard.setAttribute('data-handler-attached', 'true');
+        newCard.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          
+          try {
+            const resourceData = this.dataset.resource;
+            if (resourceData) {
+              // Try base64 decode first, then JSON parse
+              let resource;
+              try {
+                // Try base64 decode
+                const decoded = atob(resourceData);
+                resource = JSON.parse(decoded);
+              } catch (e) {
+                // Fallback to direct JSON parse
+                resource = JSON.parse(resourceData);
+              }
+              if (window.openBorrowModal) {
+                window.openBorrowModal(resource);
+              } else {
+                console.error('openBorrowModal not available', window);
+              }
+        } else {
+              console.error('Resource data not found on card');
+            }
+          } catch (error) {
+            console.error('Error handling card click:', error, 'Data:', resourceData?.substring(0, 100));
+          }
+          
+          return false;
+        }, true); // Use capture phase to catch early
+        
+        // Also prevent any default link behavior
+        newCard.addEventListener('mousedown', function(e) {
+          e.preventDefault();
+          return false;
+        });
+      });
+    }
+
+    // Initialize card handlers immediately and on DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(initCardHandlers, 50);
+      });
+    } else {
+      setTimeout(initCardHandlers, 50);
+    }
+  </script>
+  <script defer>
 
     // Sidebar Toggle
     const sidebar = document.querySelector('.sidebar');

@@ -7,9 +7,11 @@
   <link rel="icon" href="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/Inter.css', 'resources/css/kulimpark.css'])
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+  @vite(['resources/css/app.css', 'resources/css/output.css', 'resources/css/Inter.css', 'resources/css/kulimpark.css', 'resources/css/kantumruypro.css'])
 
   <title>Featured Resources | ISU StudyGo</title>
 
@@ -151,22 +153,24 @@
   <div class="w-full h-[100vh] flex">
     <!-- Navigation -->
     <div class="fixed w-full top-0 left-0 flex justify-between items-center px-4 py-2 z-10 glass-nav">
-      <span class="text-5xl jersey-20-regular pl-3 text-white"></span>
+      <span class="text-5xl pl-3 text-white kantumruy-pro-regular"></span>
       <div class="relative flex items-center">
-        <input class="searchbar pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" type="text" placeholder="Search for books, papers..">
+        <input class="searchbar pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)] kantumruy-pro-regular" type="text" placeholder="Search for books, papers..">
         <img 
           src="{{ Vite::asset('resources/images/Search.png') }}" 
           alt="Search icon" 
           class="absolute right-5 w-6 h-6"
         />
       </div>
-      <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
+      <div class="text-md flex space-x-4 gap-5 pr-6 kantumruy-pro-semibold text-white">
       </div>
     </div>
 
+    <!-- Universal Sidebar - Load First -->
     @include('partials.universalSidebar')
+    @vite(['resources/js/app.js'])
 
-    <div class="flex bg-gray-200 flex-col flex-1 transition-all duration-300 main-content">
+    <div class="flex bg-gray-50 flex-col flex-1 transition-all duration-300 main-content">
       <div class="hero-container relative w-full greenhue z-1" style="min-height: 200px;">
         <img 
           src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" 
@@ -183,8 +187,8 @@
           </div>
         </div>
 
-        <div class="px-4 lg:px-[5%] mt-4">
-          <div class="flex flex-col lg:pl-28 lg:pr-20 pt-10 content-wrapper">
+        <div class="px-4 lg:px-[5%] mt-2">
+          <div class="flex flex-col lg:pl-28 lg:pr-20 pt-4 content-wrapper">
             <!-- Featured Section -->
             <div class="featured-section w-full">
               <h2 class="text-2xl sm:text-3xl font-extrabold kulim-park-bold tracking-tight mb-4">Featured Resources</h2>
@@ -202,12 +206,17 @@
                     $resourceData = $resource->toArray();
                     $resourceData['is_borrowed'] = $resource->is_borrowed ?? false;
                   @endphp
-                  <a href="{{ route('resources.view', $resource->Resource_ID) }}" class="book-card cursor-pointer transition-opacity duration-200">
+                  <div class="book-card cursor-pointer transition-opacity duration-200" 
+                        data-resource="{{ base64_encode(json_encode($resourceData)) }}"
+                        role="button"
+                        tabindex="0"
+                        onclick="event.preventDefault(); event.stopPropagation(); if(window.handleCardClick){window.handleCardClick(this);} return false;">
                     <div class="book-cover bg-gray-400">
                       @if($resource->thumbnail_path && Storage::disk('public')->exists($resource->thumbnail_path))
                         <img src="{{ asset('storage/' . $resource->thumbnail_path) }}" 
                             alt="{{ $resource->Resource_Name }}" 
-                            class="w-full h-full object-cover">
+                            class="w-full h-full object-cover"
+                            loading="lazy">
                       @else
                         <span class="text-white text-4xl font-bold">{{ strtoupper(substr($resource->Resource_Name, 0, 2)) }}</span>
                       @endif
@@ -230,7 +239,7 @@
                         @endif
                       </div>
                     </div>
-                  </a>
+                  </div>
                 @empty
                   <div class="col-span-full text-center py-12 text-gray-500">No featured resources available.</div>
                 @endforelse
@@ -284,8 +293,199 @@
       initGlassNavScroll();
     }
   </script>
+  @include('partials.borrowModal')
+  <script>
+    // Global card click handler - must be defined before defer scripts
+    window.handleCardClick = function(cardElement) {
+      try {
+        const resourceData = cardElement.dataset.resource;
+        if (resourceData) {
+          // Try base64 decode first, then JSON parse
+          let resource;
+          try {
+            // Try base64 decode
+            const decoded = atob(resourceData);
+            resource = JSON.parse(decoded);
+          } catch (e) {
+            // Fallback to direct JSON parse
+            resource = JSON.parse(resourceData);
+          }
+          if (window.openBorrowModal) {
+            window.openBorrowModal(resource);
+          } else {
+            console.error('openBorrowModal not available');
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing resource data:', error, 'Data:', cardElement.dataset.resource?.substring(0, 100));
+      }
+    };
+
+    // Modal Functions
+    window.openBorrowModal = function(resource) {
+      console.log('Opening borrow modal for resource:', resource);
+      const modal = document.getElementById('borrowModal');
+      if (!modal) {
+        console.error('Borrow modal element not found!');
+        return;
+      }
+      
+      document.getElementById('modalTitle').textContent = resource.Resource_Name;
+      document.getElementById('modalRating').innerHTML = '★ ' + (resource.average_rating || '0.0');
+      document.getElementById('modalAuthor').textContent = Array.isArray(resource.authors) ? resource.authors.map(a => a.name).join(', ') : (resource.authors || 'Unknown Author');
+      document.getElementById('modalPublished').textContent = resource.formatted_publish_date || 'N/A';
+      document.getElementById('modalResourceId').value = resource.Resource_ID;
+      document.getElementById('modalDescription').textContent = resource.Description || 'No description available.';
+      document.getElementById('modalViews').textContent = (resource.views || 0) + ' views';
+      
+      // Handle thumbnail
+      const thumbnailImg = document.getElementById('modalThumbnail');
+      const thumbnailPlaceholder = document.getElementById('modalThumbnailPlaceholder');
+      
+      if (resource.thumbnail_path) {
+        thumbnailImg.src = '/storage/' + resource.thumbnail_path;
+        thumbnailImg.classList.remove('hidden');
+        thumbnailPlaceholder.classList.add('hidden');
+      } else {
+        thumbnailImg.classList.add('hidden');
+        thumbnailPlaceholder.classList.remove('hidden');
+        thumbnailPlaceholder.textContent = resource.Resource_Name.substring(0, 2).toUpperCase();
+      }
+
+      const tagsContainer = document.getElementById('modalTags');
+      tagsContainer.innerHTML = '';
+      if (resource.tags && resource.tags.length) {
+        resource.tags.forEach(tag => {
+          const span = document.createElement('span');
+          span.className = 'text-xs bg-green-100 text-green-800 px-3 py-1 rounded-full';
+          span.textContent = tag.name;
+          tagsContainer.appendChild(span);
+        });
+      } else {
+        tagsContainer.innerHTML = '<span class="text-gray-500 text-sm">No tags</span>';
+      }
+
+      // Handle borrow button state
+      const borrowButton = document.getElementById('borrowButton');
+      const borrowForm = document.getElementById('borrowForm');
+      const alreadyBorrowedMessage = document.getElementById('alreadyBorrowedMessage');
+      
+      if (resource.is_borrowed) {
+        borrowForm.classList.add('hidden');
+        alreadyBorrowedMessage.classList.remove('hidden');
+        borrowButton.disabled = true;
+      } else {
+        borrowForm.classList.remove('hidden');
+        alreadyBorrowedMessage.classList.add('hidden');
+        borrowButton.disabled = false;
+      }
+
+      // Increment views via AJAX
+      const incrementUrl = '{{ route("resources.increment.view", "placeholder") }}'.replace('placeholder', resource.Resource_ID);
+      fetch(incrementUrl, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': '{{ csrf_token() }}',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({})
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          let viewsElem = document.getElementById('modalViews');
+          viewsElem.textContent = data.views + ' views';
+        }
+      })
+      .catch(error => console.error('Error incrementing views:', error));
+
+      // Show the modal
+      const modalEl = document.getElementById('borrowModal');
+      if (modalEl) {
+        modalEl.classList.remove('hidden');
+        modalEl.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+    };
+
+    window.closeBorrowModal = function() {
+      const modalEl = document.getElementById('borrowModal');
+      if (modalEl) {
+        modalEl.classList.add('hidden');
+        modalEl.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    };
+
+    // Setup modal close on backdrop click
+    function setupModalClose() {
+      const borrowModal = document.getElementById('borrowModal');
+      if (borrowModal) {
+        borrowModal.addEventListener('click', function (e) {
+          if (e.target === this) window.closeBorrowModal();
+        });
+      } else {
+        setTimeout(setupModalClose, 100);
+      }
+    }
+    setupModalClose();
+
+    // Initialize card handlers
+    function initCardHandlers() {
+      const bookCards = document.querySelectorAll('.book-card[data-resource]');
+      bookCards.forEach(card => {
+        card.style.display = '';
+        card.dataset.visible = 'true';
+        card.style.cursor = 'pointer';
+        
+        const newCard = card.cloneNode(true);
+        card.parentNode.replaceChild(newCard, card);
+        
+        newCard.setAttribute('data-handler-attached', 'true');
+        newCard.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          
+          try {
+            const resourceData = this.dataset.resource;
+            if (resourceData) {
+              let resource;
+              try {
+                const decoded = atob(resourceData);
+                resource = JSON.parse(decoded);
+              } catch (e) {
+                resource = JSON.parse(resourceData);
+              }
+              if (window.openBorrowModal) {
+                window.openBorrowModal(resource);
+              }
+            }
+          } catch (error) {
+            console.error('Error handling card click:', error);
+          }
+          
+          return false;
+        }, true);
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(initCardHandlers, 50);
+      });
+    } else {
+      setTimeout(initCardHandlers, 50);
+    }
+  </script>
   @include('partials.globalLoader')
 </body>
 </html>
+
+
+
+
+
 
 

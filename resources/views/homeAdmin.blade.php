@@ -153,7 +153,7 @@
       <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
         <!-- Role badge removed -->
       </div>
-    </div>
+    </div> 
     
     <!-- Universal Sidebar -->
     @include('partials.universalSidebar')
@@ -219,10 +219,10 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600 kulim-park-regular mb-1">Total Resources</p>
-                <p class="text-3xl font-bold text-blue-700 kulim-park-bold">{{ $totalResources ?? 0 }}</p>
+                <p class="text-3xl font-bold text-green-700 kulim-park-bold">{{ $totalResources ?? 0 }}</p>
               </div>
-              <div class="bg-blue-100 rounded-full p-3">
-                <i class="fas fa-book text-blue-700 text-2xl"></i>
+              <div class="bg-green-100 rounded-full p-3">
+                <i class="fas fa-book text-green-700 text-2xl"></i>
               </div>
             </div>
           </div>

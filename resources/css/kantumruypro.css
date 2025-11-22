@@ -12,6 +12,13 @@
   font-style: normal;
 }
 
+.kantumruy-pro-semibold {
+  font-family: "Kantumruy Pro", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
 .kantumruy-pro-bold {
   font-family: "Kantumruy Pro", sans-serif;
   font-optical-sizing: auto;

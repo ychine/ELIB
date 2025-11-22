@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\LibrarianPosition;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -24,39 +23,39 @@ class UserManagementController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('email', 'like', "%{$search}%")
-                  ->orWhereExists(function ($sub) use ($search) {
-                      $sub->select(DB::raw(1))
-                          ->from('admin')
-                          ->whereColumn('admin.UID', 'users.id')
-                          ->where(fn($s) => $s->where('First_Name', 'like', "%{$search}%")
-                                             ->orWhere('Last_Name', 'like', "%{$search}%"));
-                  })
-                  ->orWhereExists(function ($sub) use ($search) {
-                      $sub->select(DB::raw(1))
-                          ->from('librarian')
-                          ->whereColumn('librarian.UID', 'users.id')
-                          ->where(fn($s) => $s->where('First_Name', 'like', "%{$search}%")
-                                             ->orWhere('Last_Name', 'like', "%{$search}%"));
-                  })
-                  ->orWhereExists(function ($sub) use ($search) {
-                      $sub->select(DB::raw(1))
-                          ->from('student')
-                          ->whereColumn('student.UID', 'users.id')
-                          ->where(fn($s) => $s->where('First_Name', 'like', "%{$search}%")
-                                             ->orWhere('Last_Name', 'like', "%{$search}%"));
-                  })
-                  ->orWhereExists(function ($sub) use ($search) {
-                      $sub->select(DB::raw(1))
-                          ->from('faculty')
-                          ->whereColumn('faculty.UID', 'users.id')
-                          ->where(fn($s) => $s->where('First_Name', 'like', "%{$search}%")
-                                             ->orWhere('Last_Name', 'like', "%{$search}%"));
-                  });
+                    ->orWhereExists(function ($sub) use ($search) {
+                        $sub->select(DB::raw(1))
+                            ->from('admin')
+                            ->whereColumn('admin.UID', 'users.id')
+                            ->where(fn ($s) => $s->where('First_Name', 'like', "%{$search}%")
+                                ->orWhere('Last_Name', 'like', "%{$search}%"));
+                    })
+                    ->orWhereExists(function ($sub) use ($search) {
+                        $sub->select(DB::raw(1))
+                            ->from('librarian')
+                            ->whereColumn('librarian.UID', 'users.id')
+                            ->where(fn ($s) => $s->where('First_Name', 'like', "%{$search}%")
+                                ->orWhere('Last_Name', 'like', "%{$search}%"));
+                    })
+                    ->orWhereExists(function ($sub) use ($search) {
+                        $sub->select(DB::raw(1))
+                            ->from('student')
+                            ->whereColumn('student.UID', 'users.id')
+                            ->where(fn ($s) => $s->where('First_Name', 'like', "%{$search}%")
+                                ->orWhere('Last_Name', 'like', "%{$search}%"));
+                    })
+                    ->orWhereExists(function ($sub) use ($search) {
+                        $sub->select(DB::raw(1))
+                            ->from('faculty')
+                            ->whereColumn('faculty.UID', 'users.id')
+                            ->where(fn ($s) => $s->where('First_Name', 'like', "%{$search}%")
+                                ->orWhere('Last_Name', 'like', "%{$search}%"));
+                    });
             });
         }
 
         if ($campus) {
-            $query->where('Campus_ID', (int)$campus);
+            $query->where('Campus_ID', (int) $campus);
         }
 
         $query->with([
@@ -64,7 +63,7 @@ class UserManagementController extends Controller
             'librarian:UID,First_Name,Last_Name,position_id',
             'librarian.position:permissions,name',
             'student:UID,First_Name,Last_Name',
-            'faculty:UID,First_Name,Last_Name'
+            'faculty:UID,First_Name,Last_Name',
         ]);
 
         $query->where('is_approved', 1);
@@ -78,15 +77,19 @@ class UserManagementController extends Controller
 
         $users->getCollection()->each(function ($user) {
             $profile = match ($user->role) {
-                'admin'     => $user->admin,
+                'admin' => $user->admin,
                 'librarian' => $user->librarian,
-                'student'   => $user->student,
-                'faculty'   => $user->faculty,
-                default     => null,
+                'student' => $user->student,
+                'faculty' => $user->faculty,
+                default => null,
             };
             $user->full_name = $profile
-                ? trim($profile->First_Name . ' ' . $profile->Last_Name)
+                ? trim($profile->First_Name.' '.$profile->Last_Name)
                 : 'N/A';
+            // Add last login and online status
+            $user->last_login_formatted = $user->last_login_at
+                ? $user->last_login_at->format('M d, Y h:i A')
+                : 'Never';
         });
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -101,23 +104,23 @@ class UserManagementController extends Controller
         $user = User::findOrFail($id);
 
         $profile = match ($user->role) {
-            'admin'     => $user->admin,
+            'admin' => $user->admin,
             'librarian' => $user->librarian,
-            'student'   => $user->student,
-            'faculty'   => $user->faculty,
-            default     => null,
+            'student' => $user->student,
+            'faculty' => $user->faculty,
+            default => null,
         };
 
         $position = $user->role === 'librarian' ? $user->librarian?->position : null;
 
         return response()->json([
-            'first_name'   => $profile?->First_Name ?? '',
-            'last_name'    => $profile?->Last_Name ?? '',
-            'email'        => $user->email,
-            'role'         => $user->role,
-            'campus_id'    => $user->Campus_ID,
-            'is_approved'  => $user->is_approved,
-            'position_id'  => $position?->id ?? '',
+            'first_name' => $profile?->First_Name ?? '',
+            'last_name' => $profile?->Last_Name ?? '',
+            'email' => $user->email,
+            'role' => $user->role,
+            'campus_id' => $user->Campus_ID,
+            'is_approved' => $user->is_approved,
+            'position_id' => $position?->id ?? '',
         ]);
     }
 
@@ -127,31 +130,36 @@ class UserManagementController extends Controller
 
         $request->validate([
             'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255',
-            'email'      => 'required|email|unique:users,email,' . $id,
-            'role'       => 'required|in:admin,librarian,student,faculty',
-            'campus_id'  => 'nullable|exists:campus,Campus_ID',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$id,
+            'role' => 'required|in:admin,librarian,student,faculty',
+            'campus_id' => 'nullable|exists:campus,Campus_ID',
             'position_id' => 'nullable|exists:librarian_positions,id',
         ]);
 
         $user->update([
-            'email'       => $request->email,
-            'role'        => $request->role,
-            'Campus_ID'   => $request->campus_id,
+            'email' => $request->email,
+            'role' => $request->role,
+            'Campus_ID' => $request->campus_id,
             'is_approved' => $request->is_approved ? 1 : 0,
         ]);
 
         $profileModel = match ($request->role) {
-            'admin'     => \App\Models\Admin::class,
+            'admin' => \App\Models\Admin::class,
             'librarian' => \App\Models\Librarian::class,
-            'student'   => \App\Models\Student::class,
-            'faculty'   => \App\Models\Faculty::class,
+            'student' => \App\Models\Student::class,
+            'faculty' => \App\Models\Faculty::class,
         };
 
         $profileData = [
             'First_Name' => $request->first_name,
-            'Last_Name'  => $request->last_name,
+            'Last_Name' => $request->last_name,
         ];
+
+        // Update librarian position if provided
+        if ($request->role === 'librarian' && $request->has('position_id')) {
+            $profileData['position_id'] = $request->position_id;
+        }
 
         if ($request->role === 'librarian' && $request->has('position_id')) {
             \App\Models\Librarian::where('UID', $user->id)->update(['position_id' => $request->position_id]);
@@ -170,10 +178,10 @@ class UserManagementController extends Controller
         $user = User::findOrFail($id);
 
         match ($user->role) {
-            'admin'     => $user->admin?->delete(),
+            'admin' => $user->admin?->delete(),
             'librarian' => $user->librarian?->delete(),
-            'student'   => $user->student?->delete(),
-            'faculty'   => $user->faculty?->delete(),
+            'student' => $user->student?->delete(),
+            'faculty' => $user->faculty?->delete(),
         };
 
         $user->delete();

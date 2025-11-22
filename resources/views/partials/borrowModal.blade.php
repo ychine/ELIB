@@ -59,7 +59,7 @@
 
                 <!-- Buttons (Exact: Green + white, perfect spacing) -->
                 <div class="flex gap-4 justify-end pt-4 border-t border-gray-200">
-                    <button type="button" onclick="closeBorrowModal()"
+                    <button type="button" onclick="if(window.closeBorrowModal){window.closeBorrowModal();}else{closeBorrowModal();}"
                             class="px-8 py-3 bg-white text-gray-700 border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all font-medium text-sm shadow-sm">
                         Cancel
                     </button>

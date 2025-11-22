@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="icon" href="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet"></noscript>
   @vite(['resources/css/app.css', 'resources/css/kulimpark.css', 'resources/css/Inter.css', 'resources/css/kantumruypro.css'])
 
   <title>User Management | ISU StudyGo</title>
@@ -33,13 +35,19 @@
     .glass-nav.scrolled::before { content:''; position:absolute; inset:0; background-position:50% center; background-size:cover; filter:blur(8px); -webkit-filter:blur(8px); z-index:-1; }
     .searchbar { background:rgba(217,217,217,1); color:#000; transition:all .3s ease; }
 
-    /* Modal */
-    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:50; justify-content:center; align-items:center; }
+    /* Modal - Consistent with other modals */
+    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:50; justify-content:center; align-items:center; backdrop-filter:blur(4px); }
     .modal.active { display:flex; }
-    .modal-content { background:white; border-radius:12px; width:90%; max-width:600px; max-height:90vh; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.3); }
+    .modal-content { background:white; border-radius:1rem; width:90%; max-width:600px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); }
     .modal-header { padding:1.5rem; border-bottom:1px solid #e5e7eb; }
+    .modal-header h3 { font-family:'Kulim Park', sans-serif; font-weight:700; }
     .modal-body { padding:1.5rem; }
-    .modal-footer { padding:1rem 1.5rem; border-top:1px solid #e5e7eb; display:flex; justify-content:flex-end; gap:0.5rem; }
+    .modal-footer { padding:1rem 1.5rem; border-top:1px solid #e5e7eb; display:flex; justify-content:flex-end; gap:1rem; }
+    .modal-footer button { transition:all 0.2s; font-weight:500; }
+    .modal-content::-webkit-scrollbar { width:4px; }
+    .modal-content::-webkit-scrollbar-track { background:transparent; }
+    .modal-content::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:2px; }
+    .modal-content::-webkit-scrollbar-thumb:hover { background:#9ca3af; }
 
     /* Accordion */
     .accordion-header { background: #f3f4f6; padding: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-family: 'Kantumruy Pro', sans-serif; }
@@ -68,25 +76,26 @@
     <span class="text-5xl jersey-20-regular pl-3 text-white"></span>
     <div class="relative flex items-center">
       <input class="searchbar pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" type="text" placeholder="Search for books, papers..">
-      <img src="{{ Vite::asset('resources/images/Search.png') }}" alt="Search" class="absolute right-5 w-6 h-6">
+      <img src="{{ Vite::asset('resources/images/Search.png') }}" alt="Search" class="absolute right-5 w-6 h-6" loading="lazy">
     </div>
     <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
       <span class="bg-green-800 rounded-3xl px-3 py-1 border-2 border-amber-400 text-[13px] kantumruy-pro-regular">ADMIN</span>
     </div>
   </div>
 
-  <!-- Universal Sidebar -->
+  <!-- Universal Sidebar - Load First -->
   @include('partials.universalSidebar')
+  @vite(['resources/js/app.js'])
 
   <!-- MAIN CONTENT -->
   <div class="flex bg-gray-200 flex-col flex-1 transition-all duration-300 main-content">
     <div class="hero-container relative w-full greenhue z-1">
-      <img src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" alt="ISU Logo" class="absolute right-0 w-15 h-15 m-7">
+      <img src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" alt="ISU Logo" class="absolute right-0 w-15 h-15 m-7" loading="lazy">
       <h5 class="absolute text-white right-0 m-7 mr-10 translate-y-30 kulim-park-semibold">One ISU</h5>
-      <img src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" alt="Library" class="w-full h-50 z-[-1] object-cover absolute" style="object-position:70% middle;">
+      <img src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" alt="Library" class="w-full h-50 z-[-1] object-cover absolute" style="object-position:70% middle;" loading="lazy">
       <div class="herotext h-50 ml-30 flex relative z-2">
         <div class="column">
-          <h1 style="transform:translateY(50%); line-height:86.402%; font-family:'Kulim Park',sans-serif; font-weight:600; letter-spacing:-1.3px; font-size:45px; text-shadow:0 4px 4px #000; color:#FFF;">
+          <h1 style="transform:translateY(35%); line-height:86.402%; font-family:'Kulim Park',sans-serif; font-weight:600; letter-spacing:-1.3px; font-size:45px; text-shadow:0 4px 4px #000; color:#FFF;">
             Bridging knowledge <br>from one campus <br>to another
           </h1>
         </div>
@@ -115,19 +124,19 @@
         <!-- TABS NAVIGATION -->
         <ul class="flex flex-wrap border-b border-gray-200 mb-6">
           <li class="mr-1">
-            <a href="{{ route('admin.users') }}" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') !== 'librarian' && request('role') !== 'admin' && request('role') !== 'faculty' && request('role') !== 'student' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">All</a>
+            <a href="{{ route('admin.users') }}" onclick="handleTabClick(event, '{{ route('admin.users') }}');" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') !== 'librarian' && request('role') !== 'admin' && request('role') !== 'faculty' && request('role') !== 'student' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">All</a>
           </li>
           <li class="mr-1">
-            <a href="{{ route('admin.users', ['role' => 'librarian']) }}" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') === 'librarian' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">Librarians & Roles</a>
+            <a href="{{ route('admin.users', ['role' => 'librarian']) }}" onclick="handleTabClick(event, '{{ route('admin.users', ['role' => 'librarian']) }}');" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') === 'librarian' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">Librarians & Roles</a>
           </li>
           <li class="mr-1">
-            <a href="{{ route('admin.users', ['role' => 'admin']) }}" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') === 'admin' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">Administrators</a>
+            <a href="{{ route('admin.users', ['role' => 'admin']) }}" onclick="handleTabClick(event, '{{ route('admin.users', ['role' => 'admin']) }}');" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') === 'admin' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">Administrators</a>
           </li>
           <li class="mr-1">
-            <a href="{{ route('admin.users', ['role' => 'faculty']) }}" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') === 'faculty' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">Faculty</a>
+            <a href="{{ route('admin.users', ['role' => 'faculty']) }}" onclick="handleTabClick(event, '{{ route('admin.users', ['role' => 'faculty']) }}');" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') === 'faculty' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">Faculty</a>
           </li>
           <li class="mr-1">
-            <a href="{{ route('admin.users', ['role' => 'student']) }}" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') === 'student' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">Students</a>
+            <a href="{{ route('admin.users', ['role' => 'student']) }}" onclick="handleTabClick(event, '{{ route('admin.users', ['role' => 'student']) }}');" class="tab-link inline-block py-2 px-4 font-semibold {{ request('role') === 'student' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-700' }}">Students</a>
           </li>
         </ul>
 
@@ -279,8 +288,45 @@
     </form>
   </div>
 </div>
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-<script>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous" defer></script>
+<script defer>
+  // Handle tab clicks - use AJAX for faster loading
+  function handleTabClick(event, url) {
+    event.preventDefault();
+    // Update URL without reload
+    window.history.pushState({}, '', url);
+    // Extract role from URL
+    const urlObj = new URL(url, window.location.origin);
+    const role = urlObj.searchParams.get('role') || '';
+    // Update active tab styling
+    document.querySelectorAll('.tab-link').forEach(link => {
+      link.classList.remove('text-green-600', 'border-b-2', 'border-green-600');
+      link.classList.add('text-gray-500');
+    });
+    event.target.classList.remove('text-gray-500');
+    event.target.classList.add('text-green-600', 'border-b-2', 'border-green-600');
+    // Fetch table via AJAX
+    const search = document.getElementById('searchInput').value;
+    const campus = document.getElementById('campusFilter').value;
+    const fetchUrl = new URL('/admin/users', window.location.origin);
+    if (role) fetchUrl.searchParams.set('role', role);
+    if (search) fetchUrl.searchParams.set('search', search);
+    if (campus) fetchUrl.searchParams.set('campus', campus);
+    const container = document.getElementById('tableContainer');
+    container.innerHTML = '<p class="text-center py-4">Loading...</p>';
+    fetch(fetchUrl, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.text())
+    .then(html => {
+      container.innerHTML = html;
+      attachRowClickHandlers();
+    })
+    .catch(err => {
+      console.error('Error:', err);
+      container.innerHTML = '<p class="text-center py-4 text-red-500">Error loading data. Please refresh the page.</p>';
+    });
+  }
   let currentUserId = null;
   let debounceTimer;
   // -------------------------------------------------
@@ -493,10 +539,15 @@
   }
 
   // Initialize form action on page load (for new position)
-  document.addEventListener('DOMContentLoaded', () => {
-    loadPosition(document.getElementById('position_select').value);
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      const select = document.getElementById('position_select');
+      if (select) loadPosition(select.value);
+    });
+  } else {
+    const select = document.getElementById('position_select');
+    if (select) loadPosition(select.value);
+  }
 </script>
-  @include('partials.globalLoader')
 </body>
 </html>

@@ -18,14 +18,19 @@ class User extends Authenticatable implements MustVerifyEmail   // ← NEW
         'role',
         'Campus_ID',
         'is_approved',
-        'email_verified_at',  
+        'email_verified_at',
+        'profile_picture',
+        'last_login_at',
+        'is_online',
     ];
 
     protected $hidden = ['password', 'remember_token'];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'is_approved'       => 'boolean',
+        'last_login_at' => 'datetime',
+        'is_approved' => 'boolean',
+        'is_online' => 'boolean',
     ];
 
     /* ──────────────────────── RELATIONSHIPS ──────────────────────── */

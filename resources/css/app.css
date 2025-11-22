@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './ui-utilities.css';
+@import './modal-overrides.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -20,14 +21,68 @@
         --ui-surface: #ffffff;
         --ui-border: rgba(15, 118, 110, 0.12);
         --ui-shadow-soft: 0 10px 40px rgba(15, 118, 110, 0.08);
+        --ion-font-family: var(--font-sans);
+        --ion-color-primary: #0f766e;
+        --ion-color-primary-rgb: 15, 118, 110;
+        --ion-color-primary-contrast: #ffffff;
+        --ion-color-primary-contrast-rgb: 255, 255, 255;
+        --ion-color-primary-shade: #0d5f59;
+        --ion-color-primary-tint: #278f86;
+        --ion-color-secondary: #93aa9c;
+        --ion-color-secondary-rgb: 147, 170, 156;
+        --ion-color-secondary-contrast: #081420;
+        --ion-color-secondary-contrast-rgb: 8, 20, 32;
+        --ion-color-tertiary: #2d3a4a;
+        --ion-color-tertiary-rgb: 45, 58, 74;
+        --ion-color-medium: #6b7280;
+        --ion-color-medium-rgb: 107, 114, 128;
+        --ion-color-light: #f8fafc;
+        --ion-color-light-rgb: 248, 250, 252;
+        --ion-color-dark: #0f172a;
+        --ion-color-dark-rgb: 15, 23, 42;
+        --ion-color-success: #22c55e;
+        --ion-color-success-rgb: 34, 197, 94;
+        --ion-color-warning: #fbbf24;
+        --ion-color-warning-rgb: 251, 191, 36;
+        --ion-color-danger: #e11d48;
+        --ion-color-danger-rgb: 225, 29, 72;
+        --ion-backdrop-color: rgba(15, 23, 42, 0.65);
+        --ion-toolbar-background: rgba(255, 255, 255, 0.9);
     }
 
     body {
-        font-family: var(--font-sans);
+        font-family: 'Kantumruy Pro', sans-serif;
         background-color: #f5f7f0;
         color: #0f172a;
         min-height: 100vh;
         scroll-behavior: smooth;
+        overflow-x: hidden;
+        overflow-y: auto !important;
+        transform: none !important;
+    }
+
+    /* Remove default blue color from links */
+    a, a:link, a:visited, a:hover, a:active {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    a[class*='text-'] {
+        color: inherit;
+    }
+
+    /* Ensure buttons don't inherit blue text color */
+    button, [type='button'], [type='submit'] {
+        color: inherit;
+    }
+
+    button[class*='text-'], [type='button'][class*='text-'], [type='submit'][class*='text-'] {
+        color: inherit;
+    }
+    
+    html {
+        overflow-x: hidden;
+        overflow-y: auto !important;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -38,6 +93,54 @@
             animation-duration: 0ms !important;
         }
     }
+}
+
+/* Ensure sidebar stays fixed - AGGRESSIVE */
+/* Move sidebar to body level if needed */
+#universal-sidebar-root {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    z-index: 9999 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    will-change: auto !important;
+    width: auto !important;
+    height: 100vh !important;
+}
+
+.universal-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    z-index: 9999 !important;
+    margin: 0 !important;
+    transform: none !important;
+    will-change: auto !important;
+}
+
+/* Prevent any parent from affecting sidebar - move to body if needed */
+body > #universal-sidebar-root,
+html > body > #universal-sidebar-root,
+div > #universal-sidebar-root,
+[class*="flex"] > #universal-sidebar-root,
+[class*="container"] > #universal-sidebar-root {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+}
+
+/* Ensure parent containers don't create scrolling contexts for sidebar */
+[class*="flex"]:has(#universal-sidebar-root),
+[class*="container"]:has(#universal-sidebar-root),
+[class*="wrapper"]:has(#universal-sidebar-root) {
+    position: static !important;
+    overflow: visible !important;
 }
 
 @layer components {
@@ -58,6 +161,101 @@
     :where(button, [type='button'], [type='submit'], [role='button'], .filter-tab, .community-item, .book-card, .nav-item):active {
         transform: translateY(0);
         box-shadow: 0 8px 16px rgba(15, 118, 110, 0.16);
+    }
+
+    /* Ensure ALL buttons have proper spacing and styling - apply to buttons without padding classes */
+    button:not([class*='p-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
+    [type='button']:not([class*='p-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
+    [type='submit']:not([class*='p-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item) {
+        padding: 0.625rem 1.25rem !important;
+        border-radius: 0.5rem !important;
+        font-weight: 500 !important;
+        font-size: 0.875rem !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+        min-height: 2.5rem !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    /* Default styling for buttons without background/text classes */
+    button:not([class*='bg-']):not([class*='text-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
+    [type='button']:not([class*='bg-']):not([class*='text-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
+    [type='submit']:not([class*='bg-']):not([class*='text-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item) {
+        border: 1px solid #d1d5db !important;
+        background: white !important;
+        color: #374151 !important;
+    }
+    
+    /* Primary buttons (green) - for buttons without bg- classes */
+    button[type='submit']:not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.universal-sidebar__link),
+    button.btn-primary:not([class*='bg-']),
+    .btn-primary:not([class*='bg-']) {
+        background: #16a34a !important;
+        color: white !important;
+        border-color: #16a34a !important;
+    }
+    
+    button[type='submit']:not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.universal-sidebar__link):hover,
+    button.btn-primary:not([class*='bg-']):hover,
+    .btn-primary:not([class*='bg-']):hover {
+        background: #15803d !important;
+        border-color: #15803d !important;
+    }
+    
+    /* Secondary buttons (gray) - for buttons without bg- classes */
+    button[type='button']:not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.universal-sidebar__link),
+    button.btn-secondary:not([class*='bg-']),
+    .btn-secondary:not([class*='bg-']) {
+        background: white !important;
+        color: #374151 !important;
+        border-color: #d1d5db !important;
+    }
+    
+    button[type='button']:not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.universal-sidebar__link):hover,
+    button.btn-secondary:not([class*='bg-']):hover,
+    .btn-secondary:not([class*='bg-']):hover {
+        background: #f9fafb !important;
+        border-color: #9ca3af !important;
+    }
+    
+    /* Danger buttons (red) - for buttons without bg- classes */
+    button.btn-danger:not([class*='bg-']),
+    .btn-danger:not([class*='bg-']) {
+        background: #dc2626 !important;
+        color: white !important;
+        border-color: #dc2626 !important;
+    }
+    
+    button.btn-danger:not([class*='bg-']):hover,
+    .btn-danger:not([class*='bg-']):hover {
+        background: #b91c1c !important;
+        border-color: #b91c1c !important;
+    }
+    
+    /* Hover effects for buttons without bg- classes */
+    button:hover:not([disabled]):not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
+    [type='button']:hover:not([disabled]):not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
+    [type='submit']:hover:not([disabled]):not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item) {
+        background: #f9fafb !important;
+        border-color: #9ca3af !important;
+    }
+    
+    button:active:not([disabled]):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
+    [type='button']:active:not([disabled]):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
+    [type='submit']:active:not([disabled]):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item) {
+        transform: scale(0.98) !important;
+    }
+
+    /* Ensure tables have proper spacing - preserve Tailwind p-* classes */
+    table td:not([class*='p-']), table th:not([class*='p-']) {
+        padding: 0.75rem 1rem;
+    }
+
+    /* Ensure table cells with p-3 class maintain spacing */
+    table td.p-3, table th.p-3 {
+        padding: 0.75rem !important;
     }
 
     :where(input, select, textarea) {
@@ -101,6 +299,244 @@
     .auth-card .field-label {
         letter-spacing: 0.04em;
     }
+
+    ion-item.modern-ion-field__item {
+        --background: white !important;
+        --color: #0f172a;
+        --padding-start: 0;
+        --padding-end: 0;
+        --inner-padding-end: 0;
+        --inner-padding-start: 0;
+        --inner-padding-top: 0;
+        --inner-padding-bottom: 0;
+        --highlight-color-focused: transparent;
+        --min-height: 3.5rem;
+        --label-color: rgba(15, 23, 42, 0.85) !important;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(15, 118, 110, 0.18);
+        background: white !important;
+        backdrop-filter: none;
+        box-shadow: 0 2px 8px rgba(15, 118, 110, 0.08);
+        transition:
+            border-color var(--ui-duration-fast) var(--ui-ease),
+            box-shadow var(--ui-duration) var(--ui-ease),
+            transform var(--ui-duration-fast) var(--ui-ease);
+        position: relative;
+        overflow: hidden;
+        min-height: 3.5rem;
+        height: auto;
+    }
+    
+    ion-item.modern-ion-field__item ion-label {
+        --color: rgba(15, 23, 42, 0.85) !important;
+        color: rgba(15, 23, 42, 0.85) !important;
+    }
+
+    ion-item.modern-ion-field__item::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        border: 1px solid transparent;
+        pointer-events: none;
+        opacity: 0;
+        transform: scale(0.98);
+        transition:
+            opacity var(--ui-duration-fast) var(--ui-ease),
+            transform var(--ui-duration-fast) var(--ui-ease),
+            border-color var(--ui-duration-fast) var(--ui-ease);
+    }
+
+    ion-item.modern-ion-field__item::part(native) {
+        padding: 12px 18px 8px;
+        min-height: 3.5rem;
+        align-items: flex-end;
+        background: white !important;
+    }
+
+    .modern-ion-field--compact ion-item.modern-ion-field__item::part(native) {
+        min-height: 52px;
+    }
+
+    .modern-ion-field--spacious ion-item.modern-ion-field__item::part(native) {
+        min-height: 72px;
+    }
+
+    .modern-ion-field--focused ion-item.modern-ion-field__item {
+        border-color: var(--ion-color-primary);
+        box-shadow: 0 26px 60px rgba(15, 118, 110, 0.2);
+        transform: translateY(-1px);
+    }
+
+    .modern-ion-field--focused ion-item.modern-ion-field__item::before {
+        opacity: 1;
+        transform: scale(1);
+        border-color: rgba(15, 118, 110, 0.35);
+        animation: focus-halo 0.9s var(--ui-ease);
+    }
+
+    .modern-ion-field--invalid ion-item.modern-ion-field__item {
+        border-color: #e11d48;
+        box-shadow: 0 22px 55px rgba(225, 29, 72, 0.24);
+    }
+
+    .modern-ion-field--invalid ion-item.modern-ion-field__item::before {
+        border-color: rgba(225, 29, 72, 0.35);
+    }
+
+    ion-input.modern-ion-field__input {
+        --padding-top: 12px;
+        --padding-bottom: 12px;
+        --padding-start: 0;
+        --padding-end: 0;
+        --color: #0f172a;
+        --placeholder-color: rgba(15, 23, 42, 0.45);
+        --placeholder-font-weight: 400;
+        --min-height: 3.5rem;
+        font-size: 1rem;
+        background: transparent !important;
+    }
+
+    ion-input.modern-ion-field__input::part(native) {
+        font-family: var(--font-sans);
+        letter-spacing: 0.01em;
+        background: transparent !important;
+    }
+
+    .modern-ion-field__label {
+        font-size: 0.95rem;
+        letter-spacing: 0.01em;
+        font-weight: 500;
+        color: rgba(15, 23, 42, 0.85);
+        margin-bottom: 0.5rem;
+        transition:
+            color var(--ui-duration-fast) var(--ui-ease),
+            letter-spacing var(--ui-duration-fast) var(--ui-ease);
+    }
+
+    .modern-ion-field--focused .modern-ion-field__label {
+        color: var(--ion-color-primary);
+        letter-spacing: 0.04em;
+    }
+
+    .modern-ion-field--invalid .modern-ion-field__label {
+        color: #e11d48;
+    }
+
+    .modern-ion-field__required {
+        color: var(--ion-color-primary);
+        font-weight: 600;
+        margin-left: 0.1rem;
+    }
+
+    ion-modal.modern-ion-modal {
+        --backdrop-opacity: 0.38;
+        --backdrop-background: var(--ion-backdrop-color);
+    }
+
+    ion-modal.modern-ion-modal::part(backdrop) {
+        backdrop-filter: blur(18px);
+    }
+
+    ion-modal.modern-ion-modal::part(content) {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+        position: relative !important;
+        top: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+        margin: auto !important;
+    }
+    
+    /* Prevent sheet behavior globally */
+    ion-modal.modern-ion-modal .modal-wrapper {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transform: none !important;
+    }
+    
+    /* Fix dark overlay issue - ensure uniform backdrop */
+    ion-modal.modern-ion-modal ion-backdrop {
+        background: rgba(0, 0, 0, 0.5) !important;
+        opacity: 1 !important;
+    }
+
+    .modern-ion-modal__surface {
+        box-shadow: 0 35px 80px rgba(15, 118, 110, 0.24);
+    }
+
+    .modern-ion-modal__header::after {
+        content: '';
+        display: block;
+        width: 48px;
+        height: 3px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(15, 118, 110, 0.15), rgba(15, 118, 110, 0));
+        margin-top: 0.75rem;
+    }
+
+    ion-button.modern-ion-button,
+    .modern-ion-modal__primary,
+    .modern-ion-modal__secondary {
+        transition:
+            transform var(--ui-duration-fast) var(--ui-ease),
+            box-shadow var(--ui-duration-fast) var(--ui-ease);
+    }
+
+    ion-button.modern-ion-button::part(native),
+    .modern-ion-modal__primary::part(native) {
+        box-shadow: 0 20px 42px rgba(15, 118, 110, 0.25);
+    }
+
+    ion-button.modern-ion-button:hover::part(native),
+    .modern-ion-modal__primary:hover::part(native) {
+        transform: translateY(-1px);
+        box-shadow: 0 28px 56px rgba(15, 118, 110, 0.3);
+    }
+
+    .modern-ion-modal__secondary:hover::part(native) {
+        color: var(--ion-color-primary);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        ion-item.modern-ion-field__item {
+            background: white !important;
+            border-color: rgba(15, 118, 110, 0.18) !important;
+            box-shadow: 0 2px 8px rgba(15, 118, 110, 0.08) !important;
+        }
+
+        ion-input.modern-ion-field__input {
+            --color: #0f172a;
+            --placeholder-color: rgba(15, 23, 42, 0.45);
+            background: transparent !important;
+        }
+        
+        ion-input.modern-ion-field__input::part(native) {
+            background: transparent !important;
+        }
+
+        .modern-ion-field__label {
+            color: rgba(15, 23, 42, 0.85) !important;
+        }
+
+        .modern-ion-field__helper {
+            color: rgba(248, 250, 252, 0.5);
+        }
+
+        .modern-ion-modal__surface {
+            box-shadow: 0 35px 80px rgba(2, 6, 23, 0.65);
+        }
+    }
 }
 
 @layer utilities {
@@ -108,6 +544,30 @@
         0% {
             opacity: 0;
             transform: translateY(24px) scale(0.97);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes focus-halo {
+        0% {
+            opacity: 0;
+            transform: scale(0.92);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes modal-float {
+        0% {
+            opacity: 0;
+            transform: translateY(32px) scale(0.96);
         }
 
         100% {

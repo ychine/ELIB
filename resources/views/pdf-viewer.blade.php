@@ -13,25 +13,41 @@
             box-sizing: border-box;
         }
 
+        html {
+            background-color: #0f0f0f;
+            overflow-y: auto !important;
+            height: auto !important;
+            position: relative;
+        }
+
         body {
-            background-color: #525252;
+            background-color: #0f0f0f;
             font-family: Arial, sans-serif;
             overflow-x: hidden;
+            overflow-y: auto !important;
+            height: auto !important;
+            position: relative;
+            margin: 0;
+            padding: 0;
+            transform: none !important; 
         }
 
         #toolbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0.6));
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100vw !important;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0.6)) !important;
             color: white;
             padding: 10px 20px;
-            display: flex;
+            display: flex !important;
             justify-content: space-between;
             align-items: center;
-            z-index: 1000;
+            z-index: 10000 !important;
             backdrop-filter: blur(10px);
+            margin: 0 !important;
+            box-sizing: border-box !important;
         }
 
         #toolbar-left {
@@ -91,6 +107,8 @@
             flex-direction: column;
             align-items: center;
             gap: 20px;
+            background-color: #0f0f0f;
+            min-height: calc(100vh - 60px);
         }
 
         .page-container {
@@ -107,63 +125,80 @@
         }
 
         #watermark {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-45deg);
+            position: fixed !important;
+            top: 50vh !important;
+            left: 50vw !important;
+            transform: translate(-50%, -50%) rotate(-45deg) !important;
             opacity: 0.3;
             font-size: 60px;
-            pointer-events: none;
-            user-select: none;
-            color: #000;
-            z-index: 1;
+            pointer-events: none !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            color: #ffffff;
+            z-index: 9998 !important;
             white-space: nowrap;
             transition: opacity 0.3s ease;
             font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            will-change: transform;
+            margin: 0 !important;
+            padding: 0 !important;
+            position: fixed !important;
         }
 
         #watermark.enhanced {
-            opacity: 0.7;
+            opacity: 0.8 !important;
             font-size: 80px;
             color: #dc2626;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.9);
         }
 
         .watermark-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 2;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            pointer-events: none !important;
+            z-index: 9997 !important;
             background-image: repeating-linear-gradient(
                 45deg,
                 transparent,
                 transparent 100px,
-                rgba(0,0,0,0.05) 100px,
-                rgba(0,0,0,0.05) 200px
+                rgba(255,255,255,0.05) 100px,
+                rgba(255,255,255,0.05) 200px
             );
+            will-change: transform;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
         .watermark-text-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 3;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            opacity: 0.15;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            pointer-events: none !important;
+            z-index: 9999 !important;
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            grid-template-rows: repeat(3, 1fr) !important;
+            opacity: 0.2;
             transition: opacity 0.3s ease;
+            will-change: transform;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
         .watermark-text-overlay.enhanced {
-            opacity: 0.4;
+            opacity: 0.5 !important;
         }
 
         .watermark-text-overlay div {
@@ -172,9 +207,14 @@
             justify-content: center;
             transform: rotate(-45deg);
             font-size: 24px;
-            color: #000;
+            color: #ffffff;
             font-weight: bold;
-            user-select: none;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            pointer-events: none !important;
         }
 
         #loading {
@@ -285,9 +325,11 @@
                 font-size: 12px;
             }
 
-            #pdf-container {
-                padding: 10px;
-            }
+        #pdf-container {
+            padding: 10px;
+            padding-top: 70px; /* Space for fixed toolbar */
+            margin-top: 0;
+        }
         }
     </style>
 </head>
@@ -628,10 +670,12 @@
 
         // Track scroll to update current page
         let scrollTimeout;
-        window.addEventListener('scroll', () => {
+        function updateCurrentPageFromScroll() {
             clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(() => {
                 const containers = document.querySelectorAll('.page-container');
+                if (containers.length === 0) return;
+                
                 const scrollPosition = window.scrollY + window.innerHeight / 2;
                 
                 containers.forEach((container, index) => {
@@ -648,7 +692,11 @@
                     }
                 });
             }, 100);
-        });
+        }
+        
+        window.addEventListener('scroll', updateCurrentPageFromScroll, { passive: true });
+        window.addEventListener('wheel', updateCurrentPageFromScroll, { passive: true });
+        document.addEventListener('scroll', updateCurrentPageFromScroll, { passive: true });
 
         // Initial page info update
         setTimeout(() => {
@@ -656,6 +704,9 @@
                 updatePageInfo();
             }
         }, 500);
+        
+        // Watermarks and toolbar are fixed via CSS with !important flags
+        // No JavaScript needed - CSS handles all positioning
 
         // Enhance watermark visibility
         function enhanceWatermark() {
