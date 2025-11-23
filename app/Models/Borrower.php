@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Borrower extends Model
 {
     protected $table = 'borrower';
+
     protected $primaryKey = 'Borrower_ID';
 
     protected $fillable = [
@@ -16,6 +17,7 @@ class Borrower extends Model
         'Approved_Date',
         'Return_Date',
         'isReturned',
+        'rejection_reason',
     ];
 
     public function user()

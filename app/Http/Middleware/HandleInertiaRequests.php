@@ -54,18 +54,42 @@ class HandleInertiaRequests extends Middleware
             };
         }
 
+        $userData = null;
+        if ($user) {
+            $userData = [
+                'id' => $user->id,
+                'email' => $user->email,
+                'role' => $user->role,
+                'name' => $this->resolveUserName($user),
+                'profile_picture' => $user->profile_picture,
+                'is_online' => $user->is_online ?? false,
+                'campus' => $user->campus->Campus_Name ?? null,
+            ];
+
+            // Add student-specific data
+            if ($user->role === 'student' && $user->student) {
+                $userData['first_name'] = $user->student->First_Name ?? '';
+                $userData['last_name'] = $user->student->Last_Name ?? '';
+                $userData['student_number'] = $user->student->student_number ?? '';
+                $userData['course_id'] = $user->student->course_id ?? null;
+                $userData['course_name'] = $user->student->course->name ?? null;
+            } else {
+                // For non-students, get first_name and last_name from their profile
+                $profile = match ($user->role) {
+                    'admin' => $user->admin,
+                    'faculty' => $user->faculty,
+                    'librarian' => $user->librarian,
+                    default => null,
+                };
+                $userData['first_name'] = $profile->First_Name ?? '';
+                $userData['last_name'] = $profile->Last_Name ?? '';
+            }
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $user ? [
-                    'id' => $user->id,
-                    'email' => $user->email,
-                    'role' => $user->role,
-                    'name' => $this->resolveUserName($user),
-                    'profile_picture' => $user->profile_picture,
-                    'is_online' => $user->is_online ?? false,
-                    'campus' => $user->campus->Campus_Name ?? null,
-                ] : null,
+                'user' => $userData,
                 'logoutUrl' => route('logout'),
             ],
             'sidebar' => $user ? [
@@ -74,6 +98,11 @@ class HandleInertiaRequests extends Middleware
                 'activeRoute' => Route::currentRouteName(),
                 'role' => $user->role,
                 'logoutUrl' => route('logout'),
+                'courses' => \App\Models\Course::all()->map(fn ($course) => [
+                    'id' => $course->id,
+                    'name' => $course->name,
+                    'code' => $course->code ?? '',
+                ]),
             ] : null,
             'flash' => [
                 'success' => fn () => $request->session()->get('status'),
@@ -131,15 +160,15 @@ class HandleInertiaRequests extends Middleware
                     'key' => 'admin.audit',
                     'label' => 'Audit Trail',
                     'href' => route('admin.audit'),
-                    'icon' => Vite::asset('resources/images/Dashboard.png'),
-                    'iconActive' => Vite::asset('resources/images/DashboardToggled.png'),
+                    'icon' => Vite::asset('resources/images/audit.png'),
+                    'iconActive' => Vite::asset('resources/images/audittoggle.png'),
                 ],
                 [
                     'key' => 'admin.analytics',
                     'label' => 'Resource Analytics',
                     'href' => route('admin.analytics'),
-                    'icon' => Vite::asset('resources/images/Dashboard.png'),
-                    'iconActive' => Vite::asset('resources/images/DashboardToggled.png'),
+                    'icon' => Vite::asset('resources/images/analytics.png'),
+                    'iconActive' => Vite::asset('resources/images/analyticstoggle.png'),
                 ],
             ],
             'librarian' => [
@@ -168,7 +197,8 @@ class HandleInertiaRequests extends Middleware
                     'key' => 'librarian.roles',
                     'label' => 'Roles',
                     'href' => route('librarian.roles'),
-                    'icon' => Vite::asset('resources/images/Featured.png'),
+                    'icon' => Vite::asset('resources/images/role.png'),
+                    'iconActive' => Vite::asset('resources/images/roletoggle.png'),
                 ],
                 [
                     'key' => 'community.uploads',

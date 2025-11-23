@@ -30,7 +30,17 @@
             <!-- Content -->
     <div class="account-settings-modal__content">
       <section class="account-settings-modal__section">
-        <p class="account-settings-modal__eyebrow">Profile</p>
+        <div class="flex items-center justify-between mb-4">
+          <p class="account-settings-modal__eyebrow">Profile</p>
+          <button
+            v-if="!isEditing"
+            type="button"
+            @click="enableEditing"
+            class="text-green-600 hover:text-green-700 font-medium text-sm transition-colors cursor-pointer"
+          >
+            Update Account
+          </button>
+        </div>
         <div class="account-settings-modal__profile">
           <div class="flex items-center gap-4">
             <div class="relative inline-block">
@@ -64,7 +74,7 @@
               </label>
             </div>
             <div>
-              <p class="account-settings-modal__profile-title">{{ formData.name || 'Anonymous User' }}</p>
+              <p class="account-settings-modal__profile-title">{{ displayName || 'Anonymous User' }}</p>
               <p class="account-settings-modal__profile-subtitle">{{ formData.email || 'No email on file' }}</p>
             </div>
           </div>
@@ -72,9 +82,17 @@
 
         <div class="account-settings-modal__grid">
           <IonTextField
-            v-model="formData.name"
-            label="Full Name"
-            placeholder="Enter your full name"
+            v-model="formData.first_name"
+            label="First Name"
+            placeholder="Enter your first name"
+            :disabled="!isEditing"
+            required
+          />
+          <IonTextField
+            v-model="formData.last_name"
+            label="Last Name"
+            placeholder="Enter your last name"
+            :disabled="!isEditing"
             required
           />
           <IonTextField
@@ -82,6 +100,7 @@
             label="Email"
             placeholder="Enter your email"
             type="email"
+            :disabled="!isEditing"
             required
           />
           <IonTextField
@@ -90,6 +109,44 @@
             placeholder="Your campus"
             disabled
           />
+          
+          <!-- DEBUG: Show role info -->
+          <!-- <div class="text-xs text-red-500 p-2 bg-red-50 rounded">
+            DEBUG: Role = {{ user.role }}, isStudent = {{ isStudent }}, courses = {{ courses.length }}
+          </div> -->
+          
+          <!-- Student Fields -->
+          <IonTextField
+            v-if="isStudent"
+            v-model="formData.student_number"
+            label="Student Number"
+            placeholder="e.g., 23-001"
+            :disabled="!isEditing"
+            required
+          />
+          <div v-if="isStudent" class="modern-ion-field">
+            <IonItem lines="none" class="modern-ion-field__item" mode="ios">
+              <IonLabel class="modern-ion-field__label" position="floating">
+                Course <span aria-hidden="true" class="modern-ion-field__required">*</span>
+              </IonLabel>
+              <select
+                v-model="formData.course_id"
+                class="modern-ion-field__select"
+                :disabled="!isEditing"
+                required
+              >
+                <option value="">Select Course</option>
+                <option
+                  v-for="course in courses"
+                  :key="course.id"
+                  :value="course.id"
+                  :selected="formData.course_id === course.id"
+                >
+                  {{ course.name || course.code }}
+                </option>
+              </select>
+            </IonItem>
+          </div>
         </div>
       </section>
 
@@ -101,12 +158,14 @@
             label="New Password"
             placeholder="Enter new password"
             type="password"
+            :disabled="!isEditing"
           />
           <IonTextField
             v-model="formData.confirmPassword"
             label="Confirm New Password"
             placeholder="Re-enter new password"
             type="password"
+            :disabled="!isEditing"
           />
         </div>
       </section>
@@ -115,19 +174,29 @@
             <!-- Footer -->
             <footer class="account-settings-modal-footer">
               <button
+                v-if="!isEditing"
                 type="button"
                 class="account-settings-modal-btn account-settings-modal-btn-secondary"
                 @click="handleClose"
               >
-                Cancel
+                Close
               </button>
-              <button
-                type="button"
-                class="account-settings-modal-btn account-settings-modal-btn-primary"
-                @click="handleSave"
-              >
-                Save Changes
-              </button>
+              <template v-else>
+                <button
+                  type="button"
+                  class="account-settings-modal-btn account-settings-modal-btn-secondary"
+                  @click="handleCancel"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  class="account-settings-modal-btn account-settings-modal-btn-primary"
+                  @click="handleSave"
+                >
+                  Save Changes
+                </button>
+              </template>
             </footer>
           </div>
         </div>
@@ -150,21 +219,59 @@ const props = defineProps({
     required: true,
     default: () => ({
       name: 'John Doe',
+      first_name: 'John',
+      last_name: 'Doe',
       email: 'john.doe@example.com',
       avatar: null,
       campus: 'Main Campus',
+      role: '',
+      student_number: '',
+      course_id: null,
     }),
+  },
+  courses: {
+    type: Array,
+    default: () => [],
   },
 });
 
 const emit = defineEmits(['update:modelValue', 'save']);
 
+const isEditing = ref(false);
+const originalFormData = ref({});
+
 const formData = ref({
-  name: props.user.name || '',
+  first_name: props.user.first_name || '',
+  last_name: props.user.last_name || '',
   email: props.user.email || '',
   campus: props.user.campus || '',
+  student_number: props.user.student_number || '',
+  course_id: props.user.course_id || null,
   newPassword: '',
   confirmPassword: '',
+});
+
+const displayName = computed(() => {
+  if (formData.value.first_name || formData.value.last_name) {
+    return `${formData.value.first_name} ${formData.value.last_name}`.trim();
+  }
+  return props.user.name || 'Anonymous User';
+});
+
+const isStudent = computed(() => {
+  if (!props.user || !props.user.role) {
+    console.log('No user or role found');
+    return false;
+  }
+  const role = String(props.user.role).toLowerCase().trim();
+  const result = role === 'student';
+  console.log('User role check:', {
+    original: props.user.role,
+    lowercase: role,
+    isStudent: result,
+    userObject: props.user
+  });
+  return result;
 });
 
 const getProfilePicturePath = (profilePicture) => {
@@ -195,22 +302,40 @@ const handleImageError = (event) => {
 };
 
 const userInitials = computed(() => {
-  if (!formData.value.name) return 'U';
-  const names = formData.value.name.split(' ');
-  if (names.length >= 2) {
-    return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+  if (formData.value.first_name && formData.value.last_name) {
+    return (formData.value.first_name[0] + formData.value.last_name[0]).toUpperCase();
   }
-  return formData.value.name.substring(0, 2).toUpperCase();
+  if (formData.value.first_name) {
+    return formData.value.first_name.substring(0, 2).toUpperCase();
+  }
+  return 'U';
 });
 
 const handleClose = () => {
   document.body.classList.remove('modal-open');
   document.body.style.overflow = '';
+  isEditing.value = false;
   emit('update:modelValue', false);
+};
+
+const enableEditing = () => {
+  // Store original values
+  originalFormData.value = { ...formData.value };
+  isEditing.value = true;
+};
+
+const handleCancel = () => {
+  // Restore original values
+  formData.value = { ...originalFormData.value };
+  // Reset password fields
+  formData.value.newPassword = '';
+  formData.value.confirmPassword = '';
+  isEditing.value = false;
 };
 
 const handleSave = () => {
   emit('save', { ...formData.value });
+  isEditing.value = false;
   handleClose();
 };
 
@@ -253,15 +378,23 @@ const handleProfilePictureChange = async (event) => {
 
 watch(() => props.user, (newUser) => {
   if (newUser) {
+    console.log('User prop changed:', newUser);
+    console.log('User role:', newUser.role);
+    console.log('Is student check:', newUser.role?.toLowerCase() === 'student');
     formData.value = {
-      name: newUser.name || '',
+      first_name: newUser.first_name || '',
+      last_name: newUser.last_name || '',
       email: newUser.email || '',
       campus: newUser.campus || '',
+      student_number: newUser.student_number || '',
+      course_id: newUser.course_id || null,
       newPassword: '',
       confirmPassword: '',
     };
     // Update profile picture when user prop changes
     profilePicture.value = getProfilePicturePath(newUser.profile_picture);
+    // Reset editing state when user changes
+    isEditing.value = false;
   }
 }, { deep: true, immediate: true });
 
@@ -537,6 +670,33 @@ defineExpose({
   .account-settings-modal__grid--two {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+.modern-ion-field__select {
+  width: 100%;
+  padding: 0.75rem 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  color: #0f172a;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.modern-ion-field__select:focus {
+  outline: none;
+}
+
+.modern-ion-field__select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  color: #6b7280;
+}
+
+.modern-ion-field__select option {
+  padding: 0.5rem;
 }
 
 /* Modal transitions */

@@ -11,7 +11,7 @@ class User extends Authenticatable implements MustVerifyEmail   // ← NEW
     use Notifiable;
 
     protected $fillable = [
-        'first_name',         
+        'first_name',
         'last_name',
         'email',
         'password',
@@ -64,15 +64,30 @@ class User extends Authenticatable implements MustVerifyEmail   // ← NEW
         return $this->hasOne(Student::class, 'UID', 'id');
     }
 
+    public function ownedResources()
+    {
+        return $this->hasMany(Resource::class, 'owner_id');
+    }
+
+    public function communityResources()
+    {
+        return $this->hasMany(Resource::class, 'owner_id')->where('Type', 'Community Uploads');
+    }
+
+    public function resourceReports()
+    {
+        return $this->hasMany(ResourceReport::class, 'reported_by');
+    }
+
     /** Dynamic profile relationship (admin / librarian / student / faculty) */
     public function profile()
     {
         $model = match ($this->role) {
-            'admin'     => \App\Models\Admin::class,
+            'admin' => \App\Models\Admin::class,
             'librarian' => \App\Models\Librarian::class,
-            'student'   => \App\Models\Student::class,
-            'faculty'   => \App\Models\Faculty::class,
-            default     => null,
+            'student' => \App\Models\Student::class,
+            'faculty' => \App\Models\Faculty::class,
+            default => null,
         };
 
         return $model ? $this->hasOne($model, 'UID', 'id') : null;
@@ -92,6 +107,6 @@ class User extends Authenticatable implements MustVerifyEmail   // ← NEW
             return 'Unknown';
         }
 
-        return $relation ? $relation->First_Name . ' ' . $relation->Last_Name : 'Unknown';
+        return $relation ? $relation->First_Name.' '.$relation->Last_Name : 'Unknown';
     }
 }

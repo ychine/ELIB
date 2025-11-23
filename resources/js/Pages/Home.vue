@@ -1,5 +1,8 @@
 <template>
+    <Head title="Home" />
   <AppLayout title="" content-padding-classes="px-4 lg:px-[5%]">
+    
+
     <div class="flex flex-col lg:pl-28 lg:pr-20 lg:flex-row gap-10 pt-4 content-wrapper">
       <!-- Featured Section -->
       <div class="featured-section" style="flex: 0 0 70%;">
@@ -8,24 +11,27 @@
         </h2>
         
         <div class="filter-tabs mb-4">
-          <Link
-            :href="`/homeUser?filter=latest`"
+          <button
+            type="button"
+            @click="changeFilter('latest')"
             :class="['filter-tab', { active: filter === 'latest' }]"
           >
             Latest Uploads
-          </Link>
-          <Link
-            :href="`/homeUser?filter=popular_month`"
+          </button>
+          <button
+            type="button"
+            @click="changeFilter('popular_month')"
             :class="['filter-tab', { active: filter === 'popular_month' }]"
           >
             Popular This Month
-          </Link>
-          <Link
-            :href="`/homeUser?filter=popular_year`"
+          </button>
+          <button
+            type="button"
+            @click="changeFilter('popular_year')"
             :class="['filter-tab', { active: filter === 'popular_year' }]"
           >
             Popular This Year
-          </Link>
+          </button>
         </div>
 
         <div class="books-grid">
@@ -126,9 +132,18 @@
 
         <!-- Community Uploads -->
         <div class="community-section">
-          <h2 class="text-xl font-extrabold kulim-park-bold tracking-tight mb-4">
-            Community Uploads
-          </h2>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-extrabold kulim-park-bold tracking-tight">
+              Community Uploads
+            </h2>
+            <button
+              @click="openCommunityUploadModal"
+              class="flex items-center justify-center w-10 h-10 rounded-full bg-green-600 text-white hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl"
+              title="Upload Community Resource"
+            >
+              <i class="fas fa-plus text-lg"></i>
+            </button>
+          </div>
           <div class="bg-white rounded-lg p-4 shadow-lg">
             <Link
               v-for="resource in communityUploads"
@@ -157,14 +172,140 @@
       </div>
     </div>
 
+    <!-- Community Upload Modal -->
+    <div
+      v-if="showCommunityUploadModal"
+      class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
+      @click.self="closeCommunityUploadModal"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-4 mx-auto max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+          <h3 class="text-2xl font-bold kulim-park-bold">Upload Community Resource</h3>
+          <button
+            @click="closeCommunityUploadModal"
+            class="text-gray-500 hover:text-gray-700 text-2xl"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <form @submit.prevent="submitCommunityUpload" class="p-6 space-y-4">
+          <div>
+            <label class="block font-medium mb-1">Title *</label>
+            <input
+              v-model="communityUploadForm.Resource_Name"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
+            >
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Author(s) (comma-separated) *</label>
+            <input
+              v-model="communityUploadForm.authors"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
+            >
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Description *</label>
+            <textarea
+              v-model="communityUploadForm.Description"
+              rows="4"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
+            ></textarea>
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Tags (comma-separated)</label>
+            <input
+              v-model="communityUploadForm.tags"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+          </div>
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label class="block font-medium mb-1">Publish Year</label>
+              <input
+                v-model.number="communityUploadForm.publish_year"
+                type="number"
+                min="1900"
+                max="2030"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+            </div>
+            <div>
+              <label class="block font-medium mb-1">Month</label>
+              <input
+                v-model.number="communityUploadForm.publish_month"
+                type="number"
+                min="1"
+                max="12"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+            </div>
+            <div>
+              <label class="block font-medium mb-1">Day</label>
+              <input
+                v-model.number="communityUploadForm.publish_day"
+                type="number"
+                min="1"
+                max="31"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+            </div>
+          </div>
+          <div>
+            <label class="block font-medium mb-1">File *</label>
+            <div
+              class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-green-500 transition-colors"
+              @click="$refs.communityFileInput.click()"
+              @dragover.prevent="addDragOver = true"
+              @dragleave.prevent="addDragOver = false"
+              @drop.prevent="handleCommunityFileDrop"
+              :class="{ 'border-green-500 bg-green-50': addDragOver }"
+            >
+              <p v-if="!communityUploadForm.file">Drag & drop file here or click to upload</p>
+              <p v-else class="text-green-700 font-medium">{{ communityUploadForm.file.name }}</p>
+            </div>
+            <input
+              ref="communityFileInput"
+              type="file"
+              class="hidden"
+              accept=".pdf,.doc,.docx,.zip"
+              @change="handleCommunityFileSelect"
+              required
+            >
+          </div>
+          <div class="flex gap-2 justify-end pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              @click="closeCommunityUploadModal"
+              class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              :disabled="isUploading"
+              class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+            >
+              {{ isUploading ? 'Uploading...' : 'Upload' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Borrow Modal -->
     <div
       v-if="selectedResource"
       id="borrowModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
       @click.self="closeModal"
     >
-      <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] my-4 overflow-y-auto">
         <div class="flex h-full">
           <!-- Left: Thumbnail -->
           <div class="w-72 flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200 p-6 flex items-center justify-center border-r border-gray-200">
@@ -252,6 +393,24 @@
               </p>
             </div>
 
+            <!-- Rejection Status Box -->
+            <div
+              v-if="selectedResource.is_rejected && selectedResource.rejection_reason"
+              class="mb-8 p-5 bg-red-50 border-2 border-red-300 rounded-xl"
+            >
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0">
+                  <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <p class="font-bold text-lg text-red-800 mb-2">Request Rejected</p>
+                  <p class="text-red-700 font-medium">{{ selectedResource.rejection_reason }}</p>
+                </div>
+              </div>
+            </div>
+
             <!-- Buttons -->
             <div class="flex gap-4 justify-end pt-4 border-t border-gray-200">
               <button
@@ -261,29 +420,76 @@
               >
                 Cancel
               </button>
-              <div v-if="selectedResource.is_borrowed" class="px-12 py-3 bg-gray-200 text-gray-600 rounded-xl font-medium text-sm flex items-center gap-2">
+              <button
+                v-if="selectedResource.is_rejected"
+                type="button"
+                @click="showReturnDateModal = true"
+                :disabled="isSubmitting"
+                class="px-12 py-3 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-xl hover:from-[#16A34A] hover:to-[#15803D] transition-all font-medium text-sm shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Request Again
+              </button>
+              <div
+                v-else-if="selectedResource.is_borrowed"
+                class="px-12 py-3 bg-gray-200 text-gray-600 rounded-xl font-medium text-sm flex items-center gap-2"
+              >
                 <i class="fas fa-check-circle"></i>
                 Already on Borrow List
               </div>
-              <form
+              <button
                 v-else
-                method="POST"
-                :action="`/borrow/request`"
-                class="inline"
-                @submit.prevent="submitBorrow"
+                type="button"
+                @click="showReturnDateModal = true"
+                :disabled="isSubmitting"
+                class="px-12 py-3 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-xl hover:from-[#16A34A] hover:to-[#15803D] transition-all font-medium text-sm shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <input type="hidden" name="_token" :value="csrfToken">
-                <input type="hidden" name="resource_id" :value="selectedResource.Resource_ID">
-                <button
-                  type="submit"
-                  :disabled="isSubmitting"
-                  class="px-12 py-3 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-xl hover:from-[#16A34A] hover:to-[#15803D] transition-all font-medium text-sm shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Add to Borrow List
-                </button>
-              </form>
+                Add to Borrow List
+              </button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Return Date Modal -->
+    <div
+      v-if="showReturnDateModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
+      @click.self="showReturnDateModal = false"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] my-4 overflow-y-auto">
+        <div class="p-6 border-b border-gray-200">
+          <h3 class="text-xl font-bold kulim-park-bold">Select Return Date</h3>
+        </div>
+        <div class="p-6">
+          <div class="mb-4">
+            <label class="block font-medium mb-2">Expected Return Date</label>
+            <input
+              v-model="returnDate"
+              type="datetime-local"
+              :min="minReturnDate"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
+            >
+            <p class="text-xs text-gray-500 mt-1">Please select when you plan to return this resource</p>
+          </div>
+        </div>
+        <div class="p-6 border-t border-gray-200 flex justify-end gap-2">
+          <button
+            type="button"
+            @click="showReturnDateModal = false"
+            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            @click="submitBorrowWithReturnDate"
+            :disabled="!returnDate || isSubmitting"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+          >
+            Confirm
+          </button>
         </div>
       </div>
     </div>
@@ -291,8 +497,8 @@
 </template>
 
 <script setup>
-import { Link, router } from '@inertiajs/vue3';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { Link, router, Head, usePage } from '@inertiajs/vue3';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import AppLayout from '../Layouts/AppLayout.vue';
 
 const props = defineProps({
@@ -346,9 +552,94 @@ const getTags = (tags) => {
   return [];
 };
 
+const page = usePage();
+const searchIcon = computed(() => page.props.images?.searchIcon || '/images/Search.png');
+
 const selectedResource = ref(null);
 const isSubmitting = ref(false);
 const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.content ?? '';
+const showReturnDateModal = ref(false);
+const returnDate = ref('');
+
+// Community Upload Modal
+const showCommunityUploadModal = ref(false);
+const communityUploadForm = ref({
+  Resource_Name: '',
+  authors: '',
+  Description: '',
+  tags: '',
+  publish_year: '',
+  publish_month: '',
+  publish_day: '',
+  file: null,
+});
+const isUploading = ref(false);
+const addDragOver = ref(false);
+
+// Search functionality
+const searchQuery = ref('');
+const searchResults = ref([]);
+const showSearchResults = ref(false);
+const isSearching = ref(false);
+let searchTimeout = null;
+
+const minReturnDate = computed(() => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() + 1); // At least 1 minute from now
+  // Format as datetime-local (YYYY-MM-DDTHH:mm)
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+});
+
+const handleSearch = () => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  
+  if (searchQuery.value.length < 2) {
+    searchResults.value = [];
+    showSearchResults.value = false;
+    return;
+  }
+
+  isSearching.value = true;
+  searchTimeout = setTimeout(async () => {
+    try {
+      const response = await fetch(`/resources/search?q=${encodeURIComponent(searchQuery.value)}`, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json',
+        },
+      });
+      const data = await response.json();
+      searchResults.value = data;
+      showSearchResults.value = true;
+    } catch (error) {
+      console.error('Search error:', error);
+      searchResults.value = [];
+    } finally {
+      isSearching.value = false;
+    }
+  }, 300);
+};
+
+const handleSearchBlur = () => {
+  // Delay hiding to allow click events on results
+  setTimeout(() => {
+    showSearchResults.value = false;
+  }, 200);
+};
+
+const changeFilter = (filterValue) => {
+  router.get('/homeUser', { filter: filterValue }, {
+    preserveState: true,
+    preserveScroll: true,
+  });
+};
 
 const openBorrowModal = (resource) => {
   selectedResource.value = resource;
@@ -360,14 +651,24 @@ const closeModal = () => {
   document.body.style.overflow = '';
 };
 
-const submitBorrow = () => {
-  if (!selectedResource.value || isSubmitting.value) {
+const submitBorrowWithReturnDate = () => {
+  if (!selectedResource.value || !returnDate.value || isSubmitting.value) {
+    return;
+  }
+
+  // Check if return date is in the past (shouldn't happen with min date, but double check)
+  const selectedDate = new Date(returnDate.value);
+  const now = new Date();
+  
+  if (selectedDate <= now) {
+    alert('Return date and time must be in the future');
     return;
   }
 
   isSubmitting.value = true;
   router.post('/borrow/request', {
     resource_id: selectedResource.value.Resource_ID,
+    return_date: returnDate.value,
   }, {
     onFinish: () => {
       isSubmitting.value = false;
@@ -377,15 +678,95 @@ const submitBorrow = () => {
       if (selectedResource.value) {
         selectedResource.value.is_borrowed = true;
       }
+      showReturnDateModal.value = false;
+      returnDate.value = '';
       closeModal();
+    },
+  });
+};
+
+// Community Upload Functions
+const openCommunityUploadModal = () => {
+  showCommunityUploadModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const closeCommunityUploadModal = () => {
+  showCommunityUploadModal.value = false;
+  communityUploadForm.value = {
+    Resource_Name: '',
+    authors: '',
+    Description: '',
+    tags: '',
+    publish_year: '',
+    publish_month: '',
+    publish_day: '',
+    file: null,
+  };
+  addDragOver.value = false;
+  document.body.style.overflow = '';
+};
+
+const handleCommunityFileSelect = (event) => {
+  if (event.target.files && event.target.files[0]) {
+    communityUploadForm.value.file = event.target.files[0];
+    if (!communityUploadForm.value.Resource_Name) {
+      const filename = event.target.files[0].name;
+      communityUploadForm.value.Resource_Name = filename.replace(/\.[^/.]+$/, '');
+    }
+  }
+};
+
+const handleCommunityFileDrop = (event) => {
+  addDragOver.value = false;
+  if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+    communityUploadForm.value.file = event.dataTransfer.files[0];
+    if (!communityUploadForm.value.Resource_Name) {
+      const filename = event.dataTransfer.files[0].name;
+      communityUploadForm.value.Resource_Name = filename.replace(/\.[^/.]+$/, '');
+    }
+  }
+};
+
+const submitCommunityUpload = () => {
+  if (!communityUploadForm.value.file) {
+    alert('Please select a file');
+    return;
+  }
+
+  isUploading.value = true;
+  const formData = new FormData();
+  formData.append('Resource_Name', communityUploadForm.value.Resource_Name);
+  formData.append('authors', communityUploadForm.value.authors);
+  formData.append('Description', communityUploadForm.value.Description);
+  formData.append('tags', communityUploadForm.value.tags || '');
+  if (communityUploadForm.value.publish_year) formData.append('publish_year', communityUploadForm.value.publish_year);
+  if (communityUploadForm.value.publish_month) formData.append('publish_month', communityUploadForm.value.publish_month);
+  if (communityUploadForm.value.publish_day) formData.append('publish_day', communityUploadForm.value.publish_day);
+  formData.append('file', communityUploadForm.value.file);
+  formData.append('is_community_upload', '1'); // Mark as community upload
+
+  router.post('/resources/community-upload', formData, {
+    forceFormData: true,
+    onFinish: () => {
+      isUploading.value = false;
+    },
+    onSuccess: () => {
+      closeCommunityUploadModal();
+      router.reload();
     },
   });
 };
 
 // Handle escape key to close modal
 const handleEscape = (e) => {
-  if (e.key === 'Escape' && selectedResource.value) {
-    closeModal();
+  if (e.key === 'Escape') {
+    if (selectedResource.value) {
+      closeModal();
+    }
+    if (showCommunityUploadModal.value) {
+      closeCommunityUploadModal();
+    }
   }
 };
 

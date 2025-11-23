@@ -1,4 +1,5 @@
 <template>
+  <Head title="Dashboard" />
   <AdminLayout title="Dashboard">
     <div class="homediv lg:mx-[10%] flex flex-row flex-wrap gap-4 mb-6">
       <div
@@ -22,51 +23,7 @@
       </div>
     </div>
 
-    <!-- Graphs Section -->
-    <div class="homediv lg:mx-[10%] grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <div class="rounded-2xl bg-white border border-gray-200 shadow-lg p-6">
-        <h3 class="text-lg font-bold kulim-park-bold mb-4">User Logins (Last 30 Days)</h3>
-        <div class="h-64 flex items-end justify-between gap-1">
-          <div
-            v-for="(day, index) in loginChartData"
-            :key="index"
-            class="flex-1 flex flex-col items-center"
-          >
-            <div
-              class="w-full rounded-t transition-all hover:opacity-90"
-              :class="day.count > 0 ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-gray-200'"
-              :style="{ height: `${(day.count / maxLoginCount) * 100}%` }"
-              :title="`${day.date}: ${day.count} logins`"
-            />
-            <span class="text-xs text-gray-500 mt-1 transform -rotate-45 origin-top-left whitespace-nowrap">
-              {{ formatChartDate(day.date) }}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="rounded-2xl bg-white border border-gray-200 shadow-lg p-6">
-        <h3 class="text-lg font-bold kulim-park-bold mb-4">Resource Uploads (Last 30 Days)</h3>
-        <div class="h-64 flex items-end justify-between gap-1">
-          <div
-            v-for="(day, index) in uploadChartData"
-            :key="index"
-            class="flex-1 flex flex-col items-center"
-          >
-            <div
-              class="w-full rounded-t transition-all hover:opacity-90"
-              :class="day.count > 0 ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-gray-200'"
-              :style="{ height: `${(day.count / maxUploadCount) * 100}%` }"
-              :title="`${day.date}: ${day.count} uploads`"
-            />
-            <span class="text-xs text-gray-500 mt-1 transform -rotate-45 origin-top-left whitespace-nowrap">
-              {{ formatChartDate(day.date) }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="homediv lg:mx-[10%] rounded-2xl bg-white border border-gray-200 shadow-lg p-6">
+    <div class="homediv lg:mx-[10%] rounded-2xl bg-white border border-gray-200 shadow-lg p-6 mb-6">
       <h2 class="text-1xl sm:text-2xl lg:text-3xl font-extrabold kulim-park-bold tracking-tight mb-6">
         Pending User Approvals
       </h2>
@@ -130,12 +87,88 @@
         </table>
       </div>
     </div>
+
+    <!-- Graphs Section -->
+    <div class="homediv lg:mx-[10%] grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div class="rounded-2xl bg-white border border-gray-200 shadow-lg p-6">
+        <h3 class="text-lg font-bold kulim-park-bold mb-4">User Logins (Last 30 Days)</h3>
+        <div class="relative" style="height: 300px;">
+          <div class="absolute inset-0 flex items-end justify-between gap-0.5 pb-8">
+            <div
+              v-for="(day, index) in loginChartData"
+              :key="index"
+              class="flex-1 flex flex-col items-center justify-end h-full"
+              style="min-width: 0;"
+            >
+              <div
+                class="w-full rounded-t transition-all hover:opacity-90 cursor-pointer"
+                :class="day.count > 0 ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-gray-200'"
+                :style="{ 
+                  height: maxLoginCount > 0 
+                    ? `${Math.max((day.count / maxLoginCount) * 100, day.count > 0 ? 3 : 1)}%` 
+                    : '1%',
+                  minHeight: day.count > 0 ? '4px' : '1px'
+                }"
+                :title="`${formatChartDate(day.date)}: ${day.count} logins`"
+              />
+            </div>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 flex justify-between gap-0.5 overflow-x-auto">
+            <span
+              v-for="(day, index) in loginChartData"
+              :key="index"
+              class="text-[9px] text-gray-500 flex-shrink-0"
+              style="writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);"
+            >
+              {{ formatChartDateShort(day.date) }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-2xl bg-white border border-gray-200 shadow-lg p-6">
+        <h3 class="text-lg font-bold kulim-park-bold mb-4">Resource Uploads (Last 30 Days)</h3>
+        <div class="relative" style="height: 300px;">
+          <div class="absolute inset-0 flex items-end justify-between gap-0.5 pb-8">
+            <div
+              v-for="(day, index) in uploadChartData"
+              :key="index"
+              class="flex-1 flex flex-col items-center justify-end h-full"
+              style="min-width: 0;"
+            >
+              <div
+                class="w-full rounded-t transition-all hover:opacity-90 cursor-pointer"
+                :class="day.count > 0 ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-gray-200'"
+                :style="{ 
+                  height: maxUploadCount > 0 
+                    ? `${Math.max((day.count / maxUploadCount) * 100, day.count > 0 ? 3 : 1)}%` 
+                    : '1%',
+                  minHeight: day.count > 0 ? '4px' : '1px'
+                }"
+                :title="`${formatChartDate(day.date)}: ${day.count} uploads`"
+              />
+            </div>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 flex justify-between gap-0.5 overflow-x-auto">
+            <span
+              v-for="(day, index) in uploadChartData"
+              :key="index"
+              class="text-[9px] text-gray-500 flex-shrink-0"
+              style="writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);"
+            >
+              {{ formatChartDateShort(day.date) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
   </AdminLayout>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { router, usePage, Head } from '@inertiajs/vue3';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 
 const props = defineProps({
@@ -212,6 +245,14 @@ const formatChartDate = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+const formatChartDateShort = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = date.toLocaleDateString('en-US', { month: 'short' }).substring(0, 3);
+  return `${month} ${day}`;
 };
 
 const approveUser = (url) => {

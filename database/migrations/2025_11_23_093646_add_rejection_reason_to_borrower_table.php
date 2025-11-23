@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (! Schema::hasTable('ratings')) {
-            Schema::create('ratings', function (Blueprint $table) {
-                $table->id();
-                $table->timestamps();
-            });
-        }
+        Schema::table('borrower', function (Blueprint $table) {
+            $table->text('rejection_reason')->nullable()->after('Return_Date');
+        });
     }
 
     /**
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ratings');
+        Schema::table('borrower', function (Blueprint $table) {
+            $table->dropColumn('rejection_reason');
+        });
     }
 };

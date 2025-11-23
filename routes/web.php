@@ -122,10 +122,17 @@ Route::middleware('auth')->group(function () {
         });
 
     /* USER & LIBRARIAN DASHBOARDS */
-    Route::get('/homeUser', [HomeController::class, 'index'])->name('home.user');
-    Route::get('/resources/{id}/view', [HomeController::class, 'show'])->name('resources.view');
-    // ADD THIS BLOCK HERE
-    Route::post('/borrow/request', [BorrowController::class, 'store'])->name('borrow.request');
+    Route::middleware('auth')->group(function () {
+        Route::get('/homeUser', [HomeController::class, 'index'])->name('home.user');
+        Route::get('/resources/search', [HomeController::class, 'search'])->name('resources.search');
+        Route::get('/resources/{id}/view', [HomeController::class, 'show'])->name('resources.view');
+        Route::post('/borrow/request', [BorrowController::class, 'store'])->name('borrow.request');
+        Route::delete('/borrow/cancel/{id}', [BorrowController::class, 'cancel'])->name('borrow.cancel');
+
+        // Community Upload - Allow all authenticated users to upload
+        Route::post('/resources/community-upload', [ResourceController::class, 'storeCommunityUpload'])->name('resources.community.upload');
+        Route::post('/resources/report', [ResourceController::class, 'report'])->name('resources.report');
+    });
     // NEW: Route for incrementing views
     Route::post('/resources/{resource}/view', [ResourceController::class, 'incrementView'])->name('resources.increment.view');
     // Rating route
@@ -169,19 +176,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/resources/{resource}', [ResourceController::class, 'show'])->name('resources.show');
         Route::patch('/resources/{resource}', [ResourceController::class, 'update'])->name('resources.update');
         Route::delete('/resources/{resource}', [ResourceController::class, 'destroy'])->name('resources.destroy');
+        Route::post('/resources/{id}/approve-community', [ResourceController::class, 'approveCommunityUpload'])->name('resources.approve.community');
+        Route::post('/resources/{id}/reject-community', [ResourceController::class, 'rejectCommunityUpload'])->name('resources.reject.community');
     });
 
     /* FEATURED - Available to all authenticated users */
     Route::get('/featured', [HomeController::class, 'featured'])->name('featured');
 
-    /* LIBRARIAN COMMUNITY UPLOADS */
-    Route::get('/community-uploads', function () {
-        if (Auth::user()->role !== 'librarian') {
-            abort(403);
-        }
-
-        return Inertia::render('Librarian/CommunityUploads');
-    })->name('community.uploads');
+    /* COMMUNITY UPLOADS - Available to all authenticated users */
+    Route::get('/community-uploads', [HomeController::class, 'communityUploads'])->name('community.uploads');
 
     /* LIBRARIAN ROLES MANAGEMENT */
     Route::middleware(['role:librarian'])->group(function () {

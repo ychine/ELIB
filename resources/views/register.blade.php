@@ -237,10 +237,18 @@
 
             <div>
               <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Password</label>
-              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
-                <input type="password" name="password" required placeholder="*********"
-                       class="w-full px-2 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
+              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field relative">
+                <input type="password" name="password" id="password" required placeholder="*********"
+                       class="w-full px-2 pr-10 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
+                <button type="button" 
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none z-10"
+                        onclick="togglePassword('password', 'passwordToggle')"
+                        id="passwordToggle"
+                        aria-label="Toggle password visibility">
+                  <i class="fas fa-eye" id="passwordIcon" style="font-size: 1rem;"></i>
+                </button>
               </div>
+              <p class="text-xs text-gray-500 mt-1">Must be at least 8 characters with uppercase, lowercase, number, and special character (-_@$!%*#?&)</p>
               @error('password')
                 <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
               @enderror
@@ -248,17 +256,27 @@
 
             <div>
               <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Confirm Password</label>
-              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
-                <input type="password" name="password_confirmation" required placeholder="*********"
-                       class="w-full px-2 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
+              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field relative">
+                <input type="password" name="password_confirmation" id="password_confirmation" required placeholder="*********"
+                       class="w-full px-2 pr-10 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
+                <button type="button" 
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none z-10"
+                        onclick="togglePassword('password_confirmation', 'passwordConfirmationToggle')"
+                        id="passwordConfirmationToggle"
+                        aria-label="Toggle password visibility">
+                  <i class="fas fa-eye" id="passwordConfirmationIcon" style="font-size: 1rem;"></i>
+                </button>
               </div>
+              @error('password_confirmation')
+                <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+              @enderror
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Role</label>
                 <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
-                  <select name="role" required
+                  <select name="role" id="role" required
                           class="w-full px-3 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
                     <option value="">Select Role</option>
                     <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Student</option>
@@ -291,6 +309,40 @@
               </div>
             </div>
 
+            <!-- Student-specific fields -->
+            <div id="studentFields" style="display: none;" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Course</label>
+                <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
+                  <select name="course_id" id="course_id"
+                          class="w-full px-3 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
+                    <option value="">Select Course</option>
+                    @foreach($courses ?? [] as $course)
+                      <option value="{{ $course->id }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>
+                        {{ $course->code }} - {{ $course->name }}
+                      </option>
+                    @endforeach
+                  </select>
+                </div>
+                @error('course_id')
+                  <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                @enderror
+              </div>
+
+              <div>
+                <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Student Number</label>
+                <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
+                  <input type="text" name="student_number" id="student_number" value="{{ old('student_number') }}" 
+                         placeholder="23-001" pattern="^23-\d{3,}$"
+                         class="w-full px-3 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Format: 23-XXX (e.g., 23-001)</p>
+                @error('student_number')
+                  <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                @enderror
+              </div>
+            </div>
+
             <button type="submit"
                     class="w-full bg-green-800 text-white py-3 sm:py-4 rounded-md hover:bg-green-900 transition text-sm sm:text-base auth-submit">
               Register
@@ -311,7 +363,102 @@
   </div>
 
   <!-- FONT AWESOME FOR ICON -->
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   @include('partials.globalLoader')
+  
+  <script>
+    // Toggle password visibility
+    function togglePassword(inputId, toggleId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(inputId === 'password' ? 'passwordIcon' : 'passwordConfirmationIcon');
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    // Show/hide student fields based on role selection
+    document.getElementById('role').addEventListener('change', function() {
+      const studentFields = document.getElementById('studentFields');
+      const courseSelect = document.getElementById('course_id');
+      const studentNumberInput = document.getElementById('student_number');
+      
+      if (this.value === 'student') {
+        studentFields.style.display = 'grid';
+        courseSelect.required = true;
+        studentNumberInput.required = true;
+      } else {
+        studentFields.style.display = 'none';
+        courseSelect.required = false;
+        studentNumberInput.required = false;
+        courseSelect.value = '';
+        studentNumberInput.value = '';
+      }
+    });
+    
+    // Trigger on page load if role is already selected
+    if (document.getElementById('role').value === 'student') {
+      document.getElementById('role').dispatchEvent(new Event('change'));
+    }
+
+    // Client-side password validation feedback
+    const passwordInput = document.getElementById('password');
+    const passwordConfirmInput = document.getElementById('password_confirmation');
+    
+    if (passwordInput) {
+      passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        const hintElement = this.parentElement.parentElement.querySelector('.password-strength-hint');
+        
+        // Remove existing hint
+        if (hintElement) {
+          hintElement.remove();
+        }
+        
+        if (password.length > 0) {
+          const requirements = {
+            length: password.length >= 8,
+            lowercase: /[a-z]/.test(password),
+            uppercase: /[A-Z]/.test(password),
+            number: /[0-9]/.test(password),
+            special: /[-_@$!%*#?&]/.test(password),
+          };
+          
+          const missing = [];
+          if (!requirements.length) missing.push('8 characters');
+          if (!requirements.lowercase) missing.push('lowercase letter');
+          if (!requirements.uppercase) missing.push('uppercase letter');
+          if (!requirements.number) missing.push('number');
+          if (!requirements.special) missing.push('special character');
+          
+          if (missing.length > 0) {
+            const hint = document.createElement('p');
+            hint.className = 'text-xs text-amber-600 mt-1 password-strength-hint';
+            hint.textContent = 'Missing: ' + missing.join(', ');
+            this.parentElement.parentElement.insertBefore(hint, this.parentElement.nextSibling);
+          }
+        }
+      });
+    }
+    
+    if (passwordConfirmInput && passwordInput) {
+      passwordConfirmInput.addEventListener('input', function() {
+        const password = passwordInput.value;
+        const confirmPassword = this.value;
+        
+        if (confirmPassword.length > 0 && password !== confirmPassword) {
+          this.setCustomValidity('Passwords do not match');
+        } else {
+          this.setCustomValidity('');
+        }
+      });
+    }
+  </script>
 </body>
 </html>

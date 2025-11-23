@@ -36,7 +36,7 @@ class RoleController extends Controller
             });
 
         $librarians = User::where('role', 'librarian')
-            ->with(['librarian.position'])
+            ->with(['librarian.position', 'campus'])
             ->where('is_approved', true)
             ->get()
             ->map(function ($user) {
@@ -46,6 +46,7 @@ class RoleController extends Controller
                     'email' => $user->email,
                     'position' => $user->librarian?->position?->name ?? 'Unassigned',
                     'position_id' => $user->librarian?->position_id,
+                    'campus' => $user->campus?->Campus_Name ?? 'N/A',
                 ];
             });
 
@@ -56,4 +57,3 @@ class RoleController extends Controller
         ]);
     }
 }
-

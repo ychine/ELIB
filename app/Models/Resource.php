@@ -21,8 +21,10 @@ class Resource extends Model
         'publish_month',
         'publish_day',
         'Uploaded_By',
+        'owner_id',
         'Description',
         'status',
+        'approval_status',
         'views',
     ];
 
@@ -33,6 +35,16 @@ class Resource extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'Uploaded_By');
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(ResourceReport::class, 'resource_id', 'Resource_ID');
     }
 
     public function authors(): BelongsToMany

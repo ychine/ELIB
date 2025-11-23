@@ -71,9 +71,12 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$user->id,
             'password' => 'nullable|string|min:8|confirmed',
+            'student_number' => 'nullable|string|max:20|regex:/^23-\d{3,}$/',
+            'course_id' => 'nullable|exists:courses,id',
         ]);
 
         // Update user email
@@ -98,13 +101,24 @@ class ProfileController extends Controller
         };
 
         if ($profileModel) {
-            $nameParts = explode(' ', $validated['name'], 2);
+            $profileData = [
+                'First_Name' => $validated['first_name'],
+                'Last_Name' => $validated['last_name'],
+            ];
+
+            // Add student-specific fields
+            if ($user->role === 'student') {
+                if (isset($validated['student_number'])) {
+                    $profileData['student_number'] = $validated['student_number'];
+                }
+                if (isset($validated['course_id'])) {
+                    $profileData['course_id'] = $validated['course_id'];
+                }
+            }
+
             $profileModel::updateOrCreate(
                 ['UID' => $user->id],
-                [
-                    'First_Name' => $nameParts[0] ?? '',
-                    'Last_Name' => $nameParts[1] ?? '',
-                ]
+                $profileData
             );
         }
 

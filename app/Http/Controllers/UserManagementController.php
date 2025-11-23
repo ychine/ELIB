@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class UserManagementController extends Controller
 {
@@ -92,11 +93,41 @@ class UserManagementController extends Controller
                 : 'Never';
         });
 
-        if ($request->ajax() || $request->wantsJson()) {
+        // Check if it's an AJAX request but NOT from Inertia
+        if (($request->ajax() || $request->wantsJson()) && ! $request->header('X-Inertia')) {
             return view('partials.user-table', compact('users', 'role'))->render();
         }
 
-        return view('userManagement', compact('users', 'role'));
+        // Format users for Inertia
+        $formattedUsers = $users->getCollection()->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'full_name' => $user->full_name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'campus' => $user->campus ? ['Campus_Name' => $user->campus->Campus_Name] : null,
+                'profile_picture' => $user->profile_picture,
+                'is_approved' => $user->is_approved,
+                'created_at' => $user->created_at?->format('M d, Y'),
+                'last_login_formatted' => $user->last_login_formatted,
+                'is_online' => $user->is_online,
+                'librarian' => $user->role === 'librarian' ? [
+                    'position' => $user->librarian?->position ? [
+                        'name' => $user->librarian->position->name,
+                        'permissions' => $user->librarian->position->permissions,
+                    ] : null,
+                ] : null,
+            ];
+        });
+
+        $users->setCollection($formattedUsers);
+
+        return Inertia::render('Admin/UserManagement', [
+            'users' => $users,
+            'role' => $role === 'all' ? null : $role,
+            'campuses' => \App\Models\Campus::all()->map(fn ($c) => ['Campus_ID' => $c->Campus_ID, 'Campus_Name' => $c->Campus_Name]),
+            'positions' => \App\Models\LibrarianPosition::all()->map(fn ($p) => ['id' => $p->id, 'name' => $p->name]),
+        ]);
     }
 
     public function edit($id)

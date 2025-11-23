@@ -17,8 +17,21 @@ class ResourceController extends Controller
 {
     public function index(Request $request)
     {
-        $resources = Resource::with(['authors', 'user', 'tags'])
-            ->latest()
+        $type = $request->get('type', 'Featured'); // Default to Featured
+
+        // Get librarian permissions
+        $user = Auth::user();
+        $permissions = $this->getLibrarianPermissions($user);
+
+        $query = Resource::with(['authors', 'user', 'tags', 'owner']);
+
+        if ($type === 'Community Uploads') {
+            $query->where('Type', 'Community Uploads');
+        } else {
+            $query->where('Type', 'Featured');
+        }
+
+        $resources = $query->latest()
             ->paginate(25)
             ->through(function ($resource) {
                 $authorsCollection = $resource->getRelationValue('authors');
@@ -40,22 +53,69 @@ class ResourceController extends Controller
                     'publish_day' => $resource->publish_day,
                     'File_Path' => $resource->File_Path,
                     'status' => $resource->status,
+                    'approval_status' => $resource->approval_status ?? 'approved',
+                    'Type' => $resource->Type,
                     'created_at' => $resource->created_at,
                     'formatted_publish_date' => $resource->formatted_publish_date,
                     'authors' => $authorsString,
                     'authors_array' => $authorsCollection ? $authorsCollection->pluck('name')->toArray() : [],
                     'tags' => $tagsArray,
                     'uploaded_by' => $resource->user->full_name ?? 'Unknown',
+                    'owner_name' => $resource->owner ? $resource->owner->full_name : null,
+                ];
+            });
+
+        // Get reports for resources
+        $reports = \App\Models\ResourceReport::with(['resource', 'reporter'])
+            ->where('status', 'pending')
+            ->latest()
+            ->get()
+            ->map(function ($report) {
+                return [
+                    'id' => $report->id,
+                    'resource_id' => $report->resource_id,
+                    'resource_name' => $report->resource->Resource_Name ?? 'Unknown',
+                    'resource_file_path' => $report->resource->File_Path ?? null,
+                    'reporter_name' => $report->reporter->full_name ?? 'Unknown',
+                    'reporter_email' => $report->reporter->email ?? 'N/A',
+                    'reason' => $report->reason,
+                    'description' => $report->description,
+                    'created_at' => $report->created_at,
                 ];
             });
 
         return Inertia::render('Librarian/ResourceManagement', [
             'resources' => $resources,
+            'currentType' => $type,
+            'reports' => $reports,
+            'permissions' => $permissions,
         ]);
+    }
+
+    private function getLibrarianPermissions($user)
+    {
+        if ($user->role !== 'librarian' || ! $user->librarian || ! $user->librarian->position) {
+            return ['add' => false, 'edit' => false, 'delete' => false, 'archive' => false];
+        }
+
+        $position = $user->librarian->position;
+
+        return $position->permissions ?? ['add' => false, 'edit' => false, 'delete' => false, 'archive' => false];
     }
 
     public function store(Request $request)
     {
+        // Check librarian permissions
+        $user = Auth::user();
+        if ($user->role !== 'librarian') {
+            abort(403, 'Only librarians can upload featured resources.');
+        }
+
+        $permissions = $this->getLibrarianPermissions($user);
+        if (! $permissions['add']) {
+            abort(403, 'You do not have permission to add resources.');
+        }
+
         Log::info('UPLOAD STARTED', [
             'user_id' => Auth::id(),
             'file_size' => $request->file('file')?->getSize(),
@@ -84,8 +144,10 @@ class ResourceController extends Controller
                 'publish_month' => $validated['publish_month'] ?? null,
                 'publish_day' => $validated['publish_day'] ?? null,
                 'Uploaded_By' => Auth::id(),
+                'owner_id' => null,
                 'Description' => $validated['Description'],
                 'status' => 'Available',
+                'approval_status' => 'approved',
                 'views' => 0, // Explicitly set initial views to 0
             ]);
 
@@ -121,8 +183,181 @@ class ResourceController extends Controller
         }
     }
 
+    // Community upload - available to all authenticated users
+    public function storeCommunityUpload(Request $request)
+    {
+        Log::info('COMMUNITY UPLOAD STARTED', [
+            'user_id' => Auth::id(),
+            'file_size' => $request->file('file')?->getSize(),
+        ]);
+
+        $validated = $request->validate([
+            'Resource_Name' => 'required|string|max:255',
+            'authors' => 'required|string|max:500',
+            'Description' => 'required|string',
+            'publish_year' => 'nullable|integer|min:1900|max:2030',
+            'publish_month' => 'nullable|integer|min:1|max:12',
+            'publish_day' => 'nullable|integer|min:1|max:31',
+            'file' => 'required|file|mimes:pdf,doc,docx,zip|max:102400',
+            'tags' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            $uploadedFile = $request->file('file');
+            $path = $uploadedFile->store('resources', 'public');
+
+            $resource = Resource::create([
+                'Resource_Name' => $validated['Resource_Name'],
+                'File_Path' => $path,
+                'Type' => 'Community Uploads',
+                'publish_year' => $validated['publish_year'] ?? null,
+                'publish_month' => $validated['publish_month'] ?? null,
+                'publish_day' => $validated['publish_day'] ?? null,
+                'Uploaded_By' => Auth::id(),
+                'owner_id' => Auth::id(), // User becomes the owner
+                'Description' => $validated['Description'],
+                'status' => 'Available',
+                'approval_status' => 'pending', // Needs librarian approval
+                'views' => 0,
+            ]);
+
+            // Attempt thumbnail generation separately so it doesn't fail the whole upload
+            try {
+                $this->generateThumbnail($resource, $uploadedFile);
+                Log::info('Thumbnail generated successfully for Resource ID: '.$resource->Resource_ID);
+            } catch (\Exception $thumbnailException) {
+                Log::warning('Thumbnail generation failed for Resource ID '.$resource->Resource_ID.': '.$thumbnailException->getMessage());
+            }
+
+            // Sync authors
+            $this->syncAuthors($resource, $validated['authors']);
+            $this->syncTags($resource, $validated['tags'] ?? '');
+
+            // Log audit
+            AuditLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'community_resource_upload',
+                'model_type' => Resource::class,
+                'model_id' => $resource->Resource_ID,
+                'description' => "Uploaded community resource: {$validated['Resource_Name']}",
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+
+            return redirect()->back()->with('success', 'Your resource has been submitted for review. It will appear in Community Uploads once approved by a librarian.');
+
+        } catch (\Exception $e) {
+            Log::error('Community upload failed: '.$e->getMessage());
+
+            return redirect()->back()->with('error', 'Upload failed: '.$e->getMessage());
+        }
+    }
+
+    // Approve community upload
+    public function approveCommunityUpload($id)
+    {
+        $resource = Resource::findOrFail($id);
+
+        if ($resource->Type !== 'Community Uploads') {
+            return back()->with('error', 'This resource is not a community upload.');
+        }
+
+        $resource->update([
+            'approval_status' => 'approved',
+        ]);
+
+        // Log audit
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'approve_community_upload',
+            'model_type' => Resource::class,
+            'model_id' => $resource->Resource_ID,
+            'description' => "Approved community upload: {$resource->Resource_Name}",
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        return back()->with('success', 'Community upload approved successfully.');
+    }
+
+    // Reject community upload
+    public function rejectCommunityUpload($id)
+    {
+        $resource = Resource::findOrFail($id);
+
+        if ($resource->Type !== 'Community Uploads') {
+            return back()->with('error', 'This resource is not a community upload.');
+        }
+
+        $resource->update([
+            'approval_status' => 'rejected',
+        ]);
+
+        // Log audit
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'reject_community_upload',
+            'model_type' => Resource::class,
+            'model_id' => $resource->Resource_ID,
+            'description' => "Rejected community upload: {$resource->Resource_Name}",
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        return back()->with('success', 'Community upload rejected.');
+    }
+
+    // Report resource
+    public function report(Request $request)
+    {
+        $validated = $request->validate([
+            'resource_id' => 'required|exists:resources,Resource_ID',
+            'reason' => 'required|string|max:255',
+            'description' => 'required|string|max:1000',
+        ]);
+
+        $resource = Resource::findOrFail($validated['resource_id']);
+
+        // Prevent users from reporting their own resources
+        if ($resource->owner_id === Auth::id()) {
+            return back()->with('error', 'You cannot report your own resource.');
+        }
+
+        \App\Models\ResourceReport::create([
+            'resource_id' => $validated['resource_id'],
+            'reported_by' => Auth::id(),
+            'reason' => $validated['reason'],
+            'description' => $validated['description'],
+            'status' => 'pending',
+        ]);
+
+        // Log audit
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'resource_report',
+            'model_type' => Resource::class,
+            'model_id' => $resource->Resource_ID,
+            'description' => "Reported resource: {$resource->Resource_Name}",
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        return back()->with('success', 'Report submitted successfully.');
+    }
+
     public function update(Request $request, Resource $resource)
     {
+        // Check librarian permissions
+        $user = Auth::user();
+        if ($user->role !== 'librarian') {
+            abort(403, 'Only librarians can update resources.');
+        }
+
+        $permissions = $this->getLibrarianPermissions($user);
+        if (! $permissions['edit']) {
+            abort(403, 'You do not have permission to edit resources.');
+        }
+
         $validated = $request->validate([
             'Resource_Name' => 'required|string|max:255',
             'authors' => 'required|string|max:500',
@@ -171,6 +406,17 @@ class ResourceController extends Controller
 
     public function destroy(Resource $resource)
     {
+        // Check librarian permissions
+        $user = Auth::user();
+        if ($user->role !== 'librarian') {
+            abort(403, 'Only librarians can delete resources.');
+        }
+
+        $permissions = $this->getLibrarianPermissions($user);
+        if (! $permissions['delete']) {
+            abort(403, 'You do not have permission to delete resources.');
+        }
+
         // Delete main file
         if ($resource->File_Path && Storage::disk('public')->exists($resource->File_Path)) {
             Storage::disk('public')->delete($resource->File_Path);

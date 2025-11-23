@@ -33,8 +33,9 @@ class AuthController extends Controller
     public function showRegisterForm()
     {
         $campuses = Campus::all();
+        $courses = \App\Models\Course::all();
 
-        return view('register', compact('campuses'));
+        return view('register', compact('campuses', 'courses'));
     }
 
     // ────────────────────── LOGIN ──────────────────────
@@ -107,20 +108,43 @@ class AuthController extends Controller
        -------------------------------------------------------------- */
     public function register(Request $request)
     {
-        $request->validate([
+        $rules = [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/[a-z]/',      // at least one lowercase letter
+                'regex:/[A-Z]/',      // at least one uppercase letter
+                'regex:/[0-9]/',      // at least one digit
+                'regex:/[-_@$!%*#?&]/', // at least one special character (-_@$!%*#?&)
+            ],
             'role' => ['required', 'in:student,faculty,librarian,admin'],
             'campus_id' => ['required', 'exists:campus,Campus_ID'],
-        ]);
+        ];
+
+        // Add course and student_number validation for students
+        if ($request->role === 'student') {
+            $rules['course_id'] = ['required', 'exists:courses,id'];
+            $rules['student_number'] = ['required', 'string', 'max:20', 'regex:/^23-\d{3,}$/'];
+        }
+
+        $messages = [
+            'password.min' => 'The password must be at least 8 characters.',
+            'password.regex' => 'The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (-_@$!%*#?&).',
+            'password.confirmed' => 'The password confirmation does not match.',
+        ];
+
+        $request->validate($rules, $messages);
 
         // Generate 6-digit code
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         // Store registration data in session (NOT in database yet)
-        $request->session()->put('registration_data', [
+        $registrationData = [
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
@@ -129,16 +153,38 @@ class AuthController extends Controller
             'campus_id' => $request->campus_id,
             'code' => $code,
             'code_expires_at' => now()->addMinutes(15),
-        ]);
+        ];
 
-        // Send verification email
+        // Add course and student_number for students
+        if ($request->role === 'student') {
+            $registrationData['course_id'] = $request->course_id;
+            $registrationData['student_number'] = $request->student_number;
+        }
+
+        $request->session()->put('registration_data', $registrationData);
+
+        // Send verification email - don't block registration if it fails
         try {
-            Mail::to($request->email)->send(new VerificationCodeMail($code));
-            \Log::info("Verification email sent to {$request->email} with code: {$code}");
+            // If mail driver is 'log', just log it and continue
+            if (config('mail.default') === 'log') {
+                \Log::info("Verification code for {$request->email}: {$code}");
+            } else {
+                // Try to send email, but don't fail registration if it errors
+                try {
+                    Mail::to($request->email)->send(new VerificationCodeMail($code));
+                    \Log::info("Verification email sent to {$request->email} with code: {$code}");
+                } catch (\Exception $mailException) {
+                    // Log the error but continue with registration
+                    \Log::warning("Email sending failed for {$request->email}: ".$mailException->getMessage());
+                    \Log::info("Verification code for {$request->email}: {$code} (email failed, code logged)");
+                    // Continue - don't block registration
+                }
+            }
         } catch (\Exception $e) {
-            \Log::error('Failed to send email: '.$e->getMessage());
-
-            return back()->withErrors(['email' => 'Failed to send verification email. Please try again.']);
+            // Catch any other errors and log but continue
+            \Log::error('Email error: '.$e->getMessage());
+            \Log::info("Verification code for {$request->email}: {$code} (error occurred, code logged)");
+            // Don't return error - let user proceed to verification page
         }
 
         return redirect()->route('verify.code');
@@ -248,6 +294,12 @@ class AuthController extends Controller
             'Last_Name' => $data['last_name'],
         ];
 
+        // Add course and student_number for students
+        if ($user->role === 'student') {
+            $profileData['course_id'] = $data['course_id'] ?? null;
+            $profileData['student_number'] = $data['student_number'] ?? null;
+        }
+
         match ($user->role) {
             'student' => Student::create($profileData),
             'faculty' => Faculty::create($profileData),
@@ -265,28 +317,43 @@ class AuthController extends Controller
             ->with(['campus', 'faculty', 'librarian'])
             ->get();
 
-        // Get audit logs for graphs
-        $recentLogins = \App\Models\AuditLog::where('action', 'login')
+        // Get audit logs for graphs - fill in missing days with 0
+        $loginData = \App\Models\AuditLog::where('action', 'login')
             ->where('created_at', '>=', now()->subDays(30))
             ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
             ->groupBy('date')
             ->orderBy('date')
             ->get()
-            ->map(fn ($log) => [
-                'date' => $log->date,
-                'count' => $log->count,
-            ]);
+            ->keyBy('date');
 
-        $resourceUploads = \App\Models\AuditLog::where('action', 'resource_upload')
+        $uploadData = \App\Models\AuditLog::where('action', 'resource_upload')
             ->where('created_at', '>=', now()->subDays(30))
             ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
             ->groupBy('date')
             ->orderBy('date')
             ->get()
-            ->map(fn ($log) => [
-                'date' => $log->date,
-                'count' => $log->count,
-            ]);
+            ->keyBy('date');
+
+        // Generate array for last 30 days with data or 0
+        $recentLogins = collect(range(0, 29))->map(function ($daysAgo) use ($loginData) {
+            $date = now()->subDays($daysAgo)->format('Y-m-d');
+            $logEntry = $loginData->get($date);
+
+            return [
+                'date' => $date,
+                'count' => $logEntry ? (int) $logEntry->count : 0,
+            ];
+        })->reverse()->values();
+
+        $resourceUploads = collect(range(0, 29))->map(function ($daysAgo) use ($uploadData) {
+            $date = now()->subDays($daysAgo)->format('Y-m-d');
+            $logEntry = $uploadData->get($date);
+
+            return [
+                'date' => $date,
+                'count' => $logEntry ? (int) $logEntry->count : 0,
+            ];
+        })->reverse()->values();
 
         $stats = [
             'totalUsers' => User::where('is_approved', true)->count(),
@@ -389,11 +456,76 @@ class AuthController extends Controller
             ])
             ->values();
 
+        // Get Community Uploads and Featured counts for last 30 days (line graph)
+        $communityUploadsData = Resource::where('Type', 'Community Uploads')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->keyBy('date');
+
+        $featuredData = Resource::where('Type', 'Featured')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->keyBy('date');
+
+        // Generate array for last 30 days with data or 0
+        $communityUploadsChart = collect(range(0, 29))->map(function ($daysAgo) use ($communityUploadsData) {
+            $date = now()->subDays($daysAgo)->format('Y-m-d');
+            $logEntry = $communityUploadsData->get($date);
+
+            return [
+                'date' => $date,
+                'count' => $logEntry ? (int) $logEntry->count : 0,
+            ];
+        })->reverse()->values();
+
+        $featuredChart = collect(range(0, 29))->map(function ($daysAgo) use ($featuredData) {
+            $date = now()->subDays($daysAgo)->format('Y-m-d');
+            $logEntry = $featuredData->get($date);
+
+            return [
+                'date' => $date,
+                'count' => $logEntry ? (int) $logEntry->count : 0,
+            ];
+        })->reverse()->values();
+
+        // Get reports
+        $reports = \App\Models\ResourceReport::with(['resource', 'reporter'])
+            ->latest()
+            ->get()
+            ->map(function ($report) {
+                return [
+                    'id' => $report->id,
+                    'resource_id' => $report->resource_id,
+                    'resource_name' => $report->resource->Resource_Name ?? 'Unknown',
+                    'reporter_name' => $report->reporter->full_name ?? 'Unknown',
+                    'reporter_email' => $report->reporter->email ?? 'N/A',
+                    'reason' => $report->reason,
+                    'description' => $report->description,
+                    'status' => $report->status,
+                    'created_at' => $report->created_at,
+                ];
+            })
+            ->values();
+
+        // Get flagged accounts (users who have been flagged through reports - placeholder for now)
+        // TODO: Implement proper flagging system with is_flagged field
+        $flaggedAccounts = collect([]); // Empty for now until flagging system is implemented
+
         return Inertia::render('Admin/Analytics', [
             'summary' => $summary,
             'resourcesByType' => $resourcesByType,
             'topViewed' => $topViewed,
             'recentUploads' => $recentUploads,
+            'reports' => $reports,
+            'flaggedAccounts' => $flaggedAccounts,
+            'communityUploadsChart' => $communityUploadsChart,
+            'featuredChart' => $featuredChart,
         ]);
     }
 

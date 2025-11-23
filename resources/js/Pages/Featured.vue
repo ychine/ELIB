@@ -1,4 +1,5 @@
 <template>
+  <Head title="Featured Resources" />
   <AppLayout title="" content-padding-classes="px-4 lg:px-[5%]">
     <div class="flex flex-col lg:pl-28 lg:pr-20 pt-4 content-wrapper">
       <!-- Featured Section -->
@@ -97,10 +98,10 @@
     <div
       v-if="selectedResource"
       id="borrowModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
       @click.self="closeModal"
     >
-      <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] my-4 overflow-y-auto mx-auto">
         <div class="flex h-full">
           <!-- Left: Thumbnail -->
           <div class="w-72 flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200 p-6 flex items-center justify-center border-r border-gray-200">
@@ -227,7 +228,7 @@
 </template>
 
 <script setup>
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, Head } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted } from 'vue';
 import AppLayout from '../Layouts/AppLayout.vue';
 

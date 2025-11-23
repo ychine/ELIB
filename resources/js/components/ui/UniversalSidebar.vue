@@ -31,12 +31,11 @@
       <template v-for="link in menuItems" :key="link.key">
         <!-- Regular Links (logout removed from menu) -->
         <a
-          v-if="link.type !== 'logout'"
+          v-if="link.type !== 'logout' && isExpanded"
           :href="link.href"
           class="universal-sidebar__link"
           :class="{ 'is-active': isActiveRoute(link.key) }"
-          @click.stop="handleLinkClick(link, $event)"
-          :data-tooltip="!isExpanded ? link.label : ''"
+          @click.stop.prevent="handleLinkClick(link, $event)"
         >
           <img
             v-if="link.icon"
@@ -51,6 +50,29 @@
           ></i>
           <span class="universal-sidebar__label">{{ link.label }}</span>
         </a>
+        <button
+          v-else-if="link.type !== 'logout' && !isExpanded"
+          type="button"
+          class="universal-sidebar__link"
+          :class="{ 'is-active': isActiveRoute(link.key) }"
+          @click.stop="handleLinkClick(link, $event)"
+          @mouseenter="(e) => showTooltip(e, link.label)"
+          @mouseleave="hideTooltip"
+          :data-tooltip="link.label"
+        >
+          <img
+            v-if="link.icon"
+            :src="isActiveRoute(link.key) && link.iconActive ? link.iconActive : link.icon"
+            :alt="link.label"
+            class="universal-sidebar__icon"
+          />
+          <i
+            v-else-if="link.iconClass"
+            :class="link.iconClass"
+            class="universal-sidebar__icon"
+          ></i>
+          <span class="universal-sidebar__label">{{ link.label }}</span>
+        </button>
       </template>
     </nav>
 
@@ -129,12 +151,14 @@
     v-if="showAccountSettings"
     v-model="showAccountSettings"
     :user="user"
+    :courses="courses"
     @save="handleAccountSave"
   />
 </template>
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { router } from '@inertiajs/vue3';
 import AccountSettingsOverlay from './AccountSettingsOverlay.vue';
 
 const props = defineProps({
@@ -178,12 +202,18 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  courses: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const isExpanded = ref(props.defaultExpanded);
 const showAccountSettings = ref(false);
 const showProfileDropdown = ref(false);
 const sidebarRef = ref(null);
+const tooltipRef = ref(null);
+const tooltipArrowRef = ref(null);
 
 const logoutHref = computed(() => {
   return props.logoutUrl || '/logout';
@@ -231,6 +261,10 @@ const handleSidebarClick = (event) => {
 const toggleSidebar = () => {
   isExpanded.value = !isExpanded.value;
   updateBodyClass();
+  // Hide tooltip when sidebar expands
+  if (isExpanded.value) {
+    hideTooltip();
+  }
 };
 
 const isActiveRoute = (linkKey) => {
@@ -250,11 +284,69 @@ const isActiveRoute = (linkKey) => {
 };
 
 const handleLinkClick = (link, event) => {
-  // Allow default navigation
-  if (link.href && link.href !== '#') {
-    return;
-  }
   event.preventDefault();
+  // Navigate using Inertia router
+  if (link.href && link.href !== '#') {
+    router.visit(link.href);
+  }
+};
+
+const showTooltip = (event, label) => {
+  if (isExpanded.value) return;
+  
+  const button = event.currentTarget;
+  const rect = button.getBoundingClientRect();
+  
+  // Create or get tooltip element
+  let tooltip = document.getElementById('sidebar-tooltip');
+  let tooltipArrow = document.getElementById('sidebar-tooltip-arrow');
+  
+  if (!tooltip) {
+    tooltip = document.createElement('div');
+    tooltip.id = 'sidebar-tooltip';
+    tooltip.className = 'sidebar-tooltip-overlay';
+    document.body.appendChild(tooltip);
+  }
+  
+  if (!tooltipArrow) {
+    tooltipArrow = document.createElement('div');
+    tooltipArrow.id = 'sidebar-tooltip-arrow';
+    tooltipArrow.className = 'sidebar-tooltip-arrow';
+    document.body.appendChild(tooltipArrow);
+  }
+  
+  // Position tooltip
+  const top = rect.top + (rect.height / 2);
+  const left = rect.right + 12;
+  
+  tooltip.textContent = label;
+  tooltip.style.top = `${top}px`;
+  tooltip.style.left = `${left}px`;
+  tooltip.style.transform = 'translateY(-50%)';
+  tooltip.style.opacity = '1';
+  tooltip.style.visibility = 'visible';
+  
+  // Position arrow
+  tooltipArrow.style.top = `${top}px`;
+  tooltipArrow.style.left = `${rect.right + 6}px`;
+  tooltipArrow.style.transform = 'translateY(-50%)';
+  tooltipArrow.style.opacity = '1';
+  tooltipArrow.style.visibility = 'visible';
+};
+
+const hideTooltip = () => {
+  const tooltip = document.getElementById('sidebar-tooltip');
+  const tooltipArrow = document.getElementById('sidebar-tooltip-arrow');
+  
+  if (tooltip) {
+    tooltip.style.opacity = '0';
+    tooltip.style.visibility = 'hidden';
+  }
+  
+  if (tooltipArrow) {
+    tooltipArrow.style.opacity = '0';
+    tooltipArrow.style.visibility = 'hidden';
+  }
 };
 
 const handleLogoutClick = (event) => {
@@ -306,11 +398,21 @@ const handleLogoutSubmit = (event) => {
 const handleAccountSave = async (data) => {
   try {
     const formData = new FormData();
-    formData.append('name', data.name);
+    formData.append('first_name', data.first_name);
+    formData.append('last_name', data.last_name);
     formData.append('email', data.email);
     if (data.newPassword && data.newPassword === data.confirmPassword) {
       formData.append('password', data.newPassword);
       formData.append('password_confirmation', data.confirmPassword);
+    }
+    // Add student-specific fields if user is a student
+    if (props.user?.role === 'student') {
+      if (data.student_number) {
+        formData.append('student_number', data.student_number);
+      }
+      if (data.course_id) {
+        formData.append('course_id', data.course_id);
+      }
     }
 
     const response = await fetch('/profile/update', {
@@ -400,6 +502,12 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  // Clean up tooltip elements
+  hideTooltip();
+  const tooltip = document.getElementById('sidebar-tooltip');
+  const tooltipArrow = document.getElementById('sidebar-tooltip-arrow');
+  if (tooltip) tooltip.remove();
+  if (tooltipArrow) tooltipArrow.remove();
   document.removeEventListener('click', handleClickOutside);
   window.removeEventListener('scroll', ensureSidebarFixed);
   window.removeEventListener('resize', ensureSidebarFixed);
@@ -412,6 +520,15 @@ onBeforeUnmount(() => {
 watch(() => props.defaultExpanded, (newVal) => {
   isExpanded.value = newVal;
   updateBodyClass();
+  if (isExpanded.value) {
+    hideTooltip();
+  }
+});
+
+watch(isExpanded, (newVal) => {
+  if (newVal) {
+    hideTooltip();
+  }
 });
 
 watch(showAccountSettings, (isOpen) => {
@@ -498,7 +615,7 @@ watch(showAccountSettings, (isOpen) => {
   flex-direction: column;
   gap: 0.5rem;
   overflow-y: auto;
-  overflow-x: hidden !important;
+  overflow-x: hidden;
   padding-right: 0.25rem;
   min-height: 0;
   margin-top: 0;
@@ -567,9 +684,16 @@ watch(showAccountSettings, (isOpen) => {
 
 .universal-sidebar__link.is-active {
   background: #22c55e;
-  box-shadow: 
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.5);
+}
 
-    0 0 0 2px rgba(34, 197, 94, 0.5);
+.universal-sidebar.is-collapsed button.universal-sidebar__link:hover {
+  background: #15803d;
+}
+
+.universal-sidebar.is-collapsed button.universal-sidebar__link.is-active {
+  background: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.5);
 }
 
 .universal-sidebar__icon {
@@ -594,6 +718,7 @@ watch(showAccountSettings, (isOpen) => {
 .universal-sidebar.is-collapsed .universal-sidebar__link {
   justify-content: center;
   padding: 0;
+  overflow: visible;
 }
 
 .universal-sidebar.is-collapsed .universal-sidebar__icon {
@@ -645,48 +770,27 @@ watch(showAccountSettings, (isOpen) => {
   overflow: hidden;
 }
 
-/* Tooltip for collapsed sidebar */
-.universal-sidebar.is-collapsed .universal-sidebar__link {
+/* Tooltip for collapsed sidebar - using JavaScript overlay */
+.universal-sidebar.is-collapsed button.universal-sidebar__link {
   position: relative;
-}
-
-.universal-sidebar.is-collapsed .universal-sidebar__link::before {
-  content: attr(data-tooltip);
-  position: absolute;
-  left: calc(100% + 0.75rem);
-  top: 50%;
-  transform: translateY(-50%);
-  background: #1f2937;
+  overflow: visible;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  height: 2.5rem;
+  background: #166534;
+  border-radius: 0.75rem;
+  box-shadow: inset 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
   color: white;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  font-family: 'Kulim Park', sans-serif;
-}
-
-.universal-sidebar.is-collapsed .universal-sidebar__link::after {
-  content: '';
-  position: absolute;
-  left: calc(100% + 0.5rem);
-  top: 50%;
-  transform: translateY(-50%);
-  border: 6px solid transparent;
-  border-right-color: #1f2937;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  z-index: 1001;
-}
-
-.universal-sidebar.is-collapsed .universal-sidebar__link:hover::before,
-.universal-sidebar.is-collapsed .universal-sidebar__link:hover::after {
-  opacity: 1;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  font-size: inherit;
 }
 
 .universal-sidebar__profile-wrapper {
@@ -955,6 +1059,40 @@ watch(showAccountSettings, (isOpen) => {
   .universal-sidebar {
     display: none;
   }
+}
+/* Global tooltip overlay styles (not scoped) */
+</style>
+
+<style>
+.sidebar-tooltip-overlay {
+  position: fixed;
+  background: #1f2937;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 99999 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: 'Kulim Park', sans-serif;
+  transition: opacity 0.2s ease 0.1s, visibility 0.2s ease 0.1s;
+  visibility: hidden;
+  min-width: max-content;
+}
+
+.sidebar-tooltip-arrow {
+  position: fixed;
+  border: 6px solid transparent;
+  border-right-color: #1f2937;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 99998 !important;
+  transition: opacity 0.2s ease 0.1s, visibility 0.2s ease 0.1s;
+  visibility: hidden;
+  width: 0;
+  height: 0;
 }
 </style>
 

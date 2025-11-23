@@ -4,8 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify Code – ISU StudyGo</title>
-    @vite(['resources/css/app.css'])
+    <link rel="icon" href="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/css/kulimpark.css', 'resources/css/Inter.css', 'resources/css/kantumruypro.css'])
     <style>
+        body {
+            background-color: #000000 !important;
+            min-height: 100vh;
+        }
         .digit {
             width: 56px; height: 56px;
             font-size: 1.5rem; font-weight: bold;
@@ -20,9 +28,9 @@
         }
     </style>
 </head>
-<body class="bg-[#000000] min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-4 relative" style="background-color: #000000 !important;">
      <span class="z-[-1] absolute top-1/2 left-1/2 w-[40vw] h-[30vw] -translate-x-1/2 -translate-y-1/2 bg-[#63F068] rounded-full blur-[50vw]"></span>
-<div class="bg-white rounded-4xl shadow-lg p-8 max-w-md w-full text-center">
+<div class="bg-white rounded-4xl shadow-lg p-8 max-w-md w-full text-center relative z-10">
     <img src="{{ Vite::asset('resources/images/ISUStudyGo.svg') }}" alt="Logo"
          class="h-12 mx-auto mb-4">
     <h1 class="text-2xl font-bold text-gray-800">Enter Verification Code</h1>

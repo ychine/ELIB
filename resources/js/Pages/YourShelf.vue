@@ -1,10 +1,94 @@
 <template>
+  <Head title="Your Shelf" />
   <AppLayout title="" content-padding-classes="px-4 lg:px-[5%]">
     <div class="flex flex-col lg:pl-28 lg:pr-20 pt-4 content-wrapper">
       <div class="w-full">
         <h2 class="text-2xl sm:text-3xl font-extrabold kulim-park-bold tracking-tight mb-6">
           Your Shelf
         </h2>
+
+        <!-- Owned Resources Section (Community Uploads) -->
+        <div v-if="ownedResources && ownedResources.length > 0" class="mb-8">
+          <h3 class="text-xl font-bold kulim-park-bold mb-4 text-gray-800">My Community Uploads</h3>
+          <div class="space-y-6">
+            <div
+              v-for="resource in ownedResources"
+              :key="resource.Resource_ID"
+              class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200"
+            >
+              <div class="flex gap-6">
+                <!-- Thumbnail -->
+                <div class="w-32 h-48 flex-shrink-0 bg-gray-200 rounded-lg overflow-hidden">
+                  <img
+                    v-if="resource.thumbnail_path"
+                    :src="`/storage/${resource.thumbnail_path}`"
+                    :alt="resource.Resource_Name"
+                    class="w-full h-full object-cover"
+                  >
+                  <div
+                    v-else
+                    class="w-full h-full flex items-center justify-center text-2xl font-bold text-gray-400"
+                  >
+                    {{ resource.Resource_Name?.substring(0, 2).toUpperCase() || 'NA' }}
+                  </div>
+                </div>
+
+                <!-- Details -->
+                <div class="flex-1">
+                  <h4 class="text-xl font-bold kulim-park-bold mb-2">{{ resource.Resource_Name }}</h4>
+                  <p class="text-sm text-gray-600 mb-4">by {{ resource.authors }}</p>
+
+                  <!-- Analytics -->
+                  <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="bg-blue-50 rounded-lg p-3">
+                      <p class="text-xs text-gray-600 mb-1">Views</p>
+                      <p class="text-2xl font-bold text-blue-700">{{ resource.views || 0 }}</p>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-3">
+                      <p class="text-xs text-gray-600 mb-1">Total Borrows</p>
+                      <p class="text-2xl font-bold text-green-700">{{ resource.total_borrows || 0 }}</p>
+                    </div>
+                  </div>
+
+                  <!-- Borrow Requests -->
+                  <div v-if="resource.borrow_requests && resource.borrow_requests.length > 0" class="mt-4">
+                    <h5 class="font-semibold text-gray-700 mb-2">Pending Borrow Requests</h5>
+                    <div class="space-y-2">
+                      <div
+                        v-for="request in resource.borrow_requests"
+                        :key="request.Borrower_ID"
+                        class="bg-gray-50 rounded-lg p-3 flex items-center justify-between"
+                      >
+                        <div>
+                          <p class="font-medium text-gray-900">{{ request.user.full_name }}</p>
+                          <p class="text-xs text-gray-500">{{ request.user.email }}</p>
+                          <p class="text-xs text-gray-500 mt-1">
+                            Expected Return: {{ formatDate(request.Return_Date) }}
+                          </p>
+                        </div>
+                        <div class="flex gap-2">
+                          <button
+                            @click="approveBorrowRequest(request.Borrower_ID)"
+                            class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            @click="rejectBorrowRequest(request.Borrower_ID)"
+                            class="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <p v-else class="text-sm text-gray-500 italic">No pending borrow requests</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Community Uploads Section (for Librarians) -->
         <div v-if="userRole === 'librarian'" class="mb-8">
@@ -31,9 +115,9 @@
         </div>
 
         <div v-else>
-          <!-- Pending Requests -->
-          <div v-if="pendingBorrows.length > 0" class="mb-8">
-            <h3 class="text-xl font-bold kulim-park-bold mb-4 text-gray-800">Pending Requests</h3>
+          <!-- Pending & Rejected Requests Combined -->
+          <div v-if="requestBorrows.length > 0" class="mb-8">
+            <h3 class="text-xl font-bold kulim-park-bold mb-4 text-gray-800">Borrow Requests</h3>
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
               <div class="overflow-x-auto">
                 <table class="w-full">
@@ -42,13 +126,16 @@
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resource</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested Date</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200">
                     <tr
-                      v-for="borrow in pendingBorrows"
+                      v-for="borrow in requestBorrows"
                       :key="borrow.id"
                       class="hover:bg-gray-50"
+                      :class="{ 'cursor-pointer': !borrow.isRejected }"
+                      @click="!borrow.isRejected && openRequestModal(borrow)"
                     >
                       <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center gap-3">
@@ -75,9 +162,30 @@
                         {{ formatDate(borrow.created_at) }}
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-700 font-medium">
+                        <span
+                          v-if="borrow.isRejected"
+                          class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-700 font-medium"
+                        >
+                          Rejected
+                        </span>
+                        <span
+                          v-else
+                          class="px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-700 font-medium"
+                        >
                           Pending Approval
                         </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <button
+                          v-if="borrow.isRejected"
+                          @click.stop.prevent="showRejectionReason(borrow, $event)"
+                          class="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                          title="View rejection reason"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </button>
                       </td>
                     </tr>
                   </tbody>
@@ -170,7 +278,7 @@
       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
       @click.self="closeModal"
     >
-      <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] my-4 overflow-y-auto">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] my-4 overflow-y-auto mx-auto">
         <div class="flex h-full min-h-0">
           <!-- Left: Thumbnail -->
           <div class="w-72 flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200 p-6 flex items-center justify-center border-r border-gray-200">
@@ -265,6 +373,15 @@
               >
                 Close
               </button>
+              <button
+                v-if="selectedBorrow.Borrower_ID && selectedBorrow.Approved_Date && !selectedBorrow.isReturned"
+                type="button"
+                @click="returnBook"
+                :disabled="isReturning"
+                class="px-12 py-3 bg-gradient-to-r from-[#dc2626] to-[#b91c1c] text-white rounded-xl hover:from-[#b91c1c] hover:to-[#991b1b] transition-all font-medium text-sm shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {{ isReturning ? 'Returning...' : 'Return Book' }}
+              </button>
               <a
                 v-if="selectedBorrow.resource?.Resource_ID && selectedBorrow.Approved_Date"
                 :href="`/viewer/${selectedBorrow.resource.Resource_ID}`"
@@ -281,6 +398,195 @@
       </div>
     </div>
 
+    <!-- Request Details Modal (Pending/Rejected) -->
+    <div
+      v-if="selectedRequest"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
+      @click.self="closeRequestModal"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] my-4 overflow-y-auto mx-auto">
+        <div class="flex h-full min-h-0">
+          <!-- Left: Thumbnail -->
+          <div class="w-72 flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200 p-6 flex items-center justify-center border-r border-gray-200">
+            <div class="w-60 h-96 bg-gray-100 border-8 border-gray-300 rounded-lg shadow-xl flex items-center justify-center overflow-hidden">
+              <img
+                v-if="selectedRequest.resource?.thumbnail_path"
+                :src="`/storage/${selectedRequest.resource.thumbnail_path}`"
+                alt="Book Cover"
+                class="w-full h-full object-cover"
+              >
+              <div
+                v-else
+                class="w-full h-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-6xl font-bold text-white"
+              >
+                {{ selectedRequest.resource?.Resource_Name?.substring(0, 2).toUpperCase() || 'BOOK' }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Details -->
+          <div class="flex-1 p-8 flex flex-col overflow-y-auto min-h-0">
+            <h2 class="text-3xl kulim-park-bold font-bold text-gray-900 mb-6 leading-tight">
+              {{ selectedRequest.resource?.Resource_Name || 'Unknown Resource' }}
+            </h2>
+
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-2 text-yellow-500">
+                <span class="text-4xl font-bold">★ {{ selectedRequest.resource?.average_rating ?? '0.0' }}</span>
+              </div>
+              <div class="text-sm text-gray-500 font-medium">
+                {{ selectedRequest.resource?.views || 0 }} views
+              </div>
+            </div>
+
+            <div class="space-y-3 mb-8 text-gray-800">
+              <p class="flex items-center gap-3">
+                <span class="font-semibold text-sm text-gray-600 uppercase tracking-wide">Author</span>
+                <span class="font-medium text-lg">{{ formatAuthors(selectedRequest.resource?.authors) }}</span>
+              </p>
+              <p class="flex items-center gap-3">
+                <span class="font-semibold text-sm text-gray-600 uppercase tracking-wide">Originally published</span>
+                <span class="font-medium text-lg">{{ selectedRequest.resource?.formatted_publish_date ?? 'N/A' }}</span>
+              </p>
+              <p class="flex items-center gap-3">
+                <span class="font-semibold text-sm text-gray-600 uppercase tracking-wide">Request Date</span>
+                <span class="font-medium text-lg">{{ formatDate(selectedRequest.created_at) }}</span>
+              </p>
+              <p v-if="selectedRequest.Return_Date" class="flex items-center gap-3">
+                <span class="font-semibold text-sm text-gray-600 uppercase tracking-wide">Expected Return</span>
+                <span class="font-medium text-lg">{{ formatDate(selectedRequest.Return_Date) }}</span>
+              </p>
+            </div>
+
+            <!-- Rejection Status Box -->
+            <div
+              v-if="selectedRequest.isRejected && selectedRequest.rejection_reason"
+              class="mb-8 p-5 bg-red-50 border-2 border-red-300 rounded-xl"
+            >
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0">
+                  <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <p class="font-bold text-lg text-red-800 mb-2">Request Rejected</p>
+                  <p class="text-red-700 font-medium">{{ selectedRequest.rejection_reason }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-8">
+              <p class="font-semibold text-gray-800 text-sm uppercase tracking-wide mb-3">Tags</p>
+              <div class="flex flex-wrap gap-2">
+                <template v-if="getTags(selectedRequest.resource?.tags).length > 0">
+                  <span
+                    v-for="tag in getTags(selectedRequest.resource?.tags)"
+                    :key="tag"
+                    class="bg-[#10B981] text-white px-3.5 py-1.5 rounded-full text-xs font-medium uppercase tracking-wide"
+                  >
+                    {{ tag }}
+                  </span>
+                </template>
+                <span
+                  v-else
+                  class="text-gray-400 text-sm italic"
+                >
+                  No tags
+                </span>
+              </div>
+            </div>
+
+            <div class="flex-1 mb-10">
+              <p class="font-semibold text-gray-800 text-sm uppercase tracking-wide mb-4">Description</p>
+              <p
+                v-if="selectedRequest.resource?.Description"
+                class="text-gray-700 text-sm leading-relaxed max-h-48 overflow-y-auto pr-2"
+              >
+                {{ selectedRequest.resource.Description }}
+              </p>
+              <p
+                v-else
+                class="text-gray-400 text-sm italic"
+              >
+                No description available.
+              </p>
+            </div>
+
+            <div class="flex gap-4 justify-end pt-4 border-t border-gray-200">
+              <button
+                type="button"
+                @click="closeRequestModal"
+                class="px-8 py-3 bg-white text-gray-700 border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all font-medium text-sm shadow-sm"
+              >
+                Close
+              </button>
+              <button
+                v-if="selectedRequest.isRejected"
+                type="button"
+                @click="showReturnDateModal = true"
+                class="px-8 py-3 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-xl hover:from-[#16A34A] hover:to-[#15803D] transition-all font-medium text-sm shadow-lg hover:shadow-xl"
+              >
+                Request Again
+              </button>
+              <button
+                v-else
+                type="button"
+                @click="cancelRequest"
+                :disabled="isCancelling"
+                class="px-8 py-3 bg-gradient-to-r from-[#dc2626] to-[#b91c1c] text-white rounded-xl hover:from-[#b91c1c] hover:to-[#991b1b] transition-all font-medium text-sm shadow-lg hover:shadow-xl disabled:opacity-50"
+              >
+                {{ isCancelling ? 'Cancelling...' : 'Cancel Request' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Return Date Modal for Re-request -->
+    <div
+      v-if="showReturnDateModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+      @click.self="showReturnDateModal = false"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] my-4 overflow-y-auto mx-auto">
+        <div class="p-6 border-b border-gray-200">
+          <h3 class="text-xl font-bold kulim-park-bold">Select Return Date</h3>
+        </div>
+        <div class="p-6">
+          <div class="mb-4">
+            <label class="block font-medium mb-2">Expected Return Date</label>
+            <input
+              v-model="returnDate"
+              type="datetime-local"
+              :min="minReturnDate"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
+            >
+            <p class="text-xs text-gray-500 mt-1">Please select when you plan to return this resource</p>
+          </div>
+        </div>
+        <div class="p-6 border-t border-gray-200 flex justify-end gap-2">
+          <button
+            type="button"
+            @click="showReturnDateModal = false; returnDate = ''"
+            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            @click="submitBorrowRequest"
+            :disabled="!returnDate || isSubmittingBorrow"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+          >
+            {{ isSubmittingBorrow ? 'Submitting...' : 'Confirm' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Rating Modal -->
     <div
       v-if="ratingBorrow"
@@ -288,7 +594,7 @@
       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
       @click.self="closeRatingModal"
     >
-      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] my-4 overflow-y-auto mx-auto">
         <div class="p-8">
           <h2 class="text-2xl kulim-park-bold font-bold text-gray-900 mb-6">
             Rate This Book
@@ -348,7 +654,7 @@
 </template>
 
 <script setup>
-import { Link, usePage, router } from '@inertiajs/vue3';
+import { Link, usePage, router, Head } from '@inertiajs/vue3';
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import AppLayout from '../Layouts/AppLayout.vue';
 
@@ -356,6 +662,10 @@ const props = defineProps({
   borrows: {
     type: Array,
     required: true,
+  },
+  ownedResources: {
+    type: Array,
+    default: () => [],
   },
 });
 
@@ -365,21 +675,41 @@ const userRole = computed(() => {
 });
 
 const selectedBorrow = ref(null);
+const selectedRequest = ref(null);
 const ratingBorrow = ref(null);
 const selectedRating = ref(0);
 const isSubmittingRating = ref(false);
+const isReturning = ref(false);
+const isCancelling = ref(false);
+const showReturnDateModal = ref(false);
+const returnDate = ref('');
+const isSubmittingBorrow = ref(false);
 const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
-const pendingBorrows = computed(() => {
+const requestBorrows = computed(() => {
   return props.borrows.filter(borrow => !borrow.Approved_Date);
 });
 
 const activeBorrows = computed(() => {
-  return props.borrows.filter(borrow => !borrow.isReturned && borrow.Approved_Date);
+  // Only show active borrows that are approved and not returned
+  return props.borrows.filter(borrow => 
+    borrow.Approved_Date && 
+    !borrow.isReturned && 
+    !borrow.isRejected
+  );
 });
 
 const returnedBorrows = computed(() => {
-  return props.borrows.filter(borrow => borrow.isReturned || borrow.Return_Date);
+  // Show books that are actually returned (isReturned = true/1) and were approved
+  return props.borrows.filter(borrow => {
+    // Check if it's actually returned (handle both boolean and integer)
+    const isReturned = borrow.isReturned === true || borrow.isReturned === 1;
+    // Must have been approved and not rejected
+    const wasApproved = borrow.Approved_Date && !borrow.isRejected;
+    
+    // Return if it's marked as returned AND was approved
+    return isReturned && wasApproved;
+  });
 });
 
 const formatDate = (date) => {
@@ -425,9 +755,91 @@ const openBookModal = (borrow) => {
   document.body.style.overflow = 'hidden';
 };
 
+const openRequestModal = (borrow) => {
+  selectedRequest.value = borrow;
+  document.body.style.overflow = 'hidden';
+};
+
 const closeModal = () => {
   selectedBorrow.value = null;
   document.body.style.overflow = '';
+};
+
+const closeRequestModal = () => {
+  selectedRequest.value = null;
+  document.body.style.overflow = '';
+};
+
+const showRejectionReason = (borrow, event) => {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  // Just open the main request modal - rejection reason will be shown there
+  openRequestModal(borrow);
+};
+
+const cancelRequest = () => {
+  if (!selectedRequest.value || !selectedRequest.value.Borrower_ID || isCancelling.value) {
+    return;
+  }
+
+  if (!confirm('Are you sure you want to cancel this request?')) {
+    return;
+  }
+
+  isCancelling.value = true;
+  router.delete(`/borrow/cancel/${selectedRequest.value.Borrower_ID}`, {
+    onFinish: () => {
+      isCancelling.value = false;
+    },
+    onSuccess: () => {
+      closeRequestModal();
+      router.reload();
+    },
+  });
+};
+
+const minReturnDate = computed(() => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() + 1); // At least 1 minute from now
+  // Format as datetime-local (YYYY-MM-DDTHH:mm)
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+});
+
+const submitBorrowRequest = () => {
+  if (!selectedRequest.value || !returnDate.value || isSubmittingBorrow.value) {
+    return;
+  }
+
+  const selectedDate = new Date(returnDate.value);
+  const now = new Date();
+  
+  if (selectedDate <= now) {
+    alert('Return date and time must be in the future');
+    return;
+  }
+
+  isSubmittingBorrow.value = true;
+  router.post('/borrow/request', {
+    resource_id: selectedRequest.value.resource?.Resource_ID,
+    return_date: returnDate.value,
+  }, {
+    onFinish: () => {
+      isSubmittingBorrow.value = false;
+    },
+    onSuccess: () => {
+      showReturnDateModal.value = false;
+      returnDate.value = '';
+      closeRequestModal();
+      router.reload();
+    },
+  });
 };
 
 const openRatingModal = (borrow) => {
@@ -440,6 +852,28 @@ const closeRatingModal = () => {
   ratingBorrow.value = null;
   selectedRating.value = 0;
   document.body.style.overflow = '';
+};
+
+const returnBook = () => {
+  if (!selectedBorrow.value || !selectedBorrow.value.Borrower_ID || isReturning.value) {
+    return;
+  }
+
+  if (!confirm('Are you sure you want to return this book?')) {
+    return;
+  }
+
+  isReturning.value = true;
+  router.post(`/return/${selectedBorrow.value.Borrower_ID}`, {}, {
+    onFinish: () => {
+      isReturning.value = false;
+    },
+    onSuccess: () => {
+      closeModal();
+      // Refresh the page to update the borrow list
+      router.reload();
+    },
+  });
 };
 
 const submitRating = () => {
@@ -463,6 +897,33 @@ const submitRating = () => {
       closeRatingModal();
       // Reload to get updated average rating
       router.reload({ only: ['borrows'] });
+    },
+  });
+};
+
+const approveBorrowRequest = (borrowerId) => {
+  if (!confirm('Are you sure you want to approve this borrow request?')) {
+    return;
+  }
+
+  router.post(`/borrow/approve/${borrowerId}`, {}, {
+    onSuccess: () => {
+      router.reload();
+    },
+  });
+};
+
+const rejectBorrowRequest = (borrowerId) => {
+  const reason = prompt('Please provide a reason for rejection:');
+  if (!reason || reason.trim() === '') {
+    return;
+  }
+
+  router.post(`/borrow/reject/${borrowerId}`, {
+    rejection_reason: reason,
+  }, {
+    onSuccess: () => {
+      router.reload();
     },
   });
 };

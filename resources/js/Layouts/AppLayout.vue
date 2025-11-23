@@ -10,6 +10,7 @@
       :logout-url="logoutUrl"
       :default-expanded="false"
       :csrf-token="csrfToken"
+      :courses="sidebar.courses ?? []"
     />
 
     <div class="flex bg-white flex-col flex-1 transition-all duration-300 main-content" style="overflow-x: visible;">
@@ -18,15 +19,63 @@
         <span class="text-5xl jersey-20-regular pl-3 text-white"></span>
         <div class="relative flex items-center">
           <input
+            v-model="globalSearchQuery"
             class="searchbar pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]"
             type="text"
             placeholder="Search for books, papers.."
+            @input="handleGlobalSearch"
+            @focus="showGlobalSearchResults = true"
+            @blur="handleGlobalSearchBlur"
           >
           <img
             :src="searchIcon"
             alt="Search icon"
-            class="absolute right-5 w-6 h-6"
+            class="absolute right-5 w-6 h-6 pointer-events-none"
           >
+          
+          <!-- Global Search Results Dropdown -->
+          <div
+            v-if="showGlobalSearchResults && globalSearchResults.length > 0"
+            class="absolute top-full left-0 mt-2 w-full sm:w-[545px] bg-white rounded-lg shadow-xl border border-gray-200 max-h-96 overflow-y-auto z-50"
+            @mousedown.prevent
+          >
+            <div
+              v-for="result in globalSearchResults"
+              :key="result.Resource_ID"
+              class="p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+              @click="viewResource(result)"
+            >
+              <div class="flex gap-3">
+                <div class="flex-shrink-0 w-16 h-20 bg-gray-200 rounded flex items-center justify-center overflow-hidden">
+                  <img
+                    v-if="result.thumbnail_path"
+                    :src="`/storage/${result.thumbnail_path}`"
+                    :alt="result.Resource_Name"
+                    class="w-full h-full object-cover"
+                  >
+                  <span v-else class="text-gray-500 text-xs font-bold">
+                    {{ result.Resource_Name.substring(0, 2).toUpperCase() }}
+                  </span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-semibold text-sm truncate">{{ result.Resource_Name }}</h3>
+                  <p class="text-xs text-gray-600 mt-1">{{ formatAuthors(result.authors) }}</p>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="text-yellow-500 text-xs">★</span>
+                    <span class="text-xs text-gray-600">{{ result.average_rating }}</span>
+                    <span class="text-xs text-gray-400">•</span>
+                    <span class="text-xs text-gray-600">{{ result.views }} views</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            v-if="showGlobalSearchResults && globalSearchQuery && globalSearchResults.length === 0 && !isGlobalSearching"
+            class="absolute top-full left-0 mt-2 w-full sm:w-[545px] bg-white rounded-lg shadow-xl border border-gray-200 p-4 z-50"
+          >
+            <p class="text-gray-500 text-sm">No results found</p>
+          </div>
         </div>
         <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white" />
       </div>
@@ -71,7 +120,7 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { usePage, router } from '@inertiajs/vue3';
 import UniversalSidebar from '../components/ui/UniversalSidebar.vue';
 
 const props = defineProps({
@@ -92,6 +141,7 @@ const images = computed(() => page.props.images ?? {});
 const sidebarUser = computed(() => {
   if (auth.value.user) {
     return {
+      ...auth.value.user, // Include all user data including role, first_name, last_name, student_number, course_id
       name: auth.value.user.name ?? 'User',
       email: auth.value.user.email ?? '',
       campus: auth.value.user.campus ?? null,
@@ -108,6 +158,68 @@ const isNavScrolled = ref(false);
 const sealLogo = computed(() => images.value.sealLogo ?? '');
 const libraryImage = computed(() => images.value.libraryImage ?? '');
 const searchIcon = computed(() => images.value.searchIcon ?? '');
+
+// Global search functionality
+const globalSearchQuery = ref('');
+const globalSearchResults = ref([]);
+const showGlobalSearchResults = ref(false);
+const isGlobalSearching = ref(false);
+let globalSearchTimeout = null;
+
+const formatAuthors = (authors) => {
+  if (!authors) {
+    return 'Unknown Author';
+  }
+  if (Array.isArray(authors)) {
+    return authors.map(a => a.name || a).join(', ') || 'Unknown Author';
+  }
+  if (typeof authors === 'string') {
+    return authors;
+  }
+  return 'Unknown Author';
+};
+
+const handleGlobalSearch = () => {
+  if (globalSearchTimeout) {
+    clearTimeout(globalSearchTimeout);
+  }
+  
+  if (globalSearchQuery.value.length < 2) {
+    globalSearchResults.value = [];
+    showGlobalSearchResults.value = false;
+    return;
+  }
+
+  isGlobalSearching.value = true;
+  globalSearchTimeout = setTimeout(async () => {
+    try {
+      const response = await fetch(`/resources/search?q=${encodeURIComponent(globalSearchQuery.value)}`, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json',
+        },
+      });
+      const data = await response.json();
+      globalSearchResults.value = data;
+      showGlobalSearchResults.value = true;
+    } catch (error) {
+      console.error('Search error:', error);
+      globalSearchResults.value = [];
+    } finally {
+      isGlobalSearching.value = false;
+    }
+  }, 300);
+};
+
+const handleGlobalSearchBlur = () => {
+  setTimeout(() => {
+    showGlobalSearchResults.value = false;
+  }, 200);
+};
+
+const viewResource = (resource) => {
+  router.visit(`/resources/${resource.Resource_ID}/view`);
+};
 
 const updateNavState = () => {
   const hero = document.querySelector('.hero-container');

@@ -1,13 +1,14 @@
 <template>
-  <AdminLayout title="Audit Trail">
+  <Head title="Audit Trail" />
+  <AdminLayout title="">
     <div class="homediv lg:mx-[10%] rounded-2xl bg-white border border-gray-200 shadow-lg p-6">
       <h2 class="text-2xl font-bold kulim-park-bold mb-6">Audit Trail</h2>
       
-      <p v-if="!auditLogs || !auditLogs.data || auditLogs.data.length === 0" class="text-gray-500 mt-4">
+      <p v-if="!auditLogs || !auditLogs.data || (Array.isArray(auditLogs.data) && auditLogs.data.length === 0)" class="text-gray-500 mt-4">
         No audit logs available yet.
       </p>
 
-      <div v-else>
+      <div v-else-if="auditLogs && auditLogs.data && auditLogs.data.length > 0">
         <table class="w-full kantumruy-pro-regular tracking-tight bg-white shadow rounded border border-gray-200">
           <thead>
             <tr class="bg-gray-200">
@@ -35,17 +36,25 @@
 
         <!-- Pagination -->
         <div v-if="auditLogs.links && auditLogs.links.length > 3" class="mt-4 flex justify-center gap-2">
-          <Link
-            v-for="link in auditLogs.links"
-            :key="link.label"
-            :href="link.url"
-            :class="[
-              'px-4 py-2 rounded',
-              link.active ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
-              !link.url ? 'opacity-50 cursor-not-allowed' : ''
-            ]"
-            v-html="link.label"
-          />
+          <template v-for="link in auditLogs.links" :key="link.label">
+            <Link
+              v-if="link.url"
+              :href="link.url"
+              :class="[
+                'px-4 py-2 rounded',
+                link.active ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              ]"
+              v-html="link.label"
+            />
+            <span
+              v-else
+              :class="[
+                'px-4 py-2 rounded opacity-50 cursor-not-allowed',
+                link.active ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'
+              ]"
+              v-html="link.label"
+            />
+          </template>
         </div>
       </div>
     </div>
@@ -53,13 +62,13 @@
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { Link, Head} from '@inertiajs/vue3';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 
-defineProps({
+const props = defineProps({
   auditLogs: {
     type: Object,
-    default: () => ({ data: [] }),
+    default: () => ({ data: [], links: [] }),
   },
 });
 </script>

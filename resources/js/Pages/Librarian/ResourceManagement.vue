@@ -1,4 +1,5 @@
 <template>
+  <Head title="Resource Management" />
   <AppLayout title="Resource Management" content-padding-classes="px-[10%] lg:px-[10%]">
     <div class="rounded-2xl bg-white border border-gray-200 shadow-lg p-6">
       <!-- Flash Messages -->
@@ -15,6 +16,43 @@
         {{ flashError }}
       </div>
 
+      <!-- Tabs -->
+      <div class="flex gap-2 mb-4 border-b border-gray-200">
+        <button
+          @click="switchTab('Featured')"
+          :class="[
+            'px-4 py-2 font-medium transition-colors',
+            currentType === 'Featured'
+              ? 'border-b-2 border-green-600 text-green-600'
+              : 'text-gray-600 hover:text-gray-800'
+          ]"
+        >
+          Featured
+        </button>
+        <button
+          @click="switchTab('Community Uploads')"
+          :class="[
+            'px-4 py-2 font-medium transition-colors',
+            currentType === 'Community Uploads'
+              ? 'border-b-2 border-green-600 text-green-600'
+              : 'text-gray-600 hover:text-gray-800'
+          ]"
+        >
+          Community Uploads
+        </button>
+        <button
+          @click="currentType = 'Reports'"
+          :class="[
+            'px-4 py-2 font-medium transition-colors',
+            currentType === 'Reports'
+              ? 'border-b-2 border-green-600 text-green-600'
+              : 'text-gray-600 hover:text-gray-800'
+          ]"
+        >
+          Reports
+        </button>
+      </div>
+
       <!-- Search Bar and Add Resource Button -->
       <div class="flex gap-4 mb-4 items-center">
         <input
@@ -24,6 +62,7 @@
           class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
         >
         <button
+          v-if="currentType === 'Featured' && permissions?.add"
           @click="openAddModal"
           class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 kantumruy-pro-regular"
         >
@@ -31,8 +70,81 @@
         </button>
       </div>
 
+      <!-- Reports Table -->
+      <div v-if="currentType === 'Reports'" class="overflow-hidden">
+        <table class="w-full bg-white rounded border border-gray-200 shadow-sm">
+          <thead>
+            <tr class="bg-gray-200">
+              <th class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold">Resource</th>
+              <th class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold">Reported By</th>
+              <th class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold">Reason</th>
+              <th class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold">Description</th>
+              <th class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold">Date</th>
+              <th class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="report in reports"
+              :key="report.id"
+              class="hover:bg-gray-50"
+            >
+              <td class="py-3 px-6 border-b border-gray-300 kantumruy-pro-regular">
+                {{ report.resource_name }}
+              </td>
+              <td class="py-3 px-6 border-b border-gray-300 kantumruy-pro-regular">
+                <div>
+                  <div class="font-medium">{{ report.reporter_name }}</div>
+                  <div class="text-xs text-gray-500">{{ report.reporter_email }}</div>
+                </div>
+              </td>
+              <td class="py-3 px-6 border-b border-gray-300 kantumruy-pro-regular">
+                <span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">
+                  {{ report.reason }}
+                </span>
+              </td>
+              <td class="py-3 px-6 border-b border-gray-300 kantumruy-pro-regular">
+                <div class="max-w-xs truncate" :title="report.description">
+                  {{ report.description }}
+                </div>
+              </td>
+              <td class="py-3 px-6 border-b border-gray-300 kantumruy-pro-regular">
+                {{ formatDate(report.created_at) }}
+              </td>
+              <td class="py-3 px-6 border-b border-gray-300 kantumruy-pro-regular">
+                <div class="flex gap-2" @click.stop>
+                  <button
+                    @click="openPreviewModal(getResourceFilePath(report.resource_id))"
+                    class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                  >
+                    View File
+                  </button>
+                  <button
+                    @click="deleteReportedResource(report.resource_id, report.id)"
+                    class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                  >
+                    Delete Resource
+                  </button>
+                  <button
+                    @click="flagReportedAccount(report.reporter_email, report.id)"
+                    class="px-3 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700"
+                  >
+                    Flag Account
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="!reports || reports.length === 0">
+              <td colspan="6" class="py-12 text-center text-gray-500">
+                No reports found.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
       <!-- Resources Table -->
-      <div class="overflow-hidden">
+      <div v-else class="overflow-hidden">
         <table class="w-full bg-white rounded border border-gray-200 shadow-sm table-fixed">
           <thead>
             <tr class="bg-gray-200">
@@ -41,16 +153,19 @@
 <th class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold w-[16%]">Tags</th>
 <th class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold w-[12%]">Published Date</th>
 <th class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold w-[12%]">Upload Date</th>
-<th class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold w-[14%]">Uploaded By</th>
-<th class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold w-[14%]">Status</th>
+              <th class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold w-[14%]">Uploaded By</th>
+              <th v-if="currentType === 'Community Uploads'" class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold w-[12%]">Approval Status</th>
+              <th class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold w-[14%]">Status</th>
+              <th v-if="currentType === 'Community Uploads'" class="py-3 px-4 border-b border-gray-400 text-left kantumruy-pro-regular font-semibold w-[12%]">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr
               v-for="resource in filteredResources"
               :key="resource.Resource_ID"
-              class="hover:bg-gray-50 transition-colors cursor-pointer"
-              @click="openEditModal(resource)"
+              class="hover:bg-gray-50 transition-colors"
+              :class="{ 'cursor-pointer': permissions?.edit }"
+              @click="permissions?.edit && openEditModal(resource)"
             >
               <td class="py-3 px-6 border-b border-gray-300 kantumruy-pro-regular">
                 <div class="flex items-center gap-2">
@@ -98,6 +213,18 @@
                   {{ resource.uploaded_by }}
                 </div>
               </td>
+              <td v-if="currentType === 'Community Uploads'" class="py-3 px-6 border-b border-gray-300 kantumruy-pro-regular tracking-tight">
+                <span
+                  :class="{
+                    'px-2 py-1 rounded-full text-xs font-medium': true,
+                    'bg-yellow-100 text-yellow-800': resource.approval_status === 'pending',
+                    'bg-green-100 text-green-800': resource.approval_status === 'approved',
+                    'bg-red-100 text-red-800': resource.approval_status === 'rejected',
+                  }"
+                >
+                  {{ resource.approval_status || 'approved' }}
+                </span>
+              </td>
               <td class="py-3 px-6 border-b border-gray-300 kantumruy-pro-regular tracking-tight">
                 <span
                   :class="[
@@ -107,6 +234,38 @@
                 >
                   {{ resource.status }}
                 </span>
+              </td>
+              <td v-if="currentType === 'Community Uploads'" class="py-3 px-6 border-b border-gray-300 kantumruy-pro-regular tracking-tight">
+                <div class="flex gap-2" @click.stop>
+                  <button
+                    v-if="resource.approval_status === 'pending'"
+                    @click="openApprovalModal(resource)"
+                    class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                  >
+                    Review
+                  </button>
+                  <button
+                    v-else
+                    @click="openApprovalModal(resource)"
+                    class="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
+                  >
+                    View
+                  </button>
+                  <button
+                    v-if="resource.approval_status === 'approved' && permissions?.delete"
+                    @click="deleteCommunityResource(resource.Resource_ID)"
+                    class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    v-if="resource.approval_status === 'approved' && permissions?.delete"
+                    @click="flagCommunityResource(resource.Resource_ID)"
+                    class="px-3 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700"
+                  >
+                    Flag
+                  </button>
+                </div>
               </td>
             </tr>
             <tr v-if="filteredResources.length === 0">
@@ -137,10 +296,10 @@
     <!-- Add Resource Modal -->
     <div
       v-if="showAddModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
       @click.self="closeAddModal"
     >
-      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] my-4 overflow-y-auto mx-auto">
         <div class="p-6 border-b border-gray-200">
           <h3 class="text-xl font-bold kulim-park-bold">Add New Resource</h3>
         </div>
@@ -273,7 +432,7 @@
     <!-- Edit Resource Modal -->
     <div
       v-if="showEditModal && selectedResource"
-      class="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50"
+      class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50"
       @click.self="closeEditModal"
     >
       <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
@@ -421,6 +580,7 @@
               Cancel
             </button>
             <button
+              v-if="permissions?.delete"
               type="button"
               @click="confirmDelete"
               class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
@@ -442,10 +602,10 @@
     <!-- Preview Modal -->
     <div
       v-if="previewUrl"
-      class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
+      class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 overflow-y-auto"
     >
       <!-- Modal Container -->
-      <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden">
+      <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] my-4 overflow-y-auto mx-auto">
         <!-- Close Button - Top Right Corner of Modal -->
         <button
           @click.stop="closePreviewModal"
@@ -464,18 +624,99 @@
         />
       </div>
     </div>
+
+    <!-- Approval Modal -->
+    <div
+      v-if="showApprovalModal && selectedApprovalResource"
+      class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
+      @click.self="closeApprovalModal"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-4 mx-auto max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+          <h3 class="text-2xl font-bold kulim-park-bold">Review Community Upload</h3>
+          <button
+            @click="closeApprovalModal"
+            class="text-gray-500 hover:text-gray-700 text-2xl"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block font-medium mb-1">Title</label>
+            <p class="text-gray-700">{{ selectedApprovalResource.Resource_Name }}</p>
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Author(s)</label>
+            <p class="text-gray-700">{{ selectedApprovalResource.authors }}</p>
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Description</label>
+            <p class="text-gray-700">{{ selectedApprovalResource.Description }}</p>
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Uploaded By</label>
+            <p class="text-gray-700">{{ selectedApprovalResource.uploaded_by }}</p>
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Current Approval Status</label>
+            <span
+              :class="{
+                'px-3 py-1 rounded-full text-sm font-medium': true,
+                'bg-yellow-100 text-yellow-800': selectedApprovalResource.approval_status === 'pending',
+                'bg-green-100 text-green-800': selectedApprovalResource.approval_status === 'approved',
+                'bg-red-100 text-red-800': selectedApprovalResource.approval_status === 'rejected',
+              }"
+            >
+              {{ selectedApprovalResource.approval_status || 'approved' }}
+            </span>
+          </div>
+          <div class="flex gap-2 justify-end pt-4 border-t border-gray-200">
+            <button
+              @click="closeApprovalModal"
+              class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+            >
+              Close
+            </button>
+            <button
+              v-if="selectedApprovalResource.approval_status === 'pending'"
+              @click="rejectCommunityUpload"
+              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              Reject
+            </button>
+            <button
+              v-if="selectedApprovalResource.approval_status === 'pending'"
+              @click="approveCommunityUpload"
+              :disabled="isProcessingApproval"
+              class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+            >
+              {{ isProcessingApproval ? 'Processing...' : 'Approve' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </AppLayout>
 </template>
 
 <script setup>
 import { computed, ref, onMounted } from 'vue';
-import { router, usePage, Link } from '@inertiajs/vue3';
+import { router, usePage, Link, Head } from '@inertiajs/vue3';
 import AppLayout from '../../Layouts/AppLayout.vue';
 
 const props = defineProps({
   resources: {
     type: Object,
     required: true,
+  },
+  reports: {
+    type: Array,
+    default: () => [],
+  },
+  permissions: {
+    type: Object,
+    default: () => ({ add: false, edit: false, delete: false, archive: false }),
   },
 });
 
@@ -491,6 +732,12 @@ const previewUrl = ref(null);
 const isSubmitting = ref(false);
 const addDragOver = ref(false);
 const editDragOver = ref(false);
+
+// Tab and Approval
+const currentType = ref(props.currentType || 'Featured');
+const showApprovalModal = ref(false);
+const selectedApprovalResource = ref(null);
+const isProcessingApproval = ref(false);
 
 const addForm = ref({
   Resource_Name: '',
@@ -564,6 +811,117 @@ const days = computed(() => {
   }
   return daysList;
 });
+
+// Tab switching
+const switchTab = (type) => {
+  currentType.value = type;
+  if (type !== 'Reports') {
+    router.get('/resource-management', { type }, {
+      preserveState: true,
+      preserveScroll: true,
+    });
+  }
+};
+
+const getResourceFilePath = (resourceId) => {
+  // Try to find in reports first
+  const report = props.reports?.find(r => r.resource_id === resourceId);
+  if (report?.resource_file_path) {
+    return report.resource_file_path;
+  }
+  // Fallback to resources data
+  const resource = props.resources.data?.find(r => r.Resource_ID === resourceId);
+  return resource?.File_Path || null;
+};
+
+const deleteReportedResource = (resourceId, reportId) => {
+  if (!confirm('Are you sure you want to delete this resource? This action cannot be undone.')) {
+    return;
+  }
+
+  router.delete(`/resources/${resourceId}`, {
+    onSuccess: () => {
+      router.reload();
+    },
+  });
+};
+
+const flagReportedAccount = (email, reportId) => {
+  if (!confirm('Are you sure you want to flag this account for violating community standards?')) {
+    return;
+  }
+
+  // TODO: Implement account flagging logic
+  alert('Account flagging feature to be implemented');
+};
+
+const deleteCommunityResource = (resourceId) => {
+  if (!confirm('Are you sure you want to delete this community upload?')) {
+    return;
+  }
+
+  router.delete(`/resources/${resourceId}`, {
+    onSuccess: () => {
+      router.reload();
+    },
+  });
+};
+
+const flagCommunityResource = (resourceId) => {
+  if (!confirm('Are you sure you want to flag this resource and its owner?')) {
+    return;
+  }
+
+  // TODO: Implement resource flagging logic
+  alert('Resource flagging feature to be implemented');
+};
+
+// Approval functions
+const openApprovalModal = (resource) => {
+  selectedApprovalResource.value = resource;
+  showApprovalModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const closeApprovalModal = () => {
+  showApprovalModal.value = false;
+  selectedApprovalResource.value = null;
+  document.body.style.overflow = '';
+};
+
+const approveCommunityUpload = () => {
+  if (!selectedApprovalResource.value || !confirm('Are you sure you want to approve this community upload?')) {
+    return;
+  }
+  
+  isProcessingApproval.value = true;
+  router.post(`/resources/${selectedApprovalResource.value.Resource_ID}/approve-community`, {}, {
+    onFinish: () => {
+      isProcessingApproval.value = false;
+    },
+    onSuccess: () => {
+      closeApprovalModal();
+      router.reload({ only: ['resources'] });
+    },
+  });
+};
+
+const rejectCommunityUpload = () => {
+  if (!selectedApprovalResource.value || !confirm('Are you sure you want to reject this community upload?')) {
+    return;
+  }
+  
+  isProcessingApproval.value = true;
+  router.post(`/resources/${selectedApprovalResource.value.Resource_ID}/reject-community`, {}, {
+    onFinish: () => {
+      isProcessingApproval.value = false;
+    },
+    onSuccess: () => {
+      closeApprovalModal();
+      router.reload({ only: ['resources'] });
+    },
+  });
+};
 
 const filteredResources = computed(() => {
   if (!searchTerm.value) {

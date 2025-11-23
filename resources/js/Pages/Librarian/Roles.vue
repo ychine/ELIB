@@ -1,4 +1,5 @@
 <template>
+  <Head title="Roles Management" />
   <AppLayout title="Roles Management" content-padding-classes="px-[10%] lg:px-[10%]">
     <div class="rounded-2xl bg-white border border-gray-200 shadow-lg p-6">
       <div v-if="!isUniversityLibrarian" class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -90,6 +91,7 @@
             <tr class="bg-gray-200">
               <th class="p-3 text-left">Name</th>
               <th class="p-3 text-left">Email</th>
+              <th class="p-3 text-left">Campus</th>
               <th class="p-3 text-left">Position</th>
               <th v-if="isUniversityLibrarian" class="p-3 text-left">Actions</th>
             </tr>
@@ -102,11 +104,17 @@
             >
               <td class="p-3">{{ librarian.name }}</td>
               <td class="p-3">{{ librarian.email }}</td>
+              <td class="p-3">{{ librarian.campus }}</td>
               <td class="p-3">{{ librarian.position }}</td>
               <td v-if="isUniversityLibrarian" class="p-3">
                 <button
                   @click="openAssignModal(librarian)"
-                  class="text-green-600 hover:text-green-800"
+                  :disabled="librarian.id === currentUserId && librarian.position === 'University Librarian'"
+                  :class="[
+                    'text-green-600 hover:text-green-800',
+                    { 'opacity-50 cursor-not-allowed': librarian.id === currentUserId && librarian.position === 'University Librarian' }
+                  ]"
+                  :title="librarian.id === currentUserId && librarian.position === 'University Librarian' ? 'Cannot assign role to yourself. Transfer head role to another librarian first.' : ''"
                 >
                   Assign Role
                 </button>
@@ -120,10 +128,10 @@
     <!-- Add/Edit Position Modal -->
     <div
       v-if="showPositionModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
       @click.self="closePositionModal"
     >
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] my-4 overflow-y-auto mx-auto">
         <div class="p-6 border-b border-gray-200">
           <h3 class="text-xl font-bold kulim-park-bold">
             {{ editingPosition ? 'Edit Position' : 'Add New Position' }}
@@ -206,20 +214,29 @@
     <!-- Assign Role Modal -->
     <div
       v-if="showAssignModal && selectedLibrarian"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
       @click.self="closeAssignModal"
     >
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] my-4 overflow-y-auto mx-auto">
         <div class="p-6 border-b border-gray-200">
           <h3 class="text-xl font-bold kulim-park-bold">Assign Role to {{ selectedLibrarian.name }}</h3>
         </div>
         <form @submit.prevent="submitAssignForm" class="p-6">
           <div class="space-y-4">
+            <div
+              v-if="selectedLibrarian.id === currentUserId && selectedLibrarian.position === 'University Librarian'"
+              class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4"
+            >
+              <p class="text-yellow-800 text-sm font-medium">
+                ⚠️ You cannot assign a role to yourself. To change your role, you must first transfer the University Librarian position to another librarian.
+              </p>
+            </div>
             <div>
               <label class="block font-medium mb-1">Position</label>
               <select
                 v-model="assignForm.position_id"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                :disabled="selectedLibrarian.id === currentUserId && selectedLibrarian.position === 'University Librarian'"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 required
               >
                 <option value="">Select Position</option>
@@ -232,6 +249,14 @@
                 </option>
               </select>
             </div>
+            <div
+              v-if="isTransferringHeadRole"
+              class="p-4 bg-blue-50 border border-blue-200 rounded-lg"
+            >
+              <p class="text-blue-800 text-sm font-medium">
+                ⚠️ You are transferring the University Librarian role. This will remove your University Librarian privileges. Are you sure?
+              </p>
+            </div>
           </div>
           <div class="flex gap-2 justify-end mt-6 pt-4 border-t border-gray-200">
             <button
@@ -243,7 +268,7 @@
             </button>
             <button
               type="submit"
-              :disabled="isSubmitting"
+              :disabled="isSubmitting || (selectedLibrarian.id === currentUserId && selectedLibrarian.position === 'University Librarian' && !isTransferringHeadRole)"
               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
             >
               {{ isSubmitting ? 'Assigning...' : 'Assign' }}
@@ -257,7 +282,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { router, usePage, Head } from '@inertiajs/vue3';
 import AppLayout from '../../Layouts/AppLayout.vue';
 
 const props = defineProps({
@@ -275,7 +300,9 @@ const props = defineProps({
   },
 });
 
-const flashSuccess = computed(() => usePage().props.flash?.success ?? null);
+const page = usePage();
+const flashSuccess = computed(() => page.props.flash?.success ?? null);
+const currentUserId = computed(() => page.props.auth?.user?.id ?? null);
 const showPositionModal = ref(false);
 const showAssignModal = ref(false);
 const editingPosition = ref(null);
@@ -378,9 +405,35 @@ const submitPositionForm = () => {
   }
 };
 
+const isTransferringHeadRole = computed(() => {
+  if (!selectedLibrarian.value || !currentUserId.value || !assignForm.value.position_id) {
+    return false;
+  }
+  // Check if current user is University Librarian and assigning University Librarian role to someone else
+  const selectedPosition = props.positions.find(p => p.id === parseInt(assignForm.value.position_id));
+  const isAssigningToOther = selectedLibrarian.value.id !== currentUserId.value;
+  const isAssigningUniversityLibrarian = selectedPosition?.name === 'University Librarian';
+  
+  return isAssigningToOther && isAssigningUniversityLibrarian;
+});
+
 const submitAssignForm = () => {
   if (!props.isUniversityLibrarian || !selectedLibrarian.value) {
     return;
+  }
+
+  // Prevent self-assignment unless transferring head role
+  if (selectedLibrarian.value.id === currentUserId.value && 
+      selectedLibrarian.value.position === 'University Librarian' &&
+      !isTransferringHeadRole.value) {
+    return;
+  }
+
+  // Confirmation for transferring head role
+  if (isTransferringHeadRole.value) {
+    if (!confirm('Are you sure you want to transfer the University Librarian role? This will remove your University Librarian privileges.')) {
+      return;
+    }
   }
 
   isSubmitting.value = true;
