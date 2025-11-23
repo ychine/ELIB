@@ -15,6 +15,7 @@
         "vite": "^7.1.10"
     },
     "dependencies": {
+        "@inertiajs/core": "^2.2.18",
         "@inertiajs/progress": "^0.2.7",
         "@inertiajs/vue3": "^2.2.18",
         "@ionic/core": "^8.7.9",

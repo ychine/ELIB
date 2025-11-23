@@ -304,6 +304,29 @@
     toast.classList.remove('show');
     setTimeout(() => toast.classList.add('hidden'), 400);
   }
+
+  // Handle CSRF token refresh and 419 errors
+  document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('login-form');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+    
+    if (loginForm && csrfToken) {
+      // Update CSRF token in form before submission
+      loginForm.addEventListener('submit', function(e) {
+        const tokenInput = this.querySelector('input[name="_token"]');
+        if (tokenInput && csrfToken) {
+          tokenInput.value = csrfToken.getAttribute('content');
+        }
+      });
+
+      // Handle 419 errors by refreshing the page
+      window.addEventListener('unhandledrejection', function(event) {
+        if (event.reason && event.reason.status === 419) {
+          location.reload();
+        }
+      });
+    }
+  });
 </script>
   @include('partials.globalLoader')
 </body>

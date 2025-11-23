@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BorrowHistory extends Model
 {
+    protected $table = 'borrow_history';
+
     protected $fillable = [
         'borrower_id',
         'user_id',

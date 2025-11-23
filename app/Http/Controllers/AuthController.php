@@ -50,8 +50,9 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->filled('remember'))) {
+            // Regenerate session to prevent session fixation attacks
+            // This will automatically handle CSRF token regeneration
             $request->session()->regenerate();
-            // Don't regenerate CSRF token here - it causes 419 errors
             $user = Auth::user();
 
             // Update last login and online status
@@ -326,7 +327,16 @@ class AuthController extends Controller
             ->get()
             ->keyBy('date');
 
-        $uploadData = \App\Models\AuditLog::where('action', 'resource_upload')
+        // Get Community Uploads and Featured counts for last 30 days (separate lines like Analytics)
+        $communityUploadsData = Resource::where('Type', 'Community Uploads')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->keyBy('date');
+
+        $featuredData = Resource::where('Type', 'Featured')
             ->where('created_at', '>=', now()->subDays(30))
             ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
             ->groupBy('date')
@@ -345,9 +355,19 @@ class AuthController extends Controller
             ];
         })->reverse()->values();
 
-        $resourceUploads = collect(range(0, 29))->map(function ($daysAgo) use ($uploadData) {
+        $communityUploadsChart = collect(range(0, 29))->map(function ($daysAgo) use ($communityUploadsData) {
             $date = now()->subDays($daysAgo)->format('Y-m-d');
-            $logEntry = $uploadData->get($date);
+            $logEntry = $communityUploadsData->get($date);
+
+            return [
+                'date' => $date,
+                'count' => $logEntry ? (int) $logEntry->count : 0,
+            ];
+        })->reverse()->values();
+
+        $featuredChart = collect(range(0, 29))->map(function ($daysAgo) use ($featuredData) {
+            $date = now()->subDays($daysAgo)->format('Y-m-d');
+            $logEntry = $featuredData->get($date);
 
             return [
                 'date' => $date,
@@ -363,7 +383,8 @@ class AuthController extends Controller
             'activeBorrows' => Borrower::where('isReturned', false)->count(),
             'onlineUsers' => User::where('is_online', true)->count(),
             'recentLogins' => $recentLogins,
-            'resourceUploads' => $resourceUploads,
+            'communityUploadsChart' => $communityUploadsChart,
+            'featuredChart' => $featuredChart,
         ];
 
         $pendingUsers = $users->map(fn (User $user) => [
