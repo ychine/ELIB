@@ -74,8 +74,12 @@ class HomeController extends Controller
         });
 
         // Community Uploads (also select views, remove from append)
+        // Exclude resources from banned users
         $communityUploads = Resource::communityUploads()
             ->where('approval_status', 'approved') // Only show approved community uploads
+            ->whereHas('owner', function ($query) {
+                $query->where('is_banned', false);
+            })
             ->with(['authors', 'tags', 'user', 'owner.campus', 'owner.student.course'])
             ->select(['*', 'views'])
             ->latestUploads()
@@ -279,6 +283,7 @@ class HomeController extends Controller
                 'views' => (int) ($resource->views ?? 0),
                 'owner_id' => $resource->owner_id ?? null,
                 'Type' => $resource->Type ?? null,
+                'File_Path' => $resource->File_Path ?? null,
             ],
         ]);
     }
@@ -344,8 +349,12 @@ class HomeController extends Controller
     public function communityUploads()
     {
         // Get approved community uploads
+        // Exclude resources from banned users
         $communityUploads = Resource::where('Type', 'Community Uploads')
             ->where('approval_status', 'approved')
+            ->whereHas('owner', function ($query) {
+                $query->where('is_banned', false);
+            })
             ->with(['authors', 'tags', 'ratings', 'user', 'owner.campus', 'owner.student.course'])
             ->latest()
             ->get()

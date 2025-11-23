@@ -121,20 +121,16 @@
             </svg>
             <span>Account Settings</span>
           </button>
-          <form
-            :action="logoutHref"
-            method="POST"
-            class="universal-sidebar__dropdown-item-form"
-            @submit="handleLogoutSubmit"
+          <button
+            type="button"
+            @click="handleLogout"
+            class="universal-sidebar__dropdown-item universal-sidebar__dropdown-item--logout"
           >
-            <input type="hidden" name="_token" :value="csrfToken" />
-            <button type="submit" class="universal-sidebar__dropdown-item universal-sidebar__dropdown-item--logout">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-              </svg>
-              <span>Logout</span>
-            </button>
-          </form>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            <span>Logout</span>
+          </button>
         </div>
       </transition>
     </div>
@@ -381,18 +377,22 @@ const openAccountSettings = (event) => {
   }, 100);
 };
 
-const handleLogoutSubmit = (event) => {
-  // Get fresh CSRF token before submitting
-  const metaToken = document.querySelector('meta[name="csrf-token"]');
-  if (metaToken) {
-    const freshToken = metaToken.getAttribute('content');
-    const tokenInput = event.target.querySelector('input[name="_token"]');
-    if (tokenInput && freshToken) {
-      tokenInput.value = freshToken;
-    }
-  }
-  // Allow form submission
-  return true;
+const handleLogout = () => {
+  router.post(logoutHref.value, {}, {
+    onFinish: () => {
+      // Logout completed
+    },
+    onSuccess: () => {
+      // Redirect handled by server
+    },
+    onError: (errors) => {
+      console.error('Logout error:', errors);
+      // If there's a CSRF error, try to reload and retry
+      if (errors && (errors.message?.includes('419') || errors.message?.includes('CSRF'))) {
+        window.location.reload();
+      }
+    },
+  });
 };
 
 const handleAccountSave = async (data) => {

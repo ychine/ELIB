@@ -18,6 +18,7 @@ class User extends Authenticatable implements MustVerifyEmail   // ← NEW
         'role',
         'Campus_ID',
         'is_approved',
+        'is_banned',
         'email_verified_at',
         'profile_picture',
         'last_login_at',
@@ -30,6 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail   // ← NEW
         'email_verified_at' => 'datetime',
         'last_login_at' => 'datetime',
         'is_approved' => 'boolean',
+        'is_banned' => 'boolean',
         'is_online' => 'boolean',
     ];
 

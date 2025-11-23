@@ -172,6 +172,7 @@ class ShelfController extends Controller
                 'average_rating' => (string) ($resource->average_rating ?? '0.0'),
                 'formatted_publish_date' => $resource->formatted_publish_date ?? 'N/A',
                 'views' => (int) ($resource->views ?? 0),
+                'approval_status' => $resource->approval_status ?? 'pending',
                 'total_borrows' => $totalBorrows,
                 'borrow_requests' => $borrowRequests,
             ];

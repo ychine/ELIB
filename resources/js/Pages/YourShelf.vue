@@ -38,6 +38,20 @@
                   <h4 class="text-xl font-bold kulim-park-bold mb-2">{{ resource.Resource_Name }}</h4>
                   <p class="text-sm text-gray-600 mb-4">by {{ resource.authors }}</p>
 
+                  <!-- Approval Status -->
+                  <div class="mb-4">
+                    <span
+                      :class="{
+                        'px-3 py-1 rounded-full text-sm font-medium': true,
+                        'bg-yellow-100 text-yellow-800': resource.approval_status === 'pending',
+                        'bg-green-100 text-green-800': resource.approval_status === 'approved',
+                        'bg-red-100 text-red-800': resource.approval_status === 'rejected',
+                      }"
+                    >
+                      Status: {{ resource.approval_status || 'pending' }}
+                    </span>
+                  </div>
+
                   <!-- Analytics -->
                   <div class="grid grid-cols-2 gap-4 mb-4">
                     <div class="bg-blue-50 rounded-lg p-3">

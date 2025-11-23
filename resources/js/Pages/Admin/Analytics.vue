@@ -163,7 +163,8 @@
       </div>
     </div>
 
-    <div class="homediv lg:mx-[10%] rounded-2xl bg-white border border-gray-200 shadow-lg p-6 mb-6">
+    <!-- Resources by Type - Only in Analytics Tab -->
+    <div v-if="activeTab === 'Analytics'" class="homediv lg:mx-[10%] rounded-2xl bg-white border border-gray-200 shadow-lg p-6 mb-6">
       <h2 class="text-1xl sm:text-2xl lg:text-3xl font-extrabold kulim-park-bold tracking-tight mb-6">
         Resources by Type
       </h2>
@@ -186,7 +187,8 @@
       </div>
     </div>
 
-    <div class="homediv lg:mx-[10%] rounded-2xl bg-white border border-gray-200 shadow-lg p-6 mb-6">
+    <!-- Top Viewed Resources - Only in Analytics Tab -->
+    <div v-if="activeTab === 'Analytics'" class="homediv lg:mx-[10%] rounded-2xl bg-white border border-gray-200 shadow-lg p-6 mb-6">
       <h2 class="text-1xl sm:text-2xl lg:text-3xl font-extrabold kulim-park-bold tracking-tight mb-6">
         Top Viewed Resources
       </h2>
@@ -211,7 +213,8 @@
       </div>
     </div>
 
-    <div class="homediv lg:mx-[10%] rounded-2xl bg-white shadow-lg p-6">
+    <!-- Recent Uploads - Only in Analytics Tab -->
+    <div v-if="activeTab === 'Analytics'" class="homediv lg:mx-[10%] rounded-2xl bg-white shadow-lg p-6">
       <h2 class="text-1xl sm:text-2xl lg:text-3xl font-extrabold kulim-park-bold tracking-tight mb-6">
         Recent Uploads
       </h2>
@@ -252,6 +255,7 @@
               <th class="p-3 text-left">Description</th>
               <th class="p-3 text-left">Date</th>
               <th class="p-3 text-left">Status</th>
+              <th class="p-3 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -261,6 +265,9 @@
                 <div>
                   <div class="font-medium">{{ report.reporter_name ?? 'N/A' }}</div>
                   <div class="text-xs text-gray-500">{{ report.reporter_email ?? 'N/A' }}</div>
+                  <div v-if="report.flagged_by_librarian" class="text-xs text-blue-600 font-semibold mt-1">
+                    <i class="fas fa-user-shield"></i> Flagged by Librarian
+                  </div>
                 </div>
               </td>
               <td class="p-3">
@@ -283,6 +290,31 @@
                 >
                   {{ report.status ?? 'pending' }}
                 </span>
+              </td>
+              <td class="p-3">
+                <div class="flex gap-2" v-if="report.status === 'pending'">
+                  <button
+                    @click="markFalseAlarm(report.id)"
+                    class="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
+                    title="Mark as False Alarm"
+                  >
+                    <i class="fas fa-times-circle"></i> False Alarm
+                  </button>
+                  <button
+                    @click="deleteResource(report.resource_id, report.id)"
+                    class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                    title="Delete Resource"
+                  >
+                    <i class="fas fa-trash-alt"></i> Delete Resource
+                  </button>
+                  <button
+                    @click="banUser(report.resource_id, report.id)"
+                    class="px-3 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700"
+                    title="Ban User"
+                  >
+                    <i class="fas fa-ban"></i> Ban User
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -325,7 +357,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 
 const activeTab = ref('Analytics');
 
@@ -367,6 +399,46 @@ const props = defineProps({
 const formatDate = (date) => {
   if (!date) return 'N/A';
   return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+};
+
+const deleteResource = (resourceId, reportId) => {
+  if (!confirm('Are you sure you want to delete this resource? This action cannot be undone.')) {
+    return;
+  }
+
+  router.post(`/admin/reports/${reportId}/delete-resource`, {
+    resource_id: resourceId,
+  }, {
+    onSuccess: () => {
+      router.reload();
+    },
+  });
+};
+
+const banUser = (resourceId, reportId) => {
+  if (!confirm('Are you sure you want to ban the user who owns this resource? They will not be able to login.')) {
+    return;
+  }
+
+  router.post(`/admin/reports/${reportId}/ban-user`, {
+    resource_id: resourceId,
+  }, {
+    onSuccess: () => {
+      router.reload();
+    },
+  });
+};
+
+const markFalseAlarm = (reportId) => {
+  if (!confirm('Mark this report as a false alarm? The report will be resolved and no action will be taken.')) {
+    return;
+  }
+
+  router.post(`/admin/reports/${reportId}/false-alarm`, {}, {
+    onSuccess: () => {
+      router.reload();
+    },
+  });
 };
 
 const formatChartDateShort = (dateString) => {

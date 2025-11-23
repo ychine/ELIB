@@ -193,7 +193,7 @@ class ResourceController extends Controller
 
         $validated = $request->validate([
             'Resource_Name' => 'required|string|max:255',
-            'authors' => 'required|string|max:500',
+            'authors' => 'nullable|string|max:500',
             'Description' => 'required|string',
             'publish_year' => 'nullable|integer|min:1900|max:2030',
             'publish_month' => 'nullable|integer|min:1|max:12',
@@ -205,6 +205,13 @@ class ResourceController extends Controller
         try {
             $uploadedFile = $request->file('file');
             $path = $uploadedFile->store('resources', 'public');
+
+            // Get uploader's name if authors field is blank
+            $user = Auth::user();
+            $authorName = trim($validated['authors'] ?? '');
+            if (empty($authorName)) {
+                $authorName = $user->full_name;
+            }
 
             $resource = Resource::create([
                 'Resource_Name' => $validated['Resource_Name'],
@@ -229,8 +236,8 @@ class ResourceController extends Controller
                 Log::warning('Thumbnail generation failed for Resource ID '.$resource->Resource_ID.': '.$thumbnailException->getMessage());
             }
 
-            // Sync authors
-            $this->syncAuthors($resource, $validated['authors']);
+            // Sync authors - use uploader's name if authors field was blank
+            $this->syncAuthors($resource, $authorName);
             $this->syncTags($resource, $validated['tags'] ?? '');
 
             // Log audit
@@ -343,6 +350,43 @@ class ResourceController extends Controller
         ]);
 
         return back()->with('success', 'Report submitted successfully.');
+    }
+
+    // Flag resource (for librarians)
+    // Note: Middleware already checks for librarian role and approval
+    public function flag(Request $request)
+    {
+
+        $validated = $request->validate([
+            'resource_id' => 'required|exists:resources,Resource_ID',
+            'reason' => 'required|string|max:255',
+            'description' => 'required|string|max:1000',
+        ]);
+
+        $resource = Resource::findOrFail($validated['resource_id']);
+
+        // Create a flag report (similar to regular report but marked as librarian flag)
+        \App\Models\ResourceReport::create([
+            'resource_id' => $validated['resource_id'],
+            'reported_by' => Auth::id(),
+            'reason' => $validated['reason'],
+            'description' => $validated['description'],
+            'status' => 'pending',
+            'flagged_by_librarian' => true, // Mark as librarian flag
+        ]);
+
+        // Log audit
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'resource_flag',
+            'model_type' => Resource::class,
+            'model_id' => $resource->Resource_ID,
+            'description' => "Flagged resource: {$resource->Resource_Name}",
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        return back()->with('success', 'Content flagged successfully. Admin will review this resource.');
     }
 
     public function update(Request $request, Resource $resource)

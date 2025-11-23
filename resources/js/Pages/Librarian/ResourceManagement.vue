@@ -1005,6 +1005,10 @@ const closeEditModal = () => {
 };
 
 const openPreviewModal = (filePath) => {
+  if (!filePath) {
+    alert('File path not available');
+    return;
+  }
   previewUrl.value = `/storage/${filePath}`;
 };
 

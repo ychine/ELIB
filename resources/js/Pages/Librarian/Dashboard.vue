@@ -1,8 +1,11 @@
 <template>
   <Head title="Dashboard" />
   <AppLayout title="Dashboard" content-padding-classes="px-[10%] lg:px-[10%]">
+    <div class="rounded-2xl bg-white border border-gray-200 shadow-lg p-6  mb-6">
+      <p class="text-gray-600">Welcome to your librarian dashboard.</p>
+    </div>
     <!-- Stats Cards -->
-    <div class="grid sm:grid-cols-1 lg:grid-cols-3 grid-cols-3 gap-6 mb-6">
+    <div class="grid sm:grid-cols-1 lg:grid-cols-3 grid-cols-3 gap-6">
       <div class="rounded-2xl bg-white border border-gray-200 shadow-lg p-6">
         <div class="flex items-center justify-between">
           <div>
@@ -50,9 +53,7 @@
       </div>
     </div>
 
-    <div class="rounded-2xl bg-white border border-gray-200 shadow-lg p-6">
-      <p class="text-gray-600">Welcome to your librarian dashboard.</p>
-    </div>
+    
   </AppLayout>
 </template>
 

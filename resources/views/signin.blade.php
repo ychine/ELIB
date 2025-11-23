@@ -127,6 +127,16 @@
       color: #9CA3AF;
       cursor: pointer;
     }
+    /* Ensure links are green, not blue */
+    .auth-card a,
+    .relative.flex.flex-col a {
+      color: #15803d !important;
+      text-decoration: none;
+    }
+    .auth-card a:hover,
+    .relative.flex.flex-col a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body class="bg-gray-100">
@@ -193,6 +203,13 @@
             </div>
           @endif
 
+          <!-- ERROR SESSION -->
+          @if(session('error'))
+            <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
+              {{ session('error') }}
+            </div>
+          @endif
+
           @if(session('status') === 'verification-success')
           <script>
               document.addEventListener('DOMContentLoaded', () => {
@@ -255,6 +272,18 @@
               <a href="{{ route('register') }}" class="text-green-700 font-semibold hover:underline">Register here!</a>
             </p>
           @endif
+
+          <!-- Footer -->
+          <div class="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-300">
+            <div class="text-center space-y-2">
+              <p class="text-xs sm:text-sm text-gray-600 kantumruy-pro-regular">
+                &copy; {{ date('Y') }} ISU StudyGo. All rights reserved.
+              </p>
+              <p class="text-xs sm:text-sm text-gray-600 kantumruy-pro-regular">
+                Need help? <a href="mailto:isustudygo@gmail.com" class="text-green-700 font-semibold hover:underline">Contact Support</a>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -276,6 +305,8 @@
       showToast('Account Pending Approval', 'Your account is awaiting admin approval. You will be notified once approved.', '#FEF3C7', '#D97706');
     @elseif(session('error') === 'Your account is pending admin approval.')
       showToast('Account Pending Approval', 'Your account is awaiting admin approval. Please try again later.', '#FEF3C7', '#D97706');
+    @elseif(session('error'))
+      showToast('Access Denied', {!! json_encode(session('error')) !!}, '#FEE2E2', '#DC2626');
     @endif
   });
 

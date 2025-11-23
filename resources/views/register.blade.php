@@ -126,6 +126,54 @@
       color: #9CA3AF;
       cursor: pointer;
     }
+    /* Ensure links are green, not blue */
+    .auth-card a,
+    .relative.flex.flex-col a {
+      color: #15803d !important;
+      text-decoration: none;
+    }
+    .auth-card a:hover,
+    .relative.flex.flex-col a:hover {
+      text-decoration: underline;
+    }
+    /* Custom checkbox styling */
+    input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 2px solid #9ca3af;
+      border-radius: 4px;
+      background-color: #fff;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    input[type="checkbox"]:hover {
+      border-color: #15803d;
+      background-color: #f0fdf4;
+    }
+    input[type="checkbox"]:checked {
+      background-color: #15803d;
+      border-color: #15803d;
+    }
+    input[type="checkbox"]:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 0.875rem;
+      font-weight: bold;
+      line-height: 1;
+    }
+    input[type="checkbox"]:focus {
+      outline: 2px solid rgba(21, 128, 61, 0.4);
+      outline-offset: 2px;
+    }
   </style>
 </head>
 <body class="bg-gray-100">
@@ -166,7 +214,7 @@
         <img src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" alt="ISU Logo" class="w-[3vw] h-[3vw] translate-y-2.5 sm:w-12 sm:h-12 rounded-full shadow" />
       </div>
 
-      <div class="relative z-10 flex-1 flex items-start justify-center px-4 sm:px-6 lg:px-16 pt-0 sm:pt-2">
+      <div class="relative z-10 flex-1 translate-y-[-5%] flex items-start justify-center px-4 sm:px-6 lg:px-16 pt-0 sm:pt-2">
         <div class="w-full max-w-md sm:max-w-lg lg:max-w-xl">
           <div class="mb-4 sm:mb-6 text-left">
             <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight flex items-center gap-2">
@@ -237,36 +285,24 @@
 
             <div>
               <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Password</label>
-              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field relative">
-                <input type="password" name="password" id="password" required placeholder="*********"
-                       class="w-full px-2 pr-10 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
-                <button type="button" 
-                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none z-10"
-                        onclick="togglePassword('password', 'passwordToggle')"
-                        id="passwordToggle"
-                        aria-label="Toggle password visibility">
-                  <i class="fas fa-eye" id="passwordIcon" style="font-size: 1rem;"></i>
-                </button>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
+                  <input type="password" name="password" id="password" required placeholder="Password"
+                         class="w-full px-3 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
+                </div>
+                <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
+                  <input type="password" name="password_confirmation" id="password_confirmation" required placeholder="Confirm Password"
+                         class="w-full px-3 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-2">
+                <input type="checkbox" id="showPasswords">
+                <label for="showPasswords" class="text-xs sm:text-sm text-gray-600 kantumruy-pro-regular cursor-pointer select-none">Show passwords</label>
               </div>
               <p class="text-xs text-gray-500 mt-1">Must be at least 8 characters with uppercase, lowercase, number, and special character (-_@$!%*#?&)</p>
               @error('password')
                 <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
               @enderror
-            </div>
-
-            <div>
-              <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold mb-2">Confirm Password</label>
-              <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field relative">
-                <input type="password" name="password_confirmation" id="password_confirmation" required placeholder="*********"
-                       class="w-full px-2 pr-10 py-1 sm:py-3 outline-none bg-transparent rounded-lg focus:bg-white text-sm sm:text-base">
-                <button type="button" 
-                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none z-10"
-                        onclick="togglePassword('password_confirmation', 'passwordConfirmationToggle')"
-                        id="passwordConfirmationToggle"
-                        aria-label="Toggle password visibility">
-                  <i class="fas fa-eye" id="passwordConfirmationIcon" style="font-size: 1rem;"></i>
-                </button>
-              </div>
               @error('password_confirmation')
                 <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
               @enderror
@@ -349,6 +385,18 @@
             </button>
           </form>
 
+          <!-- Footer -->
+          <div class="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-300">
+            <div class="text-center space-y-2">
+              <p class="text-[5px] sm:text-sm text-gray-600 kantumruy-pro-regular">
+                &copy; {{ date('Y') }} ISU StudyGo. All rights reserved.
+              </p>
+              <p class="text-xs sm:text-sm text-gray-600 kantumruy-pro-regular">
+                Need help? <a href="mailto:isustudygo@gmail.com" class="text-green-700 font-semibold hover:underline">Contact Support</a>
+              </p>
+            </div>
+          </div>
+
           @if (Route::has('login'))
             <p class="text-center kantumruy-pro-regular tracking-tight text-gray-600 mt-4 sm:mt-6 text-sm sm:text-base">
               Already have an account?
@@ -367,24 +415,24 @@
   @include('partials.globalLoader')
   
   <script>
-    // Toggle password visibility
-    function togglePassword(inputId, toggleId) {
-      const input = document.getElementById(inputId);
-      const icon = document.getElementById(inputId === 'password' ? 'passwordIcon' : 'passwordConfirmationIcon');
+    document.addEventListener('DOMContentLoaded', function() {
+      // Toggle password visibility for both fields with checkbox
+      const showPasswordsCheckbox = document.getElementById('showPasswords');
+      const passwordInput = document.getElementById('password');
+      const passwordConfirmInput = document.getElementById('password_confirmation');
       
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-      } else {
-        input.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-      }
+      if (showPasswordsCheckbox && passwordInput && passwordConfirmInput) {
+        showPasswordsCheckbox.addEventListener('change', function() {
+          const type = this.checked ? 'text' : 'password';
+          passwordInput.type = type;
+          passwordConfirmInput.type = type;
+        });
     }
 
     // Show/hide student fields based on role selection
-    document.getElementById('role').addEventListener('change', function() {
+      const roleSelect = document.getElementById('role');
+      if (roleSelect) {
+        roleSelect.addEventListener('change', function() {
       const studentFields = document.getElementById('studentFields');
       const courseSelect = document.getElementById('course_id');
       const studentNumberInput = document.getElementById('student_number');
@@ -403,18 +451,17 @@
     });
     
     // Trigger on page load if role is already selected
-    if (document.getElementById('role').value === 'student') {
-      document.getElementById('role').dispatchEvent(new Event('change'));
+        if (roleSelect.value === 'student') {
+          roleSelect.dispatchEvent(new Event('change'));
+        }
     }
 
-    // Client-side password validation feedback
-    const passwordInput = document.getElementById('password');
-    const passwordConfirmInput = document.getElementById('password_confirmation');
-    
+      // Real-time password validation feedback (reuse variables from above)
     if (passwordInput) {
-      passwordInput.addEventListener('input', function() {
-        const password = this.value;
-        const hintElement = this.parentElement.parentElement.querySelector('.password-strength-hint');
+        passwordInput.addEventListener('input', function() {
+          const password = this.value;
+          const passwordContainer = this.closest('.grid').parentElement;
+          let hintElement = passwordContainer.querySelector('.password-strength-hint');
         
         // Remove existing hint
         if (hintElement) {
@@ -441,24 +488,59 @@
             const hint = document.createElement('p');
             hint.className = 'text-xs text-amber-600 mt-1 password-strength-hint';
             hint.textContent = 'Missing: ' + missing.join(', ');
-            this.parentElement.parentElement.insertBefore(hint, this.parentElement.nextSibling);
+              passwordContainer.appendChild(hint);
+            }
           }
+          
+          // Check password match in real-time
+          if (passwordConfirmInput && passwordConfirmInput.value.length > 0) {
+            checkPasswordMatch();
         }
       });
     }
     
-    if (passwordConfirmInput && passwordInput) {
-      passwordConfirmInput.addEventListener('input', function() {
+      // Real-time password match validation
+      function checkPasswordMatch() {
         const password = passwordInput.value;
-        const confirmPassword = this.value;
+        const confirmPassword = passwordConfirmInput.value;
+        const passwordContainer = passwordInput.closest('.grid').parentElement;
+        let matchHint = passwordContainer.querySelector('.password-match-hint');
         
-        if (confirmPassword.length > 0 && password !== confirmPassword) {
-          this.setCustomValidity('Passwords do not match');
+        if (confirmPassword.length > 0) {
+          if (password !== confirmPassword) {
+            if (!matchHint) {
+              matchHint = document.createElement('p');
+              matchHint.className = 'text-xs text-red-600 mt-1 password-match-hint';
+              passwordContainer.appendChild(matchHint);
+            }
+            matchHint.textContent = 'Passwords do not match';
+            passwordConfirmInput.setCustomValidity('Passwords do not match');
+          } else if (password.length > 0) {
+            if (!matchHint) {
+              matchHint = document.createElement('p');
+              matchHint.className = 'text-xs text-green-600 mt-1 password-match-hint';
+              passwordContainer.appendChild(matchHint);
+            }
+            matchHint.textContent = 'Passwords match';
+            passwordConfirmInput.setCustomValidity('');
+          } else {
+            if (matchHint) {
+              matchHint.remove();
+            }
+            passwordConfirmInput.setCustomValidity('');
+          }
         } else {
-          this.setCustomValidity('');
+          if (matchHint) {
+            matchHint.remove();
+          }
+          passwordConfirmInput.setCustomValidity('');
         }
-      });
-    }
+      }
+      
+      if (passwordConfirmInput && passwordInput) {
+        passwordConfirmInput.addEventListener('input', checkPasswordMatch);
+      }
+    });
   </script>
 </body>
 </html>

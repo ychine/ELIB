@@ -54,6 +54,11 @@ Route::post('/logout', function (Request $request) {
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
+    // Handle Inertia requests
+    if ($request->header('X-Inertia')) {
+        return Inertia::location('/signin');
+    }
+
     return redirect('/signin')->with('status', 'Logged out');
 })->name('logout');
 
@@ -118,6 +123,9 @@ Route::middleware('auth')->group(function () {
 
             Route::get('/audit', [AuthController::class, 'auditTrail'])->name('audit');
             Route::get('/analytics', [AuthController::class, 'resourceAnalytics'])->name('analytics');
+            Route::post('/reports/{report}/delete-resource', [AuthController::class, 'deleteResourceFromReport'])->name('admin.reports.delete.resource');
+            Route::post('/reports/{report}/ban-user', [AuthController::class, 'banUserFromReport'])->name('admin.reports.ban.user');
+            Route::post('/reports/{report}/false-alarm', [AuthController::class, 'markFalseAlarm'])->name('admin.reports.false.alarm');
 
         });
 
@@ -173,6 +181,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:librarian'])->group(function () {
         Route::get('/resource-management', [ResourceController::class, 'index'])->name('resource.management');
         Route::post('/resources', [ResourceController::class, 'store'])->name('resources.store');
+        // Flag route must come before {resource} route to avoid route conflict
+        Route::post('/resources/flag', [ResourceController::class, 'flag'])->name('resources.flag');
         Route::get('/resources/{resource}', [ResourceController::class, 'show'])->name('resources.show');
         Route::patch('/resources/{resource}', [ResourceController::class, 'update'])->name('resources.update');
         Route::delete('/resources/{resource}', [ResourceController::class, 'destroy'])->name('resources.destroy');
@@ -189,6 +199,7 @@ Route::middleware('auth')->group(function () {
     /* LIBRARIAN ROLES MANAGEMENT */
     Route::middleware(['role:librarian'])->group(function () {
         Route::get('/librarian/roles', [App\Http\Controllers\RoleController::class, 'index'])->name('librarian.roles');
+        Route::patch('/librarian/users/{id}/position', [App\Http\Controllers\RoleController::class, 'updateLibrarianPosition'])->name('librarian.users.position.update');
     });
 
     /* YOUR SHELF - Available to all authenticated users */

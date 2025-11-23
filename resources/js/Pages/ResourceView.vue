@@ -127,9 +127,29 @@
               >
                 Close
               </button>
-              <!-- Report Button (for non-owners) -->
+              <!-- View Resource Button (for librarians) -->
               <button
-                v-if="!isOwner && resource.Type === 'Community Uploads'"
+                v-if="isLibrarian && resource.File_Path"
+                type="button"
+                @click="openPreviewModal"
+                class="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium text-sm shadow-lg hover:shadow-xl"
+              >
+                <i class="fas fa-eye mr-2"></i>
+                View Resource
+              </button>
+              <!-- Flag/Delete Button (for librarians) -->
+              <button
+                v-if="isLibrarian"
+                type="button"
+                @click="showFlagModal = true"
+                class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all font-medium text-sm shadow-lg hover:shadow-xl"
+              >
+                <i class="fas fa-trash-alt mr-2"></i>
+                Flag Content
+              </button>
+              <!-- Report Button (for non-owners, non-librarians) -->
+              <button
+                v-if="!isOwner && !isLibrarian && resource.Type === 'Community Uploads'"
                 type="button"
                 @click="showReportModal = true"
                 class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all font-medium text-sm shadow-lg hover:shadow-xl"
@@ -137,8 +157,8 @@
                 <i class="fas fa-flag mr-2"></i>
                 Report Content
               </button>
-              <!-- Borrow Button (only for non-owners) -->
-              <template v-if="!isOwner">
+              <!-- Borrow Button (only for non-owners, non-librarians) -->
+              <template v-if="!isOwner && !isLibrarian">
                 <button
                   v-if="resource.is_rejected"
                   type="button"
@@ -268,6 +288,90 @@
         </div>
       </div>
     </div>
+
+    <!-- Flag Modal -->
+    <div
+      v-if="showFlagModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
+      @click.self="showFlagModal = false"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] my-4 overflow-y-auto">
+        <div class="p-6 border-b border-gray-200">
+          <h3 class="text-xl font-bold kulim-park-bold">Flag Content</h3>
+        </div>
+        <form @submit.prevent="submitFlag" class="p-6">
+          <div class="space-y-4">
+            <div>
+              <label class="block font-medium mb-2">Reason for Flagging</label>
+              <select
+                v-model="reportForm.reason"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                required
+              >
+                <option value="">Select a reason</option>
+                <option value="inappropriate_content">Inappropriate Content</option>
+                <option value="copyright_violation">Copyright Violation</option>
+                <option value="spam">Spam or Misleading</option>
+                <option value="violates_policy">Violates Community Policy</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-medium mb-2">Description</label>
+              <textarea
+                v-model="reportForm.description"
+                rows="4"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                placeholder="Please provide details about why you are flagging this content..."
+                required
+              />
+            </div>
+          </div>
+          <div class="flex gap-2 justify-end mt-6 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              @click="showFlagModal = false"
+              class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              :disabled="!reportForm.reason || !reportForm.description || isSubmittingFlag"
+              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+            >
+              {{ isSubmittingFlag ? 'Submitting...' : 'Flag Content' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div
+      v-if="previewUrl"
+      class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 overflow-y-auto"
+    >
+      <!-- Modal Container -->
+      <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] my-4 overflow-y-auto mx-auto">
+        <!-- Close Button - Top Right Corner of Modal -->
+        <button
+          @click.stop="closePreviewModal"
+          class="absolute top-2 right-2 z-20 bg-white text-gray-700 rounded-full p-2 hover:bg-gray-100 shadow-lg border border-gray-200 transition-all"
+          aria-label="Close preview"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+        
+        <!-- Document Preview -->
+        <iframe
+          :src="previewUrl"
+          class="w-full h-[90vh] border-0"
+        />
+      </div>
+    </div>
   </AppLayout>
 </template>
 
@@ -285,15 +389,22 @@ const props = defineProps({
 
 const showReturnDateModal = ref(false);
 const showReportModal = ref(false);
+const showFlagModal = ref(false);
+const previewUrl = ref(null);
 const returnDate = ref('');
 const isSubmitting = ref(false);
 const isSubmittingReport = ref(false);
+const isSubmittingFlag = ref(false);
 const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
 const page = usePage();
 const currentUserId = computed(() => page.props.auth?.user?.id ?? null);
+const currentUserRole = computed(() => page.props.auth?.user?.role ?? null);
 const isOwner = computed(() => {
   return props.resource.owner_id && props.resource.owner_id === currentUserId.value;
+});
+const isLibrarian = computed(() => {
+  return currentUserRole.value === 'librarian';
 });
 
 const reportForm = ref({
@@ -345,7 +456,21 @@ const getTags = (tags) => {
 };
 
 const goBack = () => {
-  router.visit('/homeUser');
+  if (isLibrarian.value) {
+    router.visit('/homeLibrarian');
+  } else {
+    router.visit('/homeUser');
+  }
+};
+
+const openPreviewModal = () => {
+  if (props.resource.File_Path) {
+    previewUrl.value = `/storage/${props.resource.File_Path}`;
+  }
+};
+
+const closePreviewModal = () => {
+  previewUrl.value = null;
 };
 
 const submitBorrowWithReturnDate = () => {
@@ -396,6 +521,37 @@ const submitReport = () => {
       showReportModal.value = false;
       reportForm.value = { reason: '', description: '' };
       alert('Report submitted successfully. Thank you for helping keep our community safe.');
+    },
+  });
+};
+
+const submitFlag = () => {
+  if (!reportForm.value.reason || !reportForm.value.description || isSubmittingFlag.value) {
+    return;
+  }
+
+  isSubmittingFlag.value = true;
+  router.post('/resources/flag', {
+    resource_id: props.resource.Resource_ID,
+    reason: reportForm.value.reason,
+    description: reportForm.value.description,
+  }, {
+    onFinish: () => {
+      isSubmittingFlag.value = false;
+    },
+    onSuccess: () => {
+      showFlagModal.value = false;
+      reportForm.value = { reason: '', description: '' };
+      alert('Content flagged successfully. Admin will review this resource.');
+      // Stay on the same page - no redirect needed
+    },
+    onError: (errors) => {
+      console.error('Flag error:', errors);
+      if (errors && (errors.message?.includes('403') || errors.message?.includes('Unauthorized'))) {
+        alert('You do not have permission to flag content. Please ensure you are logged in as a librarian.');
+      } else {
+        alert('An error occurred while flagging the content. Please try again.');
+      }
     },
   });
 };

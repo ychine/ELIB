@@ -13,6 +13,7 @@ class ResourceReport extends Model
         'reason',
         'description',
         'status',
+        'flagged_by_librarian',
         'reviewed_by',
         'reviewed_at',
         'admin_notes',
@@ -20,6 +21,7 @@ class ResourceReport extends Model
 
     protected $casts = [
         'reviewed_at' => 'datetime',
+        'flagged_by_librarian' => 'boolean',
     ];
 
     public function resource(): BelongsTo

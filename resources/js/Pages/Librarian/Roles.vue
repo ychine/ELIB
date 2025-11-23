@@ -437,7 +437,7 @@ const submitAssignForm = () => {
   }
 
   isSubmitting.value = true;
-  router.patch(`/admin/users/${selectedLibrarian.value.id}`, {
+  router.patch(`/librarian/users/${selectedLibrarian.value.id}/position`, {
     position_id: assignForm.value.position_id,
   }, {
     onFinish: () => {
@@ -445,6 +445,7 @@ const submitAssignForm = () => {
     },
     onSuccess: () => {
       closeAssignModal();
+      router.reload();
     },
   });
 };

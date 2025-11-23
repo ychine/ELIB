@@ -199,12 +199,12 @@
             >
           </div>
           <div>
-            <label class="block font-medium mb-1">Author(s) (comma-separated) *</label>
+            <label class="block font-medium mb-1">Author(s) (comma-separated)</label>
             <input
               v-model="communityUploadForm.authors"
               type="text"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
+              placeholder="Leave blank to use your name"
             >
           </div>
           <div>
@@ -217,44 +217,36 @@
             ></textarea>
           </div>
           <div>
-            <label class="block font-medium mb-1">Tags (comma-separated)</label>
+            <label class="block font-medium mb-1">Tags (press Space or + to add)</label>
+            <div class="flex flex-wrap gap-1.5 mb-2">
+              <span
+                v-for="(tag, index) in communityUploadTagsArray"
+                :key="index"
+                class="inline-flex items-center px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-xs"
+              >
+                {{ tag }}
+                <span
+                  @click.stop="removeCommunityTag(index)"
+                  class="ml-1 text-green-600 hover:text-green-900 cursor-pointer leading-none"
+                  title="Remove tag"
+                >×</span>
+              </span>
+            </div>
             <input
-              v-model="communityUploadForm.tags"
+              v-model="communityUploadTagsInput"
               type="text"
+              placeholder="Type tag and press Space or +"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              @keydown="handleCommunityTagKeydown"
             >
           </div>
-          <div class="grid grid-cols-3 gap-4">
-            <div>
-              <label class="block font-medium mb-1">Publish Year</label>
-              <input
-                v-model.number="communityUploadForm.publish_year"
-                type="number"
-                min="1900"
-                max="2030"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-            </div>
-            <div>
-              <label class="block font-medium mb-1">Month</label>
-              <input
-                v-model.number="communityUploadForm.publish_month"
-                type="number"
-                min="1"
-                max="12"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-            </div>
-            <div>
-              <label class="block font-medium mb-1">Day</label>
-              <input
-                v-model.number="communityUploadForm.publish_day"
-                type="number"
-                min="1"
-                max="31"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-            </div>
+          <div>
+            <label class="block font-medium mb-1">Publish Date</label>
+            <input
+              v-model="communityUploadForm.publish_date"
+              type="date"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
           </div>
           <div>
             <label class="block font-medium mb-1">File *</label>
@@ -568,10 +560,18 @@ const communityUploadForm = ref({
   authors: '',
   Description: '',
   tags: '',
-  publish_year: '',
-  publish_month: '',
-  publish_day: '',
+  publish_date: '',
   file: null,
+});
+const communityUploadTagsInput = ref('');
+const communityUploadTagsArray = computed({
+  get: () => {
+    if (!communityUploadForm.value.tags) return [];
+    return communityUploadForm.value.tags.split(',').map(t => t.trim()).filter(t => t);
+  },
+  set: (tags) => {
+    communityUploadForm.value.tags = tags.join(', ');
+  }
 });
 const isUploading = ref(false);
 const addDragOver = ref(false);
@@ -698,11 +698,10 @@ const closeCommunityUploadModal = () => {
     authors: '',
     Description: '',
     tags: '',
-    publish_year: '',
-    publish_month: '',
-    publish_day: '',
+    publish_date: '',
     file: null,
   };
+  communityUploadTagsInput.value = '';
   addDragOver.value = false;
   document.body.style.overflow = '';
 };
@@ -728,21 +727,56 @@ const handleCommunityFileDrop = (event) => {
   }
 };
 
+const handleCommunityTagKeydown = (event) => {
+  if ((event.key === ' ' || event.key === '+' || event.key === 'Enter') && communityUploadTagsInput.value.trim()) {
+    event.preventDefault();
+    const newTag = communityUploadTagsInput.value.trim();
+    if (newTag && !communityUploadTagsArray.value.includes(newTag)) {
+      communityUploadTagsArray.value = [...communityUploadTagsArray.value, newTag];
+    }
+    communityUploadTagsInput.value = '';
+  }
+};
+
+const removeCommunityTag = (index) => {
+  const newTags = [...communityUploadTagsArray.value];
+  newTags.splice(index, 1);
+  communityUploadTagsArray.value = newTags;
+};
+
 const submitCommunityUpload = () => {
   if (!communityUploadForm.value.file) {
     alert('Please select a file');
     return;
   }
 
+  // Ensure tags are properly formatted before submission
+  if (communityUploadTagsArray.value.length > 0) {
+    communityUploadForm.value.tags = communityUploadTagsArray.value.join(', ');
+  } else {
+    communityUploadForm.value.tags = '';
+  }
+
+  // Parse publish_date if provided
+  let publish_year = null;
+  let publish_month = null;
+  let publish_day = null;
+  if (communityUploadForm.value.publish_date) {
+    const date = new Date(communityUploadForm.value.publish_date);
+    publish_year = date.getFullYear();
+    publish_month = date.getMonth() + 1;
+    publish_day = date.getDate();
+  }
+
   isUploading.value = true;
   const formData = new FormData();
   formData.append('Resource_Name', communityUploadForm.value.Resource_Name);
-  formData.append('authors', communityUploadForm.value.authors);
+  formData.append('authors', communityUploadForm.value.authors || '');
   formData.append('Description', communityUploadForm.value.Description);
   formData.append('tags', communityUploadForm.value.tags || '');
-  if (communityUploadForm.value.publish_year) formData.append('publish_year', communityUploadForm.value.publish_year);
-  if (communityUploadForm.value.publish_month) formData.append('publish_month', communityUploadForm.value.publish_month);
-  if (communityUploadForm.value.publish_day) formData.append('publish_day', communityUploadForm.value.publish_day);
+  if (publish_year) formData.append('publish_year', publish_year);
+  if (publish_month) formData.append('publish_month', publish_month);
+  if (publish_day) formData.append('publish_day', publish_day);
   formData.append('file', communityUploadForm.value.file);
   formData.append('is_community_upload', '1'); // Mark as community upload
 

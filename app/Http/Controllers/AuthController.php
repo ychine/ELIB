@@ -55,6 +55,15 @@ class AuthController extends Controller
             $request->session()->regenerate();
             $user = Auth::user();
 
+            // BANNED CHECK - Must be first check before any other operations
+            if ($user->is_banned) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return redirect('/signin')->with('error', "You're banned. Please contact support if you think this is a mistake.");
+            }
+
             // Update last login and online status
             $user->update([
                 'last_login_at' => now(),
@@ -516,27 +525,79 @@ class AuthController extends Controller
         })->reverse()->values();
 
         // Get reports
-        $reports = \App\Models\ResourceReport::with(['resource', 'reporter'])
+        $reports = \App\Models\ResourceReport::with([
+            'resource',
+            'reporter.admin',
+            'reporter.librarian',
+            'reporter.student',
+            'reporter.faculty',
+            'resource.owner',
+        ])
             ->latest()
             ->get()
             ->map(function ($report) {
+                $reporter = $report->reporter;
+                $reporterName = 'Unknown';
+
+                if ($reporter) {
+                    // Get name from role-specific relationship
+                    $profile = match ($reporter->role) {
+                        'admin' => $reporter->admin,
+                        'librarian' => $reporter->librarian,
+                        'student' => $reporter->student,
+                        'faculty' => $reporter->faculty,
+                        default => null,
+                    };
+
+                    $reporterName = $profile
+                        ? trim(($profile->First_Name ?? '').' '.($profile->Last_Name ?? ''))
+                        : 'Unknown';
+                }
+
                 return [
                     'id' => $report->id,
                     'resource_id' => $report->resource_id,
                     'resource_name' => $report->resource->Resource_Name ?? 'Unknown',
-                    'reporter_name' => $report->reporter->full_name ?? 'Unknown',
-                    'reporter_email' => $report->reporter->email ?? 'N/A',
+                    'reporter_name' => $reporterName,
+                    'reporter_email' => $reporter->email ?? 'N/A',
                     'reason' => $report->reason,
                     'description' => $report->description,
                     'status' => $report->status,
+                    'flagged_by_librarian' => $report->flagged_by_librarian ?? false,
                     'created_at' => $report->created_at,
                 ];
             })
             ->values();
 
-        // Get flagged accounts (users who have been flagged through reports - placeholder for now)
-        // TODO: Implement proper flagging system with is_flagged field
-        $flaggedAccounts = collect([]); // Empty for now until flagging system is implemented
+        // Get flagged accounts (banned users)
+        $flaggedAccounts = \App\Models\User::where('is_banned', true)
+            ->with(['admin', 'librarian', 'student', 'faculty'])
+            ->get()
+            ->map(function ($user) {
+                $profile = match ($user->role) {
+                    'admin' => $user->admin,
+                    'librarian' => $user->librarian,
+                    'student' => $user->student,
+                    'faculty' => $user->faculty,
+                    default => null,
+                };
+
+                // Get the ban date from audit log if available
+                $banLog = \App\Models\AuditLog::where('user_id', $user->id)
+                    ->where('action', 'admin_ban_user')
+                    ->latest()
+                    ->first();
+
+                return [
+                    'id' => $user->id,
+                    'name' => $profile ? trim(($profile->First_Name ?? '').' '.($profile->Last_Name ?? '')) : 'Unknown',
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'flag_reason' => 'Banned by Admin',
+                    'flagged_at' => $banLog ? $banLog->created_at : $user->updated_at,
+                ];
+            })
+            ->values();
 
         return Inertia::render('Admin/Analytics', [
             'summary' => $summary,
@@ -579,5 +640,110 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/signin');
+    }
+
+    // ────────────────────── REPORT ACTIONS ──────────────────────
+    public function deleteResourceFromReport(Request $request, $report)
+    {
+        $report = \App\Models\ResourceReport::findOrFail($report);
+        $resource = \App\Models\Resource::findOrFail($request->resource_id);
+
+        // Delete the resource
+        $resource->authors()->detach();
+        $resource->tags()->detach();
+
+        // Delete files
+        if ($resource->File_Path && \Illuminate\Support\Facades\Storage::disk('public')->exists($resource->File_Path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($resource->File_Path);
+        }
+        if ($resource->thumbnail_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($resource->thumbnail_path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($resource->thumbnail_path);
+        }
+
+        $resource->delete();
+
+        // Update report status
+        $report->update([
+            'status' => 'resolved',
+            'reviewed_by' => Auth::id(),
+            'reviewed_at' => now(),
+            'admin_notes' => 'Resource deleted by admin',
+        ]);
+
+        // Log audit
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'admin_delete_resource',
+            'model_type' => \App\Models\Resource::class,
+            'model_id' => $resource->Resource_ID,
+            'description' => "Deleted resource from report: {$resource->Resource_Name}",
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return back()->with('success', 'Resource deleted successfully.');
+    }
+
+    public function banUserFromReport(Request $request, $report)
+    {
+        $report = \App\Models\ResourceReport::findOrFail($report);
+        $resource = \App\Models\Resource::findOrFail($request->resource_id);
+
+        if (! $resource->owner_id) {
+            return back()->with('error', 'Resource has no owner to ban.');
+        }
+
+        $user = \App\Models\User::findOrFail($resource->owner_id);
+
+        // Ban the user
+        $user->update(['is_banned' => true]);
+
+        // Update report status
+        $report->update([
+            'status' => 'resolved',
+            'reviewed_by' => Auth::id(),
+            'reviewed_at' => now(),
+            'admin_notes' => 'User banned by admin',
+        ]);
+
+        // Log audit
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'admin_ban_user',
+            'model_type' => \App\Models\User::class,
+            'model_id' => $user->id,
+            'description' => "Banned user: {$user->email}",
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return back()->with('success', 'User banned successfully.');
+    }
+
+    public function markFalseAlarm(Request $request, $report)
+    {
+        $report = \App\Models\ResourceReport::with('resource')->findOrFail($report);
+
+        // Update report status
+        $report->update([
+            'status' => 'resolved',
+            'reviewed_by' => Auth::id(),
+            'reviewed_at' => now(),
+            'admin_notes' => 'Marked as false alarm by admin',
+        ]);
+
+        // Log audit
+        $resourceName = $report->resource->Resource_Name ?? 'Unknown';
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'admin_mark_false_alarm',
+            'model_type' => \App\Models\ResourceReport::class,
+            'model_id' => $report->id,
+            'description' => "Marked report as false alarm for resource: {$resourceName}",
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return back()->with('success', 'Report marked as false alarm.');
     }
 }

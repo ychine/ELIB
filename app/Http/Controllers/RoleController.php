@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LibrarianPosition;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -55,5 +56,38 @@ class RoleController extends Controller
             'librarians' => $librarians,
             'isUniversityLibrarian' => $isUniversityLibrarian,
         ]);
+    }
+
+    public function updateLibrarianPosition(Request $request, $id)
+    {
+        $user = Auth::user();
+
+        // Check if user is University Librarian
+        if ($user->role !== 'librarian' || ! $user->librarian || ! $user->librarian->position) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $isUniversityLibrarian = $user->librarian->position->name === 'University Librarian';
+        if (! $isUniversityLibrarian) {
+            abort(403, 'Only University Librarians can assign positions.');
+        }
+
+        $targetUser = User::findOrFail($id);
+
+        // Ensure target user is a librarian
+        if ($targetUser->role !== 'librarian') {
+            abort(403, 'Can only assign positions to librarians.');
+        }
+
+        $request->validate([
+            'position_id' => 'required|exists:librarian_positions,id',
+        ]);
+
+        // Update librarian position
+        \App\Models\Librarian::where('UID', $targetUser->id)->update([
+            'position_id' => $request->position_id,
+        ]);
+
+        return back()->with('success', 'Position updated successfully.');
     }
 }
