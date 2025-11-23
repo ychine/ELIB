@@ -186,31 +186,47 @@ class ResourceController extends Controller
     // Community upload - available to all authenticated users
     public function storeCommunityUpload(Request $request)
     {
+        $user = Auth::user();
         Log::info('COMMUNITY UPLOAD STARTED', [
-            'user_id' => Auth::id(),
+            'user_id' => $user->id,
+            'user_role' => $user->role,
+            'user_approved' => $user->is_approved,
             'file_size' => $request->file('file')?->getSize(),
+            'file_name' => $request->file('file')?->getClientOriginalName(),
+            'file_mime' => $request->file('file')?->getMimeType(),
         ]);
 
-        $validated = $request->validate([
-            'Resource_Name' => 'required|string|max:255',
-            'authors' => 'nullable|string|max:500',
-            'Description' => 'required|string',
-            'publish_year' => 'nullable|integer|min:1900|max:2030',
-            'publish_month' => 'nullable|integer|min:1|max:12',
-            'publish_day' => 'nullable|integer|min:1|max:31',
-            'file' => 'required|file|mimes:pdf,doc,docx,zip|max:102400',
-            'tags' => 'nullable|string|max:500',
-        ]);
+        try {
+            $validated = $request->validate([
+                'Resource_Name' => 'required|string|max:255',
+                'authors' => 'nullable|string|max:500',
+                'Description' => 'required|string',
+                'publish_year' => 'nullable|integer|min:1900|max:2030',
+                'publish_month' => 'nullable|integer|min:1|max:12',
+                'publish_day' => 'nullable|integer|min:1|max:31',
+                'file' => 'required|file|mimes:pdf,doc,docx,zip|max:102400',
+                'tags' => 'nullable|string|max:500',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Community upload validation failed', [
+                'errors' => $e->errors(),
+                'user_id' => $user->id,
+            ]);
+            throw $e;
+        }
 
         try {
             $uploadedFile = $request->file('file');
             $path = $uploadedFile->store('resources', 'public');
 
             // Get uploader's name if authors field is blank
-            $user = Auth::user();
             $authorName = trim($validated['authors'] ?? '');
             if (empty($authorName)) {
-                $authorName = $user->full_name;
+                $authorName = $user->full_name ?? 'Unknown Uploader';
+                Log::info('Using uploader name as author', [
+                    'user_id' => $user->id,
+                    'author_name' => $authorName,
+                ]);
             }
 
             $resource = Resource::create([

@@ -780,14 +780,40 @@ const submitCommunityUpload = () => {
   formData.append('file', communityUploadForm.value.file);
   formData.append('is_community_upload', '1'); // Mark as community upload
 
+  console.log('Submitting community upload:', {
+    Resource_Name: communityUploadForm.value.Resource_Name,
+    file: communityUploadForm.value.file?.name,
+    fileSize: communityUploadForm.value.file?.size,
+  });
+
   router.post('/resources/community-upload', formData, {
     forceFormData: true,
+    onStart: () => {
+      console.log('Upload started');
+    },
     onFinish: () => {
+      console.log('Upload finished');
       isUploading.value = false;
     },
-    onSuccess: () => {
+    onSuccess: (page) => {
+      console.log('Upload success', page);
+      // Show success message if available
+      const successMessage = page.props?.flash?.success || page.props?.flash?.message;
+      if (successMessage) {
+        alert(successMessage);
+      }
       closeCommunityUploadModal();
       router.reload();
+    },
+    onError: (errors) => {
+      console.error('Upload error:', errors);
+      // Show validation errors
+      if (errors) {
+        const errorMessages = Object.values(errors).flat().join('\n');
+        alert('Upload failed:\n' + errorMessages);
+      } else {
+        alert('Upload failed. Please check the console for details and try again.');
+      }
     },
   });
 };
