@@ -494,11 +494,19 @@ const submitBorrowWithReturnDate = () => {
     onFinish: () => {
       isSubmitting.value = false;
     },
-    onSuccess: () => {
+    onSuccess: (page) => {
+      const successMessage = page?.props?.flash?.success;
+      if (successMessage) {
+        alert(successMessage);
+      }
       showReturnDateModal.value = false;
       returnDate.value = '';
       // Update the resource to mark as borrowed
       props.resource.is_borrowed = true;
+    },
+    onError: (errors) => {
+      const messages = errors ? Object.values(errors).flat().join('\\n') : 'Unable to submit borrow request. Please try again.';
+      alert(messages);
     },
   });
 };

@@ -265,7 +265,7 @@
               ref="communityFileInput"
               type="file"
               class="hidden"
-              accept=".pdf,.doc,.docx,.zip"
+              accept=".pdf"
               @change="handleCommunityFileSelect"
               required
             >
@@ -576,6 +576,18 @@ const communityUploadTagsArray = computed({
 const isUploading = ref(false);
 const addDragOver = ref(false);
 
+const isPdfFile = (file) => {
+  if (!file) {
+    return false;
+  }
+  const mime = file.type?.toLowerCase();
+  if (mime === 'application/pdf') {
+    return true;
+  }
+  const extension = file.name?.split('.').pop()?.toLowerCase();
+  return extension === 'pdf';
+};
+
 // Search functionality
 const searchQuery = ref('');
 const searchResults = ref([]);
@@ -673,7 +685,11 @@ const submitBorrowWithReturnDate = () => {
     onFinish: () => {
       isSubmitting.value = false;
     },
-    onSuccess: () => {
+    onSuccess: (page) => {
+      const successMessage = page?.props?.flash?.success;
+      if (successMessage) {
+        alert(successMessage);
+      }
       // Update the resource to mark as borrowed
       if (selectedResource.value) {
         selectedResource.value.is_borrowed = true;
@@ -681,6 +697,10 @@ const submitBorrowWithReturnDate = () => {
       showReturnDateModal.value = false;
       returnDate.value = '';
       closeModal();
+    },
+    onError: (errors) => {
+      const messages = errors ? Object.values(errors).flat().join('\\n') : 'Unable to submit borrow request. Please try again.';
+      alert(messages);
     },
   });
 };
@@ -708,9 +728,15 @@ const closeCommunityUploadModal = () => {
 
 const handleCommunityFileSelect = (event) => {
   if (event.target.files && event.target.files[0]) {
-    communityUploadForm.value.file = event.target.files[0];
+    const selectedFile = event.target.files[0];
+    if (!isPdfFile(selectedFile)) {
+      alert('Only PDF files are allowed for community uploads.');
+      event.target.value = '';
+      return;
+    }
+    communityUploadForm.value.file = selectedFile;
     if (!communityUploadForm.value.Resource_Name) {
-      const filename = event.target.files[0].name;
+      const filename = selectedFile.name;
       communityUploadForm.value.Resource_Name = filename.replace(/\.[^/.]+$/, '');
     }
   }
@@ -719,9 +745,14 @@ const handleCommunityFileSelect = (event) => {
 const handleCommunityFileDrop = (event) => {
   addDragOver.value = false;
   if (event.dataTransfer.files && event.dataTransfer.files[0]) {
-    communityUploadForm.value.file = event.dataTransfer.files[0];
+    const droppedFile = event.dataTransfer.files[0];
+    if (!isPdfFile(droppedFile)) {
+      alert('Only PDF files are allowed for community uploads.');
+      return;
+    }
+    communityUploadForm.value.file = droppedFile;
     if (!communityUploadForm.value.Resource_Name) {
-      const filename = event.dataTransfer.files[0].name;
+      const filename = droppedFile.name;
       communityUploadForm.value.Resource_Name = filename.replace(/\.[^/.]+$/, '');
     }
   }

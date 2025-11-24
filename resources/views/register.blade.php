@@ -198,10 +198,10 @@
       </div>
       <div class="absolute inset-0 rounded-l-4xl p-10 lg:p-16 z-10">
         <div class="text-white drop-shadow-lg max-w-xl">
-          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">Bridging</h2>
-          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">knowledge from</h2>
-          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">one campus to</h2>
-          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">another</h2>
+        <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">Cultivating</h2>
+          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">knowledge</h2>
+          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">within our home</h2>
+          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">of learning</h2>
         </div>
         <p class="absolute kulim-park-light bottom-10 lg:bottom-16 font-semibold text-lg sm:text-xl text-white">One ISU</p>
       </div>

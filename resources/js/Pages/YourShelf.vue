@@ -847,11 +847,19 @@ const submitBorrowRequest = () => {
     onFinish: () => {
       isSubmittingBorrow.value = false;
     },
-    onSuccess: () => {
+    onSuccess: (page) => {
+      const successMessage = page?.props?.flash?.success;
+      if (successMessage) {
+        alert(successMessage);
+      }
       showReturnDateModal.value = false;
       returnDate.value = '';
       closeRequestModal();
       router.reload();
+    },
+    onError: (errors) => {
+      const messages = errors ? Object.values(errors).flat().join('\n') : 'Unable to submit borrow request. Please try again.';
+      alert(messages);
     },
   });
 };

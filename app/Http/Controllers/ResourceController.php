@@ -204,7 +204,7 @@ class ResourceController extends Controller
                 'publish_year' => 'nullable|integer|min:1900|max:2030',
                 'publish_month' => 'nullable|integer|min:1|max:12',
                 'publish_day' => 'nullable|integer|min:1|max:31',
-                'file' => 'required|file|mimes:pdf,doc,docx,zip|max:102400',
+                'file' => 'required|file|mimes:pdf|max:102400',
                 'tags' => 'nullable|string|max:500',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {

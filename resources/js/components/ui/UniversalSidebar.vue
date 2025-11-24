@@ -148,6 +148,7 @@
     v-model="showAccountSettings"
     :user="user"
     :courses="courses"
+    :is-saving="isSavingAccount"
     @save="handleAccountSave"
   />
 </template>
@@ -206,6 +207,7 @@ const props = defineProps({
 
 const isExpanded = ref(props.defaultExpanded);
 const showAccountSettings = ref(false);
+const isSavingAccount = ref(false);
 const showProfileDropdown = ref(false);
 const sidebarRef = ref(null);
 const tooltipRef = ref(null);
@@ -396,6 +398,10 @@ const handleLogout = () => {
 };
 
 const handleAccountSave = async (data) => {
+  if (isSavingAccount.value) {
+    return;
+  }
+  isSavingAccount.value = true;
   try {
     const formData = new FormData();
     formData.append('first_name', data.first_name);
@@ -439,6 +445,8 @@ const handleAccountSave = async (data) => {
   } catch (error) {
     console.error('Error updating profile:', error);
     alert('An error occurred while updating your profile. Please try again.');
+  } finally {
+    isSavingAccount.value = false;
   }
 };
 

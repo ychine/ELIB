@@ -5,10 +5,13 @@
       <div
         v-if="modelValue"
         class="account-settings-modal-overlay"
-        @click.self="handleClose"
       >
         <div class="account-settings-modal-container">
-          <div class="account-settings-modal-content">
+          <div class="account-settings-modal-content" :aria-busy="isSaving">
+            <div v-if="isSaving" class="account-settings-modal-loading">
+              <div class="account-settings-modal-spinner"></div>
+              <p>Saving changes...</p>
+            </div>
             <!-- Header -->
             <header class="account-settings-modal-header">
               <div>
@@ -19,6 +22,8 @@
                 type="button"
                 class="account-settings-modal-close"
                 @click="handleClose"
+                :disabled="isSaving"
+                :aria-disabled="isSaving"
                 aria-label="Close"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -178,6 +183,7 @@
                 type="button"
                 class="account-settings-modal-btn account-settings-modal-btn-secondary"
                 @click="handleClose"
+                :disabled="isSaving"
               >
                 Close
               </button>
@@ -186,6 +192,7 @@
                   type="button"
                   class="account-settings-modal-btn account-settings-modal-btn-secondary"
                   @click="handleCancel"
+                  :disabled="isSaving"
                 >
                   Cancel
                 </button>
@@ -193,8 +200,9 @@
                   type="button"
                   class="account-settings-modal-btn account-settings-modal-btn-primary"
                   @click="handleSave"
+                  :disabled="isSaving"
                 >
-                  Save Changes
+                  {{ isSaving ? 'Saving…' : 'Save Changes' }}
                 </button>
               </template>
             </footer>
@@ -233,9 +241,15 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  isSaving: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['update:modelValue', 'save']);
+
+const isSaving = computed(() => props.isSaving);
 
 const isEditing = ref(false);
 const originalFormData = ref({});
@@ -312,6 +326,9 @@ const userInitials = computed(() => {
 });
 
 const handleClose = () => {
+  if (props.isSaving) {
+    return;
+  }
   document.body.classList.remove('modal-open');
   document.body.style.overflow = '';
   isEditing.value = false;
@@ -325,6 +342,9 @@ const enableEditing = () => {
 };
 
 const handleCancel = () => {
+  if (props.isSaving) {
+    return;
+  }
   // Restore original values
   formData.value = { ...originalFormData.value };
   // Reset password fields
@@ -334,9 +354,11 @@ const handleCancel = () => {
 };
 
 const handleSave = () => {
+  if (props.isSaving) {
+    return;
+  }
   emit('save', { ...formData.value });
   isEditing.value = false;
-  handleClose();
 };
 
 const handleProfilePictureChange = async (event) => {
@@ -406,6 +428,7 @@ watch(() => props.modelValue, (isOpen) => {
   } else {
     document.body.classList.remove('modal-open');
     document.body.style.overflow = '';
+    isEditing.value = false;
   }
 });
 
@@ -452,6 +475,36 @@ defineExpose({
   flex-direction: column;
   overflow: hidden;
   box-sizing: border-box;
+  position: relative;
+}
+
+.account-settings-modal-loading {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  z-index: 10;
+  font-weight: 600;
+  color: #065f46;
+}
+
+.account-settings-modal-spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 4px solid rgba(5, 150, 105, 0.25);
+  border-top-color: #059669;
+  animation: account-settings-spin 1s linear infinite;
+}
+
+@keyframes account-settings-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .account-settings-modal-header {
@@ -535,6 +588,11 @@ defineExpose({
 
 .account-settings-modal-btn-primary:hover {
   background: #16a34a;
+}
+
+.account-settings-modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .account-settings-modal-avatar-btn {

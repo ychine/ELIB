@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\PasswordResetCodeMail;
 use App\Mail\VerificationCodeMail;
 use App\Models\Admin;
 use App\Models\AuditLog;
@@ -13,6 +14,7 @@ use App\Models\Resource;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -294,6 +296,91 @@ class AuthController extends Controller
 
         return redirect()->route('login')
             ->with('status', 'verification-success');
+    }
+
+    /* --------------------------------------------------------------
+       FORGOT PASSWORD VIA 6-DIGIT CODE
+       -------------------------------------------------------------- */
+    public function showForgotPasswordForm(Request $request)
+    {
+        $resetData = $request->session()->get('password_reset');
+
+        return view('auth.forgot-password', [
+            'email' => $resetData['email'] ?? null,
+        ]);
+    }
+
+    public function sendResetCode(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'email', 'exists:users,email'],
+        ], [
+            'email.exists' => 'We could not find an account with that email.',
+        ]);
+
+        $user = User::where('email', $validated['email'])->firstOrFail();
+
+        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $expiresAt = now()->addMinutes(15);
+
+        $request->session()->put('password_reset', [
+            'email' => $user->email,
+            'code' => $code,
+            'code_expires_at' => $expiresAt,
+        ]);
+
+        Mail::to($user->email)->send(new PasswordResetCodeMail($code));
+
+        return back()->with('status', 'reset-code-sent');
+    }
+
+    public function resetPasswordWithCode(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email', 'exists:users,email'],
+            'code' => ['required', 'digits:6'],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[-_@$!%*#?&]/',
+                'confirmed',
+            ],
+        ], [
+            'email.exists' => 'We could not find an account with that email.',
+        ]);
+
+        $resetData = $request->session()->get('password_reset');
+
+        if (! $resetData || ($resetData['email'] ?? null) !== $request->email) {
+            return back()->withErrors(['code' => 'Please request a new code for this email address.']);
+        }
+
+        $expiresAt = isset($resetData['code_expires_at'])
+            ? Carbon::parse($resetData['code_expires_at'])
+            : null;
+
+        if (! $expiresAt || now()->greaterThan($expiresAt)) {
+            $request->session()->forget('password_reset');
+
+            return back()->withErrors(['code' => 'Code has expired. Please request a new one.']);
+        }
+
+        if ($request->code !== $resetData['code']) {
+            return back()->withErrors(['code' => 'Invalid code. Please double-check and try again.']);
+        }
+
+        $user = User::where('email', $request->email)->firstOrFail();
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        $request->session()->forget('password_reset');
+
+        return redirect()->route('login')->with('status', 'password-reset-success');
     }
 
     private function createProfileFromData(User $user, array $data)

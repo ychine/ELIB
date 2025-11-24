@@ -300,11 +300,19 @@ const submitBorrow = () => {
     onFinish: () => {
       isSubmitting.value = false;
     },
-    onSuccess: () => {
+    onSuccess: (page) => {
+      const successMessage = page?.props?.flash?.success;
+      if (successMessage) {
+        alert(successMessage);
+      }
       if (selectedResource.value) {
         selectedResource.value.is_borrowed = true;
       }
       closeModal();
+    },
+    onError: (errors) => {
+      const messages = errors ? Object.values(errors).flat().join('\n') : 'Unable to submit borrow request. Please try again.';
+      alert(messages);
     },
   });
 };

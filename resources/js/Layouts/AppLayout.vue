@@ -97,10 +97,10 @@
         >
         <div class="herotext h-50 ml-30 flex relative z-2">
           <div class="column">
-            <h1 style="transform: translateY(35%); line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 45px; text-shadow: 0 4px 4px #000; color: #FFF;">
-              Bridging knowledge <br>
-              from one campus <br>
-              to another
+            <h1 style="transform: translateY(30%); line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 40px; text-shadow: 0 4px 4px #000; color: #FFF;">
+              Cultivating knowledge <br>
+              within our home <br>
+              of learning
             </h1>
           </div>
         </div>

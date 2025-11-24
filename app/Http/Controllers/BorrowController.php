@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class BorrowController extends Controller
@@ -67,6 +68,17 @@ class BorrowController extends Controller
             'resource_id' => 'required|exists:resources,Resource_ID',
             'return_date' => 'required|date|after:now',
         ]);
+
+        $activeBorrowCount = Borrower::where('UID', Auth::id())
+            ->where('isReturned', 0)
+            ->whereNull('rejection_reason')
+            ->count();
+
+        if ($activeBorrowCount >= 5) {
+            throw ValidationException::withMessages([
+                'limit' => 'You have reached the maximum of 5 active borrow requests. Please return a resource before requesting another.',
+            ]);
+        }
 
         // Check if there's an active (non-returned, non-rejected) request
         // This includes: pending requests, approved but not returned requests

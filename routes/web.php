@@ -34,6 +34,10 @@ Route::get('/verify-code', [AuthController::class, 'showVerifyCode'])
 Route::post('/verify-code', [AuthController::class, 'verifyCode'])
     ->name('verify.code.post');
 
+Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
+Route::post('/forgot-password/send-code', [AuthController::class, 'sendResetCode'])->name('password.email');
+Route::post('/forgot-password/reset', [AuthController::class, 'resetPasswordWithCode'])->name('password.reset.code');
+
 Route::post('/logout', function (Request $request) {
     $user = Auth::user();
     if ($user) {

@@ -161,10 +161,10 @@
       </div>
       <div class="absolute inset-0 rounded-l-4xl p-10 lg:p-16 z-10">
         <div class="text-white drop-shadow-lg max-w-xl">
-          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">Bridging</h2>
-          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">knowledge from</h2>
-          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">one campus to</h2>
-          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">another</h2>
+          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">Cultivating</h2>
+          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">knowledge</h2>
+          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">within our home</h2>
+          <h2 style="color:#FFF;text-shadow:0 4px 4px #000;font-family:'Kulim Park',sans-serif;font-size:4.1vw;font-style:normal;font-weight:700;line-height:80.402%;letter-spacing:-4.05px;white-space:nowrap;">of learning</h2>
         </div>
         <p class="absolute kulim-park-light bottom-10 lg:bottom-16 font-semibold text-lg sm:text-xl text-white">One ISU</p>
       </div>
@@ -252,7 +252,7 @@
             <div>
               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2 sm:gap-0">
                 <label class="block text-sm sm:text-base kantumruy-pro-bold font-semibold">Password</label>
-                <a href="#" class="text-green-700 text-xs sm:text-sm hover:underline">Forgot password?</a>
+                <a href="{{ route('password.request') }}" class="text-green-700 text-xs sm:text-sm hover:underline">Forgot password?</a>
               </div>
               <div class="border-b-3 border-gray-300 focus-within:border-green-700 rounded-lg auth-field">
                 <input type="password" name="password" required placeholder="*********"
@@ -305,6 +305,8 @@
       showToast('Account Pending Approval', 'Your account is awaiting admin approval. You will be notified once approved.', '#FEF3C7', '#D97706');
     @elseif(session('error') === 'Your account is pending admin approval.')
       showToast('Account Pending Approval', 'Your account is awaiting admin approval. Please try again later.', '#FEF3C7', '#D97706');
+    @elseif(session('status') === 'password-reset-success')
+      showToast('Password Updated', 'Your password has been reset successfully. Please log in with your new credentials.', '#DCFCE7', '#16A34A');
     @elseif(session('error'))
       showToast('Access Denied', {!! json_encode(session('error')) !!}, '#FEE2E2', '#DC2626');
     @endif
