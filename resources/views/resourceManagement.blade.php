@@ -403,7 +403,7 @@
     <div class="fixed w-full top-0 left-0 flex justify-between items-center px-4 py-2 z-10 glass-nav">
       <span class="text-5xl jersey-20-regular pl-3 text-white"></span>
       <div class="relative flex items-center">
-        <input class="searchbar z-0 pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px]  shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" type="text" placeholder="Search for books, papers..">
+        <input class="searchbar z-0 pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" type="text" placeholder="Search for books, papers..">
         <img
           src="{{ Vite::asset('resources/images/Search.png') }}"
           alt="Search icon"
