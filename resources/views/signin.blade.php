@@ -147,7 +147,7 @@
     class="
       hidden          
       lg:block       
-
+      
       absolute left-1/2 -translate-x-1/2 top-10
       lg:w-[5%] z-10
       transition-opacity duration-300

@@ -10,9 +10,7 @@ class PasswordResetCodeMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public string $code)
-    {
-    }
+    public function __construct(public string $code) {}
 
     public function build(): self
     {
@@ -21,5 +19,3 @@ class PasswordResetCodeMail extends Mailable
             ->with(['code' => $this->code]);
     }
 }
-
-
