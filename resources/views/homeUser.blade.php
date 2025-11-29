@@ -214,6 +214,7 @@
       gap: 1rem;
       margin-bottom: 1.5rem;
       border-bottom: 2px solid #e5e7eb;
+      flex-wrap: wrap;
     }
     .filter-tab {
       padding: 0.75rem 1.5rem;
@@ -280,6 +281,32 @@
     }
     @media (min-width: 769px) { .bottom-nav { display: none; } }
 
+    @media (max-width: 640px) {
+      .glass-nav {
+        align-items: stretch;
+      }
+      .glass-nav .text-md {
+        justify-content: flex-start;
+      }
+      .hero-container {
+        min-height: 180px;
+      }
+      .herotext {
+        text-align: center;
+      }
+      .content-wrapper {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      .books-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
+      .community-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
     /* Borrow Modal */
     #borrowModal .modal-content {
       max-width: 900px;
@@ -315,18 +342,18 @@
     </div>
 
     <!-- Navigation -->
-    <div class="fixed w-full top-0 left-0 flex justify-between items-center px-4 py-2 z-10 glass-nav">
-      <span class="text-5xl pl-3 text-white kantumruy-pro-regular"></span>
-      <div class="relative flex items-center">
-        <input class="searchbar pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)] kantumruy-pro-regular" type="text" placeholder="Search for books, papers..">
+    <div class="fixed w-full top-0 left-0 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-2 z-10 glass-nav">
+      <span class="text-4xl sm:text-5xl pl-0 sm:pl-3 text-white kantumruy-pro-regular"></span>
+      <div class="relative flex items-center w-full sm:w-auto">
+        <input class="searchbar pl-7 pr-10 w-full sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)] kantumruy-pro-regular" type="text" placeholder="Search for books, papers..">
         <img 
           src="{{ Vite::asset('resources/images/Search.png') }}" 
           alt="Search icon" 
-          class="absolute right-5 w-6 h-6"
+          class="absolute right-5 w-6 h-6 pointer-events-none"
           loading="lazy"
         />
       </div>
-      <div class="text-md flex space-x-4 gap-5 pr-6 kantumruy-pro-semibold text-white">
+      <div class="text-md w-full sm:w-auto flex space-x-4 gap-5 pr-0 sm:pr-6 kantumruy-pro-semibold text-white justify-end">
         <!-- Empty space to match admin/librarian layout -->
       </div>
     </div>
@@ -337,15 +364,15 @@
         <img 
           src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" 
           alt="ISU Logo" 
-          class="absolute right-0 w-15 h-15 m-7"
+          class="absolute right-0 w-16 h-16 m-4 hidden sm:block"
           loading="lazy"
         />
-        <h5 class="absolute text-white right-0 m-7 mr-10 translate-y-30 kulim-park-semibold">One ISU</h5>
+        <h5 class="absolute text-white right-0 m-4 mr-6 translate-y-12 kulim-park-semibold hidden sm:block">One ISU</h5>
         <img src="{{ Vite::asset('resources/images/libgreenptr.jpg') }}" alt="Library" class="hero-image w-full h-full z-[-1] object-cover absolute" style="object-position: 70% middle; height: 200px;" loading="lazy"/>
-        <div class="herotext ml-30 flex relative z-2 py-8">
+        <div class="herotext relative z-2 py-8 px-4 sm:px-10">
           <div class="column">
-            <h1 style="line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 45px; text-shadow: 0 4px 4px #000; color: #FFF;">
-              Bridging knowledge <br> from one campus <br> to another
+            <h1 class="text-white text-3xl sm:text-5xl font-semibold kulim-park-bold leading-tight sm:leading-[1.05] drop-shadow-lg text-center sm:text-left">
+              Bridging knowledge<br class="hidden sm:block"> from one campus<br class="hidden sm:block"> to another
             </h1>
           </div>
         </div>
@@ -353,7 +380,7 @@
         <div class="px-4 lg:px-[5%] mt-2">
           <div class="flex flex-col lg:pl-28 lg:pr-20 lg:flex-row gap-10 pt-4 content-wrapper">
             <!-- Featured Section -->
-            <div class="featured-section" style="flex: 0 0 70%;">
+            <div class="featured-section w-full lg:w-[70%]">
               <h2 class="text-2xl sm:text-3xl font-extrabold kulim-park-bold tracking-tight mb-4">ISU Featured Resources</h2>
               
               <div class="filter-tabs">
@@ -422,7 +449,7 @@
             </div>
 
             <!-- Right Sidebar: Popular Tags and Community Uploads -->
-            <div class="flex flex-col gap-6" style="flex: 0 0 30%;">
+            <div class="flex flex-col gap-6 w-full lg:w-[30%]">
               <!-- Popular Tags Section -->
               @if($popularTags && $popularTags->count() > 0)
                 <div>

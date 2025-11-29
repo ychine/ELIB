@@ -3,9 +3,21 @@
   <AppLayout title="" content-padding-classes="px-4 lg:px-[5%]">
     <div class="flex flex-col lg:pl-28 lg:pr-20 pt-4 content-wrapper">
       <div class="w-full">
-        <h2 class="text-2xl sm:text-3xl font-extrabold kulim-park-bold tracking-tight mb-6">
-          Your Shelf
-        </h2>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <h2 class="text-2xl sm:text-3xl font-extrabold kulim-park-bold tracking-tight">
+            Your Shelf
+          </h2>
+          <button
+            type="button"
+            @click="openHistoryModal"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
+          >
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l2.5 1.5M12 6v6m9 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Borrow History
+          </button>
+        </div>
 
         <!-- Owned Resources Section (Community Uploads) -->
         <div v-if="ownedResources && ownedResources.length > 0" class="mb-8">
@@ -263,7 +275,7 @@
                 <div class="book-info">
                   <h3 class="book-title">{{ borrow.resource?.Resource_Name || 'Unknown Resource' }}</h3>
                   <p class="text-xs text-gray-500">
-                    Returned: {{ borrow.Return_Date ? formatDate(borrow.Return_Date) : 'N/A' }}
+                    Returned: {{ borrow.returned_at ? formatDate(borrow.returned_at) : 'N/A' }}
                   </p>
                   <div class="flex items-center gap-1 mt-2">
                     <span class="text-yellow-500 text-sm">★</span>
@@ -277,6 +289,83 @@
                   <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700 inline-block mt-1">
                     Returned
                   </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Borrow History Modal -->
+    <div
+      v-if="showHistoryModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
+      @click.self="closeHistoryModal"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] my-4 overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <h3 class="text-xl font-bold text-gray-900">Borrow History</h3>
+          <button
+            type="button"
+            @click="closeHistoryModal"
+            class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="max-h-[75vh] overflow-y-auto divide-y divide-gray-100">
+          <div v-if="historyThreads.length === 0" class="p-6 text-center text-gray-500">
+            You don't have any borrow history yet.
+          </div>
+          <div
+            v-else
+            v-for="thread in historyThreads"
+            :key="thread.borrower_id"
+            class="p-6 space-y-4 border-b border-gray-100 last:border-b-0"
+          >
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p class="text-lg font-semibold text-gray-900">
+                  {{ thread.resource?.Resource_Name || 'Unknown Resource' }}
+                </p>
+                <span
+                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide"
+                  :class="historyBadgeClasses(thread.status)"
+                >
+                  {{ formatAction(thread.status) }}
+                </span>
+              </div>
+              <div class="text-sm text-gray-500">
+                {{ formatDateTime(thread.actions?.[thread.actions.length - 1]?.created_at) }}
+              </div>
+            </div>
+            <div class="text-sm text-gray-600 space-y-1">
+              <p v-if="thread.return_date">Expected Return: {{ formatDateTime(thread.return_date) }}</p>
+              <p v-if="thread.returned_at">Returned At: {{ formatDateTime(thread.returned_at) }}</p>
+              <p v-if="thread.rejection_reason" class="p-3 bg-red-50 border border-red-100 rounded-lg text-red-700">
+                Rejection Reason: {{ thread.rejection_reason }}
+              </p>
+            </div>
+            <div class="space-y-2">
+              <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Timeline</p>
+              <div class="space-y-2">
+                <div
+                  v-for="action in thread.actions"
+                  :key="action.id"
+                  class="rounded-xl border border-gray-100 bg-gray-50 p-4"
+                >
+                  <div class="flex items-center justify-between text-sm font-semibold text-gray-800">
+                    <span>{{ formatAction(action.action) }}</span>
+                    <span class="text-xs text-gray-500">{{ formatDateTime(action.created_at) }}</span>
+                  </div>
+                  <div class="mt-2 text-xs text-gray-600 space-y-1">
+                    <p v-if="action.return_date">Expected Return: {{ formatDateTime(action.return_date) }}</p>
+                    <p v-if="action.returned_at">Returned At: {{ formatDateTime(action.returned_at) }}</p>
+                    <p v-if="action.rejection_reason" class="text-red-600">Reason: {{ action.rejection_reason }}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -681,6 +770,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  borrowHistory: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const page = usePage();
@@ -698,6 +791,8 @@ const isCancelling = ref(false);
 const showReturnDateModal = ref(false);
 const returnDate = ref('');
 const isSubmittingBorrow = ref(false);
+const showHistoryModal = ref(false);
+const historyThreads = computed(() => props.borrowHistory ?? []);
 const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
 const requestBorrows = computed(() => {
@@ -733,6 +828,19 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 };
 
+const formatDateTime = (date) => {
+  if (!date) {
+    return 'N/A';
+  }
+  return new Date(date).toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+};
+
 const formatAuthors = (authors) => {
   if (!authors) {
     return 'Unknown Author';
@@ -762,6 +870,36 @@ const getTags = (tags) => {
     }).filter(Boolean);
   }
   return [];
+};
+
+const formatAction = (action) => {
+  if (!action) {
+    return 'Activity';
+  }
+  return action.charAt(0).toUpperCase() + action.slice(1);
+};
+
+const historyBadgeClasses = (action) => {
+  switch (action) {
+    case 'approved':
+      return 'bg-green-100 text-green-700';
+    case 'returned':
+      return 'bg-blue-100 text-blue-700';
+    case 'rejected':
+      return 'bg-red-100 text-red-700';
+    default:
+      return 'bg-yellow-100 text-yellow-700';
+  }
+};
+
+const openHistoryModal = () => {
+  showHistoryModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const closeHistoryModal = () => {
+  showHistoryModal.value = false;
+  document.body.style.overflow = '';
 };
 
 const openBookModal = (borrow) => {
@@ -957,6 +1095,9 @@ const handleEscape = (e) => {
     }
     if (ratingBorrow.value) {
       closeRatingModal();
+    }
+    if (showHistoryModal.value) {
+      closeHistoryModal();
     }
   }
 };

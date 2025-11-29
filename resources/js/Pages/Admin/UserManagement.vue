@@ -220,7 +220,7 @@
 
       <!-- TABLE -->
       <div v-if="users.data && users.data.length > 0" class="overflow-x-auto kantumruy-pro-regular tracking-tight">
-        <table class="w-full bg-white shadow rounded border border-gray-200">
+        <table class="w-full bg-white shadow rounded border border-gray-200 min-w-[1000px]">
           <thead>
             <tr class="bg-gray-200">
               <th class="p-3 text-left">Name</th>

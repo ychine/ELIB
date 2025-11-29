@@ -62,6 +62,9 @@
                 <div v-if="request.Return_Date" class="text-xs text-gray-500">
                   Expected Return: {{ formatDate(request.Return_Date) }}
                 </div>
+                <div v-if="request.returned_at" class="text-xs text-blue-600">
+                  Returned: {{ formatDate(request.returned_at) }}
+                </div>
                 <div
                   v-if="request.isOverdue && request.status === 'approved'"
                   class="text-xs text-red-600 font-semibold mt-1"
@@ -174,6 +177,18 @@
             </div>
             <div v-if="requestDetails.request?.Return_Date">
               <strong>Expected Return Date:</strong> {{ formatDate(requestDetails.request.Return_Date) }}
+            </div>
+            <div v-if="requestDetails.request?.returned_at">
+              <strong>Returned At:</strong> {{ requestDetails.request.returned_at }}
+              <div
+                v-if="requestDetails.request?.returned_late"
+                class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12A9 9 0 113 12a9 9 0 0118 0z" />
+                </svg>
+                <span>This resource was returned past the expected date.</span>
+              </div>
             </div>
             <div
               v-if="requestDetails.request?.isOverdue"

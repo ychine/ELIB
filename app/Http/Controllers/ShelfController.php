@@ -14,6 +14,10 @@ class ShelfController extends Controller
     public function index(Request $req)
     {
         $userId = auth()->id();
+        $timezone = config('app.timezone');
+        $formatIso = static function ($value) use ($timezone) {
+            return $value ? $value->clone()->timezone($timezone)->toIso8601String() : null;
+        };
 
         // Get all borrows
         $allBorrows = Borrower::with(['resource.authors', 'resource.tags', 'resource.ratings'])
@@ -83,7 +87,7 @@ class ShelfController extends Controller
         });
 
         // Format borrows for Inertia
-        $formattedBorrows = $borrows->map(function ($borrow) {
+        $formattedBorrows = $borrows->map(function ($borrow) use ($userRatings, $formatIso) {
             $resource = $borrow->resource;
             $tagsRelation = $resource && $resource->relationLoaded('tags') ? $resource->getRelation('tags') : null;
             $formattedTags = [];
@@ -97,10 +101,11 @@ class ShelfController extends Controller
                 'Borrower_ID' => $borrow->Borrower_ID,
                 'isReturned' => $borrow->isReturned ?? false,
                 'isRejected' => ! empty($borrow->rejection_reason) && empty($borrow->Approved_Date),
-                'Approved_Date' => $borrow->Approved_Date,
-                'Return_Date' => $borrow->Return_Date,
+                'Approved_Date' => $formatIso($borrow->Approved_Date),
+                'Return_Date' => $formatIso($borrow->Return_Date),
+                'returned_at' => $formatIso($borrow->returned_at),
                 'rejection_reason' => $borrow->rejection_reason,
-                'created_at' => $borrow->created_at,
+                'created_at' => $formatIso($borrow->created_at),
                 'userRating' => $resource ? ($userRatings[$resource->Resource_ID] ?? null) : null,
                 'resource' => $resource ? [
                     'Resource_ID' => $resource->Resource_ID,
@@ -123,7 +128,7 @@ class ShelfController extends Controller
             ->get();
 
         // Get analytics for owned resources
-        $ownedResourcesData = $ownedResources->map(function ($resource) {
+        $ownedResourcesData = $ownedResources->map(function ($resource) use ($formatIso) {
             $resource->append([
                 'average_rating',
                 'formatted_publish_date',
@@ -138,7 +143,7 @@ class ShelfController extends Controller
                 ->whereNull('rejection_reason')
                 ->latest()
                 ->get()
-                ->map(function ($borrow) {
+                ->map(function ($borrow) use ($formatIso) {
                     return [
                         'Borrower_ID' => $borrow->Borrower_ID,
                         'user' => [
@@ -146,8 +151,8 @@ class ShelfController extends Controller
                             'full_name' => $borrow->user->full_name ?? 'Unknown',
                             'email' => $borrow->user->email ?? 'N/A',
                         ],
-                        'Return_Date' => $borrow->Return_Date,
-                        'created_at' => $borrow->created_at,
+                        'Return_Date' => $formatIso($borrow->Return_Date),
+                        'created_at' => $formatIso($borrow->created_at),
                     ];
                 });
 
@@ -178,9 +183,47 @@ class ShelfController extends Controller
             ];
         });
 
+        $borrowHistory = BorrowHistory::with('resource')
+            ->where('user_id', $userId)
+            ->latest()
+            ->get()
+            ->groupBy('borrower_id')
+            ->map(function ($entries) use ($formatIso, $timezone) {
+                $sorted = $entries->sortBy('created_at');
+                $latest = $sorted->last();
+                $resource = $latest->resource;
+
+                return [
+                    'borrower_id' => $latest->borrower_id,
+                    'resource' => [
+                        'Resource_ID' => $resource?->Resource_ID,
+                        'Resource_Name' => $resource->Resource_Name ?? 'Unknown Resource',
+                    ],
+                    'status' => $latest->action,
+                    'return_date' => $formatIso($latest->return_date),
+                    'returned_at' => $formatIso($latest->returned_at),
+                    'rejection_reason' => $latest->rejection_reason,
+                    'latest_event_at' => $latest->created_at ? $latest->created_at->clone()->timezone($timezone)->toIso8601String() : null,
+                    'actions' => $sorted->map(function ($history) use ($formatIso) {
+                        return [
+                            'id' => $history->id,
+                            'action' => $history->action,
+                            'created_at' => $formatIso($history->created_at),
+                            'approved_at' => $formatIso($history->approved_at),
+                            'return_date' => $formatIso($history->return_date),
+                            'returned_at' => $formatIso($history->returned_at),
+                            'rejection_reason' => $history->rejection_reason,
+                        ];
+                    })->values(),
+                ];
+            })
+            ->sortByDesc(fn ($thread) => $thread['latest_event_at'] ?? '')
+            ->values();
+
         return Inertia::render('YourShelf', [
             'borrows' => $formattedBorrows,
             'ownedResources' => $ownedResourcesData,
+            'borrowHistory' => $borrowHistory,
         ]);
     }
 
@@ -225,7 +268,7 @@ class ShelfController extends Controller
         $now = now();
         $borrow->update([
             'isReturned' => 1,
-            'Return_Date' => $now,
+            'returned_at' => $now,
         ]);
 
         // Log history

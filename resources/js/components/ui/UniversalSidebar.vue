@@ -1062,10 +1062,12 @@ watch(showAccountSettings, (isOpen) => {
   transform: translateY(10px);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* Responsive - Hide sidebar on mobile where bottom nav appears */
+@media (max-width: 1024px) {
   .universal-sidebar {
-    display: none;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
   }
 }
 /* Global tooltip overlay styles (not scoped) */

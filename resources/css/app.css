@@ -164,9 +164,9 @@ div > #universal-sidebar-root,
     }
 
     /* Ensure ALL buttons have proper spacing and styling - apply to buttons without padding classes */
-    button:not([class*='p-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
-    [type='button']:not([class*='p-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
-    [type='submit']:not([class*='p-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item) {
+    button:not([class*='p-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item),
+    [type='button']:not([class*='p-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item),
+    [type='submit']:not([class*='p-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item) {
         padding: 0.625rem 1.25rem !important;
         border-radius: 0.5rem !important;
         font-weight: 500 !important;
@@ -180,42 +180,42 @@ div > #universal-sidebar-root,
     }
     
     /* Default styling for buttons without background/text classes */
-    button:not([class*='bg-']):not([class*='text-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
-    [type='button']:not([class*='bg-']):not([class*='text-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
-    [type='submit']:not([class*='bg-']):not([class*='text-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item) {
+    button:not([class*='bg-']):not([class*='text-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item),
+    [type='button']:not([class*='bg-']):not([class*='text-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item),
+    [type='submit']:not([class*='bg-']):not([class*='text-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item) {
         border: 1px solid #d1d5db !important;
         background: white !important;
         color: #374151 !important;
     }
     
     /* Primary buttons (green) - for buttons without bg- classes */
-    button[type='submit']:not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.universal-sidebar__link),
-    button.btn-primary:not([class*='bg-']),
-    .btn-primary:not([class*='bg-']) {
+    button[type='submit']:not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.universal-sidebar__link):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item),
+    button.btn-primary:not([class*='bg-']):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item),
+    .btn-primary:not([class*='bg-']):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item) {
         background: #16a34a !important;
         color: white !important;
         border-color: #16a34a !important;
     }
     
-    button[type='submit']:not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.universal-sidebar__link):hover,
-    button.btn-primary:not([class*='bg-']):hover,
-    .btn-primary:not([class*='bg-']):hover {
+    button[type='submit']:not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.universal-sidebar__link):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item):hover,
+    button.btn-primary:not([class*='bg-']):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item):hover,
+    .btn-primary:not([class*='bg-']):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item):hover {
         background: #15803d !important;
         border-color: #15803d !important;
     }
     
     /* Secondary buttons (gray) - for buttons without bg- classes */
-    button[type='button']:not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.universal-sidebar__link),
-    button.btn-secondary:not([class*='bg-']),
-    .btn-secondary:not([class*='bg-']) {
+    button[type='button']:not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.universal-sidebar__link):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item),
+    button.btn-secondary:not([class*='bg-']):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item),
+    .btn-secondary:not([class*='bg-']):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item) {
         background: white !important;
         color: #374151 !important;
         border-color: #d1d5db !important;
     }
     
-    button[type='button']:not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.universal-sidebar__link):hover,
-    button.btn-secondary:not([class*='bg-']):hover,
-    .btn-secondary:not([class*='bg-']):hover {
+    button[type='button']:not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.universal-sidebar__link):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item):hover,
+    button.btn-secondary:not([class*='bg-']):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item):hover,
+    .btn-secondary:not([class*='bg-']):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item):hover {
         background: #f9fafb !important;
         border-color: #9ca3af !important;
     }
@@ -235,16 +235,16 @@ div > #universal-sidebar-root,
     }
     
     /* Hover effects for buttons without bg- classes */
-    button:hover:not([disabled]):not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
-    [type='button']:hover:not([disabled]):not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
-    [type='submit']:hover:not([disabled]):not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item) {
+    button:hover:not([disabled]):not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item),
+    [type='button']:hover:not([disabled]):not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item),
+    [type='submit']:hover:not([disabled]):not([class*='bg-']):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item) {
         background: #f9fafb !important;
         border-color: #9ca3af !important;
     }
     
-    button:active:not([disabled]):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
-    [type='button']:active:not([disabled]):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item),
-    [type='submit']:active:not([disabled]):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item) {
+    button:active:not([disabled]):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item),
+    [type='button']:active:not([disabled]):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item),
+    [type='submit']:active:not([disabled]):not(.account-settings-modal-btn):not(.account-settings-modal-close):not(.account-settings-modal-avatar-btn):not(.universal-sidebar__toggle):not(.universal-sidebar__link):not(.book-card):not(.filter-tab):not(.community-item):not(.nav-item):not(.mobile-nav-btn):not(.mobile-bottom-nav__link):not(.mobile-bottom-nav__profile-trigger):not(.mobile-bottom-nav__dropdown-item) {
         transform: scale(0.98) !important;
     }
 

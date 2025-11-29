@@ -115,6 +115,18 @@
         </div>
       </div>
     </div>
+    
+    <!-- Mobile Bottom Navigation -->
+    <MobileBottomNav
+      :menu-items="sidebar?.menuItems ?? []"
+      :active-route="sidebar?.activeRoute ?? ''"
+      :profile="sidebarUser"
+      :profile-menu="[
+        { label: 'Account Settings', action: 'account-settings' },
+        { label: 'Logout', action: 'logout' }
+      ]"
+      :logout-url="logoutUrl"
+    />
   </div>
 </template>
 
@@ -122,6 +134,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { usePage, router } from '@inertiajs/vue3';
 import UniversalSidebar from '../components/ui/UniversalSidebar.vue';
+import MobileBottomNav from '../components/ui/MobileBottomNav.vue';
 
 const props = defineProps({
   title: {

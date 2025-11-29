@@ -114,12 +114,91 @@
     .filter-tab:hover { color: #22C55E; }
     .filter-tab.active { color: #22C55E; border-bottom-color: #22C55E; }
 
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
       .sidebar { display: none; }
-      .bottom-nav { display: flex; }
-      .main-content { padding-bottom: 4.5rem; }
+      .main-content { padding-bottom: 5rem; }
     }
-    @media (min-width: 769px) { .bottom-nav { display: none; } }
+
+    /* Page Title Styling - Match Sidebar Colors */
+    .page-title-container {
+      background: #166534;
+      border-radius: 0.75rem;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: inset 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    }
+    .page-title-container.active {
+      background: #22c55e;
+      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.5);
+    }
+    .page-title-container h2 {
+      color: white;
+      margin: 0;
+    }
+
+    /* Profile Dropdown in Header */
+    .profile-dropdown-container {
+      position: relative;
+    }
+    .profile-trigger-btn {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.5rem;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .profile-trigger-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .profile-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 0;
+      background: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      min-width: 200px;
+      overflow: hidden;
+      z-index: 50;
+      display: none;
+    }
+    .profile-dropdown-menu.show {
+      display: block;
+    }
+    .profile-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: transparent;
+      border: none;
+      color: #1f2937;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      text-align: left;
+      font-family: 'Kantumruy Pro', sans-serif;
+    }
+    .profile-dropdown-item:hover {
+      background: #f3f4f6;
+    }
+    .profile-dropdown-item.logout {
+      color: #dc2626;
+      border-top: 1px solid #e5e7eb;
+    }
+    .profile-dropdown-item.logout:hover {
+      background: #fef2f2;
+    }
 
     #borrowModal .modal-content {
       max-width: 900px;
@@ -151,7 +230,51 @@
         />
       </div>
       <div class="text-md flex space-x-4 gap-5 pr-6 plus-jakarta-sans-semibold text-white">
-        <!-- Role badge removed -->
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown-container">
+          <button type="button" class="profile-trigger-btn" onclick="toggleProfileDropdown(event)">
+            @php
+              $user = auth()->user();
+              $userName = 'U';
+              if ($user->faculty) {
+                $name = ($user->faculty->First_Name ?? '') . ' ' . ($user->faculty->Last_Name ?? '');
+                $parts = explode(' ', trim($name));
+                $userName = count($parts) >= 2 ? strtoupper($parts[0][0] . $parts[count($parts)-1][0]) : strtoupper(substr($name, 0, 2));
+              } elseif ($user->librarian) {
+                $name = ($user->librarian->First_Name ?? '') . ' ' . ($user->librarian->Last_Name ?? '');
+                $parts = explode(' ', trim($name));
+                $userName = count($parts) >= 2 ? strtoupper($parts[0][0] . $parts[count($parts)-1][0]) : strtoupper(substr($name, 0, 2));
+              } elseif ($user->student) {
+                $name = ($user->student->First_Name ?? '') . ' ' . ($user->student->Last_Name ?? '');
+                $parts = explode(' ', trim($name));
+                $userName = count($parts) >= 2 ? strtoupper($parts[0][0] . $parts[count($parts)-1][0]) : strtoupper(substr($name, 0, 2));
+              } elseif ($user->admin) {
+                $name = ($user->admin->First_Name ?? '') . ' ' . ($user->admin->Last_Name ?? '');
+                $parts = explode(' ', trim($name));
+                $userName = count($parts) >= 2 ? strtoupper($parts[0][0] . $parts[count($parts)-1][0]) : strtoupper(substr($name, 0, 2));
+              }
+            @endphp
+            {{ $userName }}
+          </button>
+          <div class="profile-dropdown-menu" id="profileDropdown">
+            <button type="button" class="profile-dropdown-item" onclick="openAccountSettings()">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>Account Settings</span>
+            </button>
+            <form method="POST" action="{{ route('logout') }}" class="profile-dropdown-item-form">
+              @csrf
+              <button type="submit" class="profile-dropdown-item logout">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                <span>Logout</span>
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div> 
     
@@ -185,12 +308,14 @@
           </div>
            
         </div>
-        <div class="homediv lg:mx-[10%] mt-5 rounded-md">
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight mb-4">Dashboard</h2>
+        <div class="px-4 lg:px-[5%] pt-4">
+          <div class="page-title-container active">
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight">Dashboard</h2>
+          </div>
         </div>
         
         <!-- Dashboard Cards -->
-        <div class="homediv lg:mx-[10%] flex flex-row flex-wrap gap-4 mb-6">
+        <div class="px-4 lg:px-[5%] flex flex-row flex-wrap gap-4 mb-6">
           <div class="rounded-2xl bg-white shadow-lg p-6 hover:shadow-xl transition-shadow flex-1 min-w-[200px]">
             <div class="flex items-center justify-between">
               <div>
@@ -240,7 +365,7 @@
           </div>
         </div>
         
-        <div class="homediv lg:mx-[10%] rounded-2xl bg-white shadow-lg p-6">
+        <div class="px-4 lg:px-[5%] rounded-2xl bg-white shadow-lg p-6">
           <h2 class="text-1xl sm:text-2xl lg:text-3xl font-extrabold kulim-park-bold tracking-tight mb-6">Pending User Approvals</h2>
 
           @if(session('status'))
@@ -252,17 +377,18 @@
           @if($users->isEmpty())
             <p class="text-gray-600">No pending approvals.</p>
           @else
-            <table class="w-full  kantumruy-pro-regular tracking-tight bg-white shadow rounded-lg">
-              <thead>
-                <tr class="bg-gray-200">
-                  <th class="p-3 text-left">Name</th>
-                  <th class="p-3 text-left">Email</th>
-                  <th class="p-3 text-left">Role</th>
-                  <th class="p-3 text-left">Campus</th>
-                  <th class="p-3 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+            <div class="overflow-x-auto">
+              <table class="w-full  kantumruy-pro-regular tracking-tight bg-white shadow rounded-lg min-w-[600px]">
+                <thead>
+                  <tr class="bg-gray-200">
+                    <th class="p-3 text-left">Name</th>
+                    <th class="p-3 text-left">Email</th>
+                    <th class="p-3 text-left">Role</th>
+                    <th class="p-3 text-left">Campus</th>
+                    <th class="p-3 text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
                 @foreach($users as $user)
                   <tr>
                     <td class="p-3">
@@ -290,8 +416,9 @@
                     </td>
                   </tr>
                 @endforeach
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </div>
           @endif
         </div>
       </div>
@@ -363,6 +490,69 @@
       });
     }
   </script>
+  <script>
+    function toggleProfileDropdown(event) {
+      event.stopPropagation();
+      const dropdown = document.getElementById('profileDropdown');
+      dropdown.classList.toggle('show');
+    }
+
+    function openAccountSettings() {
+      const event = new CustomEvent('sidebar:open-account-settings', {
+        bubbles: true,
+      });
+      window.dispatchEvent(event);
+      document.dispatchEvent(event);
+      document.getElementById('profileDropdown').classList.remove('show');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      const dropdown = document.getElementById('profileDropdown');
+      const trigger = document.querySelector('.profile-trigger-btn');
+      if (dropdown && !dropdown.contains(event.target) && !trigger.contains(event.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+  </script>
+  
+  <!-- Mobile Bottom Navigation - Must be before globalLoader -->
+  @php
+    $user = auth()->user();
+    $role = $user->role ?? 'user';
+    $currentRoute = Route::currentRouteName();
+    
+    if ($role === 'admin') {
+        $menuItems = [
+            ['key' => 'admin.approvals', 'label' => 'Dashboard', 'href' => route('admin.approvals'), 'icon' => Vite::asset('resources/images/Dashboard.png'), 'iconActive' => Vite::asset('resources/images/DashboardToggled.png')],
+            ['key' => 'admin.users', 'label' => 'User Management', 'href' => route('admin.users'), 'icon' => Vite::asset('resources/images/umgmt.png'), 'iconActive' => Vite::asset('resources/images/umgmttoggle.png')],
+            ['key' => 'admin.audit', 'label' => 'Audit Trail', 'href' => route('admin.audit'), 'icon' => Vite::asset('resources/images/Dashboard.png'), 'iconActive' => Vite::asset('resources/images/DashboardToggled.png')],
+            ['key' => 'admin.analytics', 'label' => 'Resource Analytics', 'href' => route('admin.analytics'), 'icon' => Vite::asset('resources/images/Dashboard.png'), 'iconActive' => Vite::asset('resources/images/DashboardToggled.png')],
+        ];
+    }
+    
+    $userName = 'User';
+    if ($user->admin) {
+        $userName = ($user->admin->First_Name ?? '') . ' ' . ($user->admin->Last_Name ?? '');
+    }
+    $userName = trim($userName) ?: 'User';
+    
+    $profileData = ['name' => $userName, 'email' => $user->email ?? 'user@example.com', 'profile_picture' => null];
+    $profileMenu = [
+        ['label' => 'Account Settings', 'action' => 'account-settings'],
+        ['label' => 'Logout', 'action' => 'logout'],
+    ];
+  @endphp
+  <!-- Mobile Bottom Navigation Root -->
+  <div 
+      id="mobile-bottom-nav-root"
+      data-menu-items="{{ json_encode($menuItems ?? []) }}"
+      data-active-route="{{ $currentRoute ?? '' }}"
+      data-profile="{{ json_encode($profileData ?? []) }}"
+      data-profile-menu="{{ json_encode($profileMenu ?? []) }}"
+      data-logout-url="{{ route('logout') }}"
+  ></div>
+  
   @include('partials.globalLoader')
 </body>
 </html>

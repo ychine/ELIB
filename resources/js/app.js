@@ -15,6 +15,7 @@ import '@ionic/vue/css/flex-utils.css';
 import '@ionic/vue/css/display.css';
 import GlobalLoadingBar from './components/GlobalLoadingBar.vue';
 import UniversalSidebar from './components/ui/UniversalSidebar.vue';
+import MobileBottomNav from './components/ui/MobileBottomNav.vue';
 import AccountSettingsOverlay from './components/ui/AccountSettingsOverlay.vue';
 import UiInput from './components/ui/UiInput.vue';
 import UiButton from './components/ui/UiButton.vue';
@@ -66,6 +67,7 @@ function initInertia() {
             vueApp.use(plugin);
 
             vueApp.component('UniversalSidebar', UniversalSidebar);
+            vueApp.component('MobileBottomNav', MobileBottomNav);
             vueApp.component('AccountSettingsOverlay', AccountSettingsOverlay);
             vueApp.component('UiInput', UiInput);
             vueApp.component('UiButton', UiButton);
@@ -156,6 +158,50 @@ function initStandaloneSidebar() {
     window.addEventListener('resize', ensureSidebarFixed);
 }
 
+function initStandaloneBottomNav() {
+    const bottomNavRoot = document.getElementById('mobile-bottom-nav-root');
+    if (!bottomNavRoot) {
+        console.warn('Mobile bottom nav root element not found');
+        return;
+    }
+
+    // Prevent double initialization
+    if (bottomNavRoot._vueApp) {
+        console.log('Mobile bottom nav already initialized');
+        return;
+    }
+
+    try {
+        const menuItems = JSON.parse(bottomNavRoot.dataset.menuItems || '[]');
+        const activeRoute = bottomNavRoot.dataset.activeRoute || '';
+        const profile = JSON.parse(bottomNavRoot.dataset.profile || '{}');
+        const profileMenu = JSON.parse(bottomNavRoot.dataset.profileMenu || '[]');
+        const logoutUrl = bottomNavRoot.dataset.logoutUrl || '/logout';
+
+        // Initialize silently
+
+        const bottomNavApp = createVueApp(MobileBottomNav, {
+            menuItems,
+            activeRoute,
+            profile,
+            profileMenu,
+            logoutUrl,
+        });
+
+        bottomNavRoot._vueApp = bottomNavApp;
+        bottomNavApp.mount(bottomNavRoot);
+        console.log('Mobile bottom nav Vue app mounted successfully');
+    } catch (error) {
+        console.error('Error initializing mobile bottom nav:', error);
+        console.error('Stack:', error.stack);
+    }
+}
+
+// Make function available globally for inline scripts
+if (typeof window !== 'undefined') {
+    window.initStandaloneBottomNav = initStandaloneBottomNav;
+}
+
 // Prioritize sidebar loading - it's critical for UX
 // Try to initialize sidebar immediately, even before DOM is ready
 function prioritizeSidebar() {
@@ -172,23 +218,84 @@ function prioritizeSidebar() {
 // Try immediately
 prioritizeSidebar();
 
-// Also try on DOMContentLoaded
+// Function to initialize bottom nav with retries
+function initBottomNavWithRetry(retries = 20, delay = 100) {
+    const bottomNavRoot = document.getElementById('mobile-bottom-nav-root');
+    if (bottomNavRoot) {
+        if (!bottomNavRoot._vueApp) {
+            try {
+                initStandaloneBottomNav();
+            } catch (error) {
+                console.error('Error initializing bottom nav:', error);
+                if (retries > 0) {
+                    setTimeout(() => {
+                        initBottomNavWithRetry(retries - 1, delay);
+                    }, delay);
+                }
+            }
+        }
+        return; // Found and initialized, stop retrying
+    }
+    
+    // Not found yet, retry if we have retries left
+    if (retries > 0) {
+        setTimeout(() => {
+            initBottomNavWithRetry(retries - 1, delay);
+        }, delay);
+    }
+}
+
+// Use MutationObserver to watch for the element
+function watchForBottomNav() {
+    const observer = new MutationObserver((mutations) => {
+        const bottomNavRoot = document.getElementById('mobile-bottom-nav-root');
+        if (bottomNavRoot && !bottomNavRoot._vueApp) {
+            initStandaloneBottomNav();
+            observer.disconnect();
+        }
+    });
+
+    if (document.body) {
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+    }
+
+    // Also try immediately
+    setTimeout(() => {
+        const bottomNavRoot = document.getElementById('mobile-bottom-nav-root');
+        if (bottomNavRoot && !bottomNavRoot._vueApp) {
+            initStandaloneBottomNav();
+        }
+        observer.disconnect();
+    }, 100);
+}
+
+// Initialize on DOM ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        // Sidebar first
         if (!document.getElementById('universal-sidebar-root')?._vueApp) {
             initStandaloneSidebar();
         }
-        // Then loading bar
+        watchForBottomNav();
         initGlobalLoadingBar();
     });
 } else {
-    // DOM already loaded
     if (!document.getElementById('universal-sidebar-root')?._vueApp) {
         initStandaloneSidebar();
     }
+    watchForBottomNav();
     initGlobalLoadingBar();
 }
+
+// Fallback: try on window load
+window.addEventListener('load', () => {
+    const bottomNavRoot = document.getElementById('mobile-bottom-nav-root');
+    if (bottomNavRoot && !bottomNavRoot._vueApp) {
+        initStandaloneBottomNav();
+    }
+});
 
 // Initialize Inertia (less critical, can load after sidebar)
 // Delay Inertia slightly to prioritize sidebar
@@ -212,6 +319,7 @@ if (typeof window !== 'undefined') {
 
 export {
     UniversalSidebar,
+    MobileBottomNav,
     AccountSettingsOverlay,
     UiInput,
     UiButton,

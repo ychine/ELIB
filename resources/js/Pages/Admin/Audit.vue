@@ -9,30 +9,32 @@
       </p>
 
       <div v-else-if="auditLogs && auditLogs.data && auditLogs.data.length > 0">
-        <table class="w-full kantumruy-pro-regular tracking-tight bg-white shadow rounded border border-gray-200">
-          <thead>
-            <tr class="bg-gray-200">
-              <th class="p-3 text-left">Date</th>
-              <th class="p-3 text-left">User</th>
-              <th class="p-3 text-left">Action</th>
-              <th class="p-3 text-left">Description</th>
-              <th class="p-3 text-left">IP Address</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="log in auditLogs.data" :key="log.id" class="border-b border-gray-300 hover:bg-gray-50">
-              <td class="p-3">{{ log.date ?? 'N/A' }}</td>
-              <td class="p-3">{{ log.user ?? 'N/A' }}</td>
-              <td class="p-3">
-                <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                  {{ log.action ?? 'N/A' }}
-                </span>
-              </td>
-              <td class="p-3">{{ log.description ?? 'N/A' }}</td>
-              <td class="p-3 text-xs text-gray-500">{{ log.ip_address ?? 'N/A' }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="overflow-x-auto">
+          <table class="w-full kantumruy-pro-regular tracking-tight bg-white shadow rounded border border-gray-200 min-w-[800px]">
+            <thead>
+              <tr class="bg-gray-200">
+                <th class="p-3 text-left">Date</th>
+                <th class="p-3 text-left">User</th>
+                <th class="p-3 text-left">Action</th>
+                <th class="p-3 text-left">Description</th>
+                <th class="p-3 text-left">IP Address</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="log in auditLogs.data" :key="log.id" class="border-b border-gray-300 hover:bg-gray-50">
+                <td class="p-3">{{ log.date ?? 'N/A' }}</td>
+                <td class="p-3">{{ log.user ?? 'N/A' }}</td>
+                <td class="p-3">
+                  <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                    {{ log.action ?? 'N/A' }}
+                  </span>
+                </td>
+                <td class="p-3">{{ log.description ?? 'N/A' }}</td>
+                <td class="p-3 text-xs text-gray-500">{{ log.ip_address ?? 'N/A' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <!-- Pagination -->
         <div v-if="auditLogs.links && auditLogs.links.length > 3" class="mt-4 flex justify-center gap-2">

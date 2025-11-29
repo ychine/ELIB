@@ -17,12 +17,22 @@ class BorrowController extends Controller
     // Show all borrow requests (for Librarian)
     public function index()
     {
+        $timezone = config('app.timezone');
+
+        $formatIso = static function ($value) use ($timezone) {
+            return $value ? $value->clone()->timezone($timezone)->toIso8601String() : null;
+        };
+
+        $latestBorrowerIds = Borrower::selectRaw('MAX(Borrower_ID) as latest_id')
+            ->groupBy('UID', 'resource_id');
+
         $borrowRequests = Borrower::with(['user', 'resource'])
+            ->whereIn('Borrower_ID', $latestBorrowerIds)
             ->latest()
             ->get()
-            ->map(function ($borrow) {
+            ->map(function ($borrow) use ($formatIso) {
                 $isOverdue = false;
-                if ($borrow->Return_Date) {
+                if (! $borrow->isReturned && $borrow->Return_Date) {
                     $returnDate = Carbon::parse($borrow->Return_Date);
                     $isOverdue = $returnDate->isPast();
                 }
@@ -39,9 +49,10 @@ class BorrowController extends Controller
 
                 return [
                     'Borrower_ID' => $borrow->Borrower_ID,
-                    'created_at' => $borrow->created_at,
-                    'Return_Date' => $borrow->Return_Date,
-                    'Approved_Date' => $borrow->Approved_Date,
+                    'created_at' => $formatIso($borrow->created_at),
+                    'Return_Date' => $formatIso($borrow->Return_Date),
+                    'returned_at' => $formatIso($borrow->returned_at),
+                    'Approved_Date' => $formatIso($borrow->Approved_Date),
                     'isReturned' => $borrow->isReturned,
                     'rejection_reason' => $borrow->rejection_reason,
                     'status' => $status,
@@ -93,20 +104,29 @@ class BorrowController extends Controller
             return back()->with('info', 'You already have this in your borrow list!');
         }
 
-        // Delete any existing rejected borrow records for this resource (when user clicks "Request Again")
-        // This creates a completely fresh request instead of reusing the old rejected record
-        Borrower::where('UID', Auth::id())
+        $latestBorrow = Borrower::where('UID', Auth::id())
             ->where('resource_id', $request->resource_id)
-            ->whereNotNull('rejection_reason')
-            ->whereNull('Approved_Date') // Only delete unapproved rejected requests
-            ->delete();
+            ->latest('Borrower_ID')
+            ->first();
 
-        $borrow = Borrower::create([
-            'UID' => Auth::id(),
-            'resource_id' => $request->resource_id,
-            'Return_Date' => $request->return_date,
-            'isReturned' => 0,
-        ]);
+        if ($latestBorrow && empty($latestBorrow->Approved_Date) && ! empty($latestBorrow->rejection_reason)) {
+            // Reuse rejected request instead of creating another instance
+            $latestBorrow->update([
+                'Return_Date' => $request->return_date,
+                'rejection_reason' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $borrow = $latestBorrow->fresh();
+        } else {
+            $borrow = Borrower::create([
+                'UID' => Auth::id(),
+                'resource_id' => $request->resource_id,
+                'Return_Date' => $request->return_date,
+                'isReturned' => 0,
+            ]);
+        }
 
         // Log history
         BorrowHistory::create([
@@ -215,13 +235,24 @@ class BorrowController extends Controller
     {
         $borrow = Borrower::with(['user.campus', 'user.student.course', 'resource'])
             ->findOrFail($id);
+        $timezone = config('app.timezone');
+        $formatDisplay = static function ($value) use ($timezone) {
+            return $value ? $value->clone()->timezone($timezone)->format('M d, Y h:i A') : null;
+        };
 
         $user = $borrow->user;
 
+        $returnDate = $borrow->Return_Date ? Carbon::parse($borrow->Return_Date) : null;
+        $returnedAt = $borrow->returned_at ? Carbon::parse($borrow->returned_at) : null;
+
         $isOverdue = false;
-        if ($borrow->Return_Date) {
-            $returnDate = Carbon::parse($borrow->Return_Date);
+        if (! $borrow->isReturned && $returnDate) {
             $isOverdue = $returnDate->isPast();
+        }
+
+        $wasReturnedLate = false;
+        if ($returnedAt && $returnDate) {
+            $wasReturnedLate = $returnedAt->greaterThan($returnDate);
         }
 
         $userData = [
@@ -241,10 +272,11 @@ class BorrowController extends Controller
             'user' => $userData,
             'campus' => $user->campus?->Campus_Name ?? 'N/A',
             'request' => [
-                'created_at' => Carbon::parse($borrow->created_at)
-                    ->format('M d, Y h:i A'),
-                'Return_Date' => $borrow->Return_Date ? Carbon::parse($borrow->Return_Date)->format('M d, Y') : null,
+                'created_at' => $formatDisplay($borrow->created_at),
+                'Return_Date' => $formatDisplay($borrow->Return_Date),
+                'returned_at' => $formatDisplay($borrow->returned_at),
                 'isOverdue' => $isOverdue,
+                'returned_late' => $wasReturnedLate,
             ],
             'resource' => [
                 'Resource_Name' => $borrow->resource->Resource_Name,

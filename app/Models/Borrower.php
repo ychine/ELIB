@@ -17,7 +17,15 @@ class Borrower extends Model
         'Approved_Date',
         'Return_Date',
         'isReturned',
+        'returned_at',
         'rejection_reason',
+    ];
+
+    protected $casts = [
+        'Approved_Date' => 'datetime',
+        'Return_Date' => 'datetime',
+        'returned_at' => 'datetime',
+        'isReturned' => 'boolean',
     ];
 
     public function user()

@@ -318,7 +318,7 @@
                     <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Student</option>
                     <option value="faculty" {{ old('role') == 'faculty' ? 'selected' : '' }}>Faculty</option>
                     <option value="librarian" {{ old('role') == 'librarian' ? 'selected' : '' }}>Librarian</option>
-                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                    <!-- no admin po for security -->
                   </select>
                 </div>
                 @error('role')

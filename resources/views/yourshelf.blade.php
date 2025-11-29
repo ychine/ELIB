@@ -342,7 +342,7 @@
                           </div>
                           <div class="book-info">
                             <h3 class="book-title">{{ $borrow->resource->Resource_Name ?? 'Unknown Resource' }}</h3>
-                            <p class="text-xs text-gray-500">Returned: {{ $borrow->Return_Date ? \Carbon\Carbon::parse($borrow->Return_Date)->format('M d, Y') : 'N/A' }}</p>
+                            <p class="text-xs text-gray-500">Returned: {{ $borrow->returned_at ? \Carbon\Carbon::parse($borrow->returned_at)->format('M d, Y') : 'N/A' }}</p>
                             <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700 inline-block mt-1">
                               Returned
                             </span>
