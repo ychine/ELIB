@@ -109,39 +109,61 @@
     letter-spacing: 0.025em;
   }
 
-  /* Mobile responsiveness */
-  @media (max-width: 768px) {
-    #borrowModal .bg-white {
-      margin: 1rem;
-      border-radius: 1rem;
-    }
-    #borrowModal .w-72 {
-      width: 100%;
-      height: 280px;
-    }
-    #borrowModal .w-60 {
-      width: 240px;
-      height: 100%;
-    }
-    #borrowModal h2 {
-      font-size: 1.75rem !important;
-    }
-    #borrowModal .text-4xl {
-      font-size: 2.5rem !important;
-    }
-    #borrowModal .flex.gap-4 {
-      flex-direction: column-reverse;
-      gap: 1rem;
-    }
-    #borrowModal button {
-      flex: 1;
-      justify-content: center;
-    }
-    /* Stack rating and views on mobile for better fit */
-    #borrowModal .flex.items-center.justify-between {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
+ /* Mobile responsiveness */
+@media (max-width: 768px) {
+  #borrowModal .bg-white {
+    margin: 1rem;
+    border-radius: 1rem;
   }
+  
+  /* Stack vertically on mobile */
+  #borrowModal .flex.h-full {
+    flex-direction: column;
+  }
+  
+  #borrowModal .w-72 {
+    width: 100%;
+    height: auto;
+    padding: 1.5rem 1rem;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  #borrowModal .w-60 {
+    width: 200px;
+    height: 300px;
+    margin: 0 auto;
+  }
+  
+  /* Make details section scrollable if needed */
+  #borrowModal .flex-1.p-8 {
+    padding: 1.5rem;
+    overflow-y: auto;
+    max-height: 50vh;
+  }
+  
+  #borrowModal h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  #borrowModal .text-4xl {
+    font-size: 2rem !important;
+  }
+  
+  #borrowModal .flex.gap-4 {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  #borrowModal button, #borrowModal form {
+    width: 100%;
+  }
+  
+  /* Stack rating and views on mobile */
+  #borrowModal .flex.items-center.justify-between.mb-6 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
 </style>

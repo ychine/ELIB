@@ -1,37 +1,38 @@
 <template>
     <Head title="Home" />
   <AppLayout title="" content-padding-classes="px-4 lg:px-[5%]">
-    
-
-    <div class="flex flex-col lg:pl-28 lg:pr-20 lg:flex-row gap-10 pt-4 content-wrapper">
+ 
+    <div class="flex flex-col lg:pl-28 lg:pr-20 lg:flex-row gap-10 lg:pt-0 pt-0 sm:pt-0 content-wrapper">
       <!-- Featured Section -->
       <div class="featured-section" style="flex: 0 0 70%;">
-        <h2 class="text-2xl sm:text-3xl font-extrabold kulim-park-bold tracking-tight mb-4">
+        <h2 class="text-2xl sm:text-3xl font-extrabold kulim-park-bold tracking-tight mb-4" style="color: #10381f;">
           ISU Featured Resources
         </h2>
         
-        <div class="filter-tabs mb-4">
-          <button
-            type="button"
-            @click="changeFilter('latest')"
-            :class="['filter-tab', { active: filter === 'latest' }]"
-          >
-            Latest Uploads
-          </button>
-          <button
-            type="button"
-            @click="changeFilter('popular_month')"
-            :class="['filter-tab', { active: filter === 'popular_month' }]"
-          >
-            Popular This Month
-          </button>
-          <button
-            type="button"
-            @click="changeFilter('popular_year')"
-            :class="['filter-tab', { active: filter === 'popular_year' }]"
-          >
-            Popular This Year
-          </button>
+        <div class="filter-tabs-wrapper mb-4">
+          <div class="filter-tabs">
+            <button
+              type="button"
+              @click="changeFilter('latest')"
+              :class="['filter-tab', { active: filter === 'latest' }]"
+            >
+              Latest Uploads
+            </button>
+            <button
+              type="button"
+              @click="changeFilter('popular_month')"
+              :class="['filter-tab', { active: filter === 'popular_month' }]"
+            >
+              Popular This Month
+            </button>
+            <button
+              type="button"
+              @click="changeFilter('popular_year')"
+              :class="['filter-tab', { active: filter === 'popular_year' }]"
+            >
+              Popular This Year
+            </button>
+          </div>
         </div>
 
         <div class="books-grid">
@@ -294,7 +295,7 @@
     <div
       v-if="selectedResource"
       id="borrowModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
+      class="fixed inset-0 z-[1000000] flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
       @click.self="closeModal"
     >
       <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] my-4 overflow-y-auto">
@@ -1009,6 +1010,7 @@ onUnmounted(() => {
 /* Modal Styles */
 #borrowModal {
   backdrop-filter: blur(4px);
+  z-index: 1000000;
 }
 
 #borrowModal .text-4xl {
@@ -1039,27 +1041,55 @@ onUnmounted(() => {
     margin: 1rem;
     border-radius: 1rem;
   }
+  
+  /* Stack vertically on mobile */
+  #borrowModal .flex.h-full {
+    flex-direction: column;
+  }
+  
   #borrowModal .w-72 {
     width: 100%;
-    height: 280px;
+    height: auto;
+    padding: 1.5rem 1rem;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
   }
+  
   #borrowModal .w-60 {
-    width: 240px;
-    height: 100%;
+    width: 200px;
+    height: 300px;
+    margin: 0 auto;
   }
+  
+  /* Make details section scrollable */
+  #borrowModal .flex-1.p-8 {
+    padding: 1.5rem;
+    overflow-y: auto;
+    max-height: 50vh;
+  }
+  
   #borrowModal h2 {
-    font-size: 1.75rem !important;
+    font-size: 1.5rem !important;
   }
+  
   #borrowModal .text-4xl {
-    font-size: 2.5rem !important;
+    font-size: 2rem !important;
   }
+  
   #borrowModal .flex.gap-4 {
-    flex-direction: column-reverse;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.75rem;
   }
+  
   #borrowModal button {
-    flex: 1;
-    justify-content: center;
+    width: 100%;
+  }
+  
+  /* Stack rating and views on mobile */
+  #borrowModal .flex.items-center.justify-between.mb-6 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 }
 </style>

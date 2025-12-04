@@ -54,7 +54,7 @@
     @media (max-width: 1024px) {
       .parent {
         grid-template-columns: 1fr;
-        padding-top: 20vw;
+        padding-top: 4vw;
       }
       .auth-card {
         border-radius: 24px;
@@ -177,7 +177,7 @@
   </style>
 </head>
 <body class="bg-gray-100">
-  <div class="parent p-4 sm:p-6 lg:pt-[5vw] px-4 lg:pb-[2vw] sm:px-6 lg:px-[16vw] w-full min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-[#000000]">
+  <div class="parent p-4 sm:p-6 lg:pt-[5vw] pt-0 px-4 lg:pb-[2vw] sm:px-6 lg:px-[16vw] w-full min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-[#000000]">
    <img
     src="{{ Vite::asset('resources/images/ISUStudyGoBorder.svg') }}"
     alt="ISUStudyGo Logo"
@@ -211,12 +211,12 @@
     <div class="relative flex flex-col h-full lg:rounded-r-4xl bg-gray-100 z-1">
       <div class="relative z-10 flex items-center justify-between px-4 sm:px-6 lg:px-12 pt-2 sm:pt-4">
         <div class="flex-shrink-0"></div>
-        <img src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" alt="ISU Logo" class="w-[3vw] h-[3vw] translate-y-2.5 sm:w-12 sm:h-12 rounded-full shadow" />
+        <img src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" alt="ISU Logo" class="w-16 h-16 translate-y-2.5 sm:w-40 sm:h-40 rounded-full shadow" />
       </div>
 
       <div class="relative z-10 flex-1 translate-y-[-5%] flex items-start justify-center px-4 sm:px-6 lg:px-16 pt-0 sm:pt-2">
         <div class="w-full max-w-md sm:max-w-lg lg:max-w-xl">
-          <div class="mb-4 sm:mb-6 text-left">
+          <div class="mb-4 sm:mb-6 text-left pt-4 sm:pt-40 lg:pt-0">
             <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight flex items-center gap-2">
               <span>Register to</span>
               <span class="text-green-700">

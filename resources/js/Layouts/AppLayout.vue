@@ -13,7 +13,9 @@
       :courses="sidebar.courses ?? []"
     />
 
-    <div class="flex bg-white flex-col flex-1 transition-all duration-300 main-content" style="overflow-x: visible;">
+    <div class="flex bg-white flex-col flex-1 transition-all duration-300 pb-30 main-content" 
+     style="overflow-x: visible; overflow-y: auto; height: 100vh;"
+     @scroll="updateNavState">
       <div class="fixed w-full top-0 left-0 flex justify-between items-center px-4 py-2 z-10 glass-nav"
         :class="{ scrolled: isNavScrolled }">
         <span class="text-5xl jersey-20-regular pl-3 text-white"></span>
@@ -84,9 +86,9 @@
         <img
           :src="sealLogo"
           alt="ISU Logo"
-          class="absolute right-0 w-15 h-15 m-7"
+          class="absolute right-0 w-15 h-15 m-7 final-seal"
         >
-        <h5 class="absolute text-white right-0 m-7 mr-10 translate-y-30 kulim-park-semibold">
+        <h5 class="absolute text-white right-0 m-7 mr-10 translate-y-30 kulim-park-semibold one-isu">
           One ISU
         </h5>
         <img
@@ -95,9 +97,9 @@
           class="w-full h-50 z-[-1] object-cover absolute"
           style="object-position: 70% middle;"
         >
-        <div class="herotext h-50 ml-30 flex relative z-2">
+        <div class="herotext h-50 hero-text-wrapper flex relative z-2">
           <div class="column">
-            <h1 style="transform: translateY(30%); line-height: 86.402%; font-family: 'Kulim Park', sans-serif; font-weight: 600; letter-spacing: -1.3px; font-size: 40px; text-shadow: 0 4px 4px #000; color: #FFF;">
+            <h1 class="hero-title">
               Cultivating knowledge <br>
               within our home <br>
               of learning
@@ -154,7 +156,7 @@ const images = computed(() => page.props.images ?? {});
 const sidebarUser = computed(() => {
   if (auth.value.user) {
     return {
-      ...auth.value.user, // Include all user data including role, first_name, last_name, student_number, course_id
+      ...auth.value.user,
       name: auth.value.user.name ?? 'User',
       email: auth.value.user.email ?? '',
       campus: auth.value.user.campus ?? null,
@@ -235,25 +237,40 @@ const viewResource = (resource) => {
 };
 
 const updateNavState = () => {
-  const hero = document.querySelector('.hero-container');
-  if (!hero) {
-    isNavScrolled.value = true;
-    return;
-  }
-
-  const rect = hero.getBoundingClientRect();
-  const tolerance = 80;
-  isNavScrolled.value = rect.bottom <= tolerance;
+  // Check multiple possible scroll containers
+  const bodyScroll = document.body.scrollTop;
+  const htmlScroll = document.documentElement.scrollTop;
+  const windowScroll = window.scrollY || window.pageYOffset;
+  const mainContent = document.querySelector('.main-content');
+  const mainScroll = mainContent ? mainContent.scrollTop : 0;
+  
+  console.log('Body:', bodyScroll, 'HTML:', htmlScroll, 'Window:', windowScroll, 'Main:', mainScroll);
+  
+  // Use the one that's actually scrolling
+  const scrollY = Math.max(bodyScroll, htmlScroll, windowScroll, mainScroll);
+  isNavScrolled.value = scrollY > 150;
 };
-
 onMounted(() => {
   updateNavState();
+  
+  // Listen to both window and main-content scroll
+  const mainContent = document.querySelector('.main-content');
+  
   window.addEventListener('scroll', updateNavState, { passive: true });
+  if (mainContent) {
+    mainContent.addEventListener('scroll', updateNavState, { passive: true });
+  }
+  
   window.addEventListener('resize', updateNavState);
 });
 
 onUnmounted(() => {
+  const mainContent = document.querySelector('.main-content');
+  
   window.removeEventListener('scroll', updateNavState);
+  if (mainContent) {
+    mainContent.removeEventListener('scroll', updateNavState);
+  }
   window.removeEventListener('resize', updateNavState);
 });
 </script>
@@ -276,10 +293,19 @@ onUnmounted(() => {
 }
 
 .glass-nav.scrolled {
-  background: rgba(4, 30, 10, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(
+    to bottom,
+    rgba(5, 40, 20, 0.95) 0%,
+    rgba(5, 40, 20, 0.85) 15%,
+    rgba(5, 40, 20, 0.6) 35%,
+    rgba(5, 40, 20, 0.3) 55%,
+    rgba(5, 40, 20, 0.1) 75%,
+    rgba(5, 40, 20, 0.02) 92%,
+    rgba(5, 40, 20, 0) 100%
+  );
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  box-shadow: none;
 }
 
 @supports not (backdrop-filter: blur(16px)) {
@@ -317,5 +343,80 @@ onUnmounted(() => {
   color: #000;
   transition: all 0.3s ease;
 }
-</style>
 
+
+
+
+/* Hero text responsive styling */
+.hero-text-wrapper {
+  margin-left: 7.5rem;
+}
+
+.hero-title {
+  transform: translateY(30%);
+  line-height: 86.402%;
+  font-family: 'Kulim Park', sans-serif;
+  font-weight: 600;
+  letter-spacing: -1.3px;
+  font-size: 40px;
+  text-shadow: 0 4px 4px #000;
+  color: #FFF;
+  transition: all 1s ease-in-out;
+}
+
+/* Mobile optimization for hero text */
+@media (max-width: 768px) {
+  .hero-text-wrapper {
+    margin-left: 1.5rem;
+  }
+  
+  .hero-title {
+    font-size: 27px;
+    letter-spacing: -0.5px;
+    line-height: 0.9;
+    transform: translateY(60%);
+    transition: all 1s ease-in-out;
+  }
+
+  .final-seal {
+    transform: translateY(110%);
+    width: 40px;
+    height: 40px;
+    transition: all 1s ease-in-out;
+  }
+
+  .one-isu {
+    font-size: 15px;
+    transition: all 1s ease-in-out;
+  }
+}
+
+@media (max-width: 1020px) {
+  .hero-text-wrapper {
+    margin-left: 1.5rem;
+  }
+  
+  .hero-title {
+    font-size: 30px;
+    letter-spacing: -0.5px;
+    line-height: 0.9;
+    transform: translateY(60%);
+    transition: all 1s ease-in-out;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-text-wrapper {
+    margin-left: 1rem;
+  }
+  
+  .hero-title {
+    font-size: 27px;
+    letter-spacing: -0.3px;
+    transform: translateY(80%);
+    transition: all 1s ease-in-out;
+  }
+
+  
+}
+</style>
