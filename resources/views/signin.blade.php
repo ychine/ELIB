@@ -174,7 +174,7 @@
     <div class="relative flex flex-col h-full lg:rounded-r-4xl bg-gray-100 z-1">
       <div class="relative z-10 flex items-center justify-between px-4 sm:px-6 lg:px-12 pt-2 sm:pt-4">
         <div class="flex-shrink-0"></div>
-        <img src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" alt="ISU Logo" class="w-16 h-16 translate-y-2.5 sm:w-40 sm:h-40 rounded-full shadow" />
+        <img src="{{ Vite::asset('resources/images/FINAL_SEAL.png') }}" alt="ISU Logo" class="w-16 h-16 lg:w-16 lg:h-16 translate-y-2.5 sm:w-40 sm:h-40 rounded-full shadow" />
       </div>
 
       <div class="relative z-10 flex-1 flex items-start justify-center px-4 sm:px-6 lg:px-16 pt-0 sm:pt-2">

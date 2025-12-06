@@ -1,5 +1,5 @@
 <template>
-    <Head title="Home" />
+  <Head title="Home" />
   <AppLayout title="" content-padding-classes="px-4 lg:px-[5%]">
  
     <div class="flex flex-col lg:pl-28 lg:pr-20 lg:flex-row gap-10 lg:pt-0 pt-0 sm:pt-0 content-wrapper">

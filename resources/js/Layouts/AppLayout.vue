@@ -20,9 +20,10 @@
         :class="{ scrolled: isNavScrolled }">
         <span class="text-5xl jersey-20-regular pl-3 text-white"></span>
         <div class="relative flex items-center">
+     
           <input
             v-model="globalSearchQuery"
-            class="searchbar pl-7 pr-10 sm:w-[545px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]"
+            class="searchbar pl-7 pr-10 sm:w-[845px] h-11 rounded-[34px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]"
             type="text"
             placeholder="Search for books, papers.."
             @input="handleGlobalSearch"
@@ -106,8 +107,8 @@
             </h1>
           </div>
         </div>
-        <div class="homediv lg:mx-[10%] mt-5 rounded-md bg-white">
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight mb-4">
+        <div class="homediv mx-4 sm:mx-[10%] lg:mx-[10%] mt-5 rounded-md bg-white">
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold kulim-park-bold tracking-tight  mb-4">
             {{ title }}
           </h2>
         </div>
@@ -151,6 +152,9 @@ const props = defineProps({
 
 const page = usePage();
 const sidebar = computed(() => page.props.sidebar ?? null);
+
+const logos = computed(() => sidebar.value?.logos ?? { border: null});
+
 const auth = computed(() => page.props.auth ?? {});
 const images = computed(() => page.props.images ?? {});
 const sidebarUser = computed(() => {

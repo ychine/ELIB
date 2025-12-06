@@ -1,5 +1,5 @@
 <template>
-  <Head title="Community Uploads" />
+  <Head title="Community Uploads"/>
   <AppLayout title="Community Uploads" content-padding-classes="px-[10%] lg:px-[10%]">
     <div class="rounded-2xl bg-white border border-gray-200 shadow-lg p-6">
       <div class="flex justify-end items-center mb-4">
